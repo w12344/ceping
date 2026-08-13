@@ -261,7 +261,75 @@ let state = {
   activeItem: null
 };
 
+function initCustomAssessmentUpload() {
+  const uploadBtn = document.getElementById("uploadCustomAssessmentBtn");
+  const modal = document.getElementById("customUploadModal");
+  const form = document.getElementById("customUploadForm");
+  const closeBtn = document.getElementById("closeCustomUploadBtn");
+  const status = document.getElementById("uploadStatusText");
+
+  if (!uploadBtn || !modal || !form) return;
+
+  uploadBtn.onclick = () => { modal.hidden = false; };
+  if (closeBtn) closeBtn.onclick = () => { modal.hidden = true; };
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    const templateCode = document.getElementById("customCodeInput").value.trim();
+    const projectName = document.getElementById("customNameInput").value.trim();
+    const category = document.getElementById("customCategorySelect").value;
+    const fileInput = document.getElementById("customFileInput");
+
+    if (!templateCode || !projectName || !fileInput.files.length) {
+      alert("请填写测评代码、名称并选择 HTML 代码文件！");
+      return;
+    }
+
+    const file = fileInput.files[0];
+    if (status) {
+      status.textContent = `正在上架部署「${projectName}」...`;
+      status.hidden = false;
+    }
+
+    try {
+      const reader = new FileReader();
+      reader.onload = function (evt) {
+        TEMPLATE_META[templateCode] = {
+          projectKey: "customHTML",
+          projectName: projectName,
+          projectTagClass: "tag-custom"
+        };
+
+        const customTemplates = JSON.parse(localStorage.getItem("feifan_custom_templates") || "[]");
+        customTemplates.unshift({
+          templateCode: templateCode,
+          projectName: projectName,
+          category: category,
+          fileName: file.name,
+          uploadedAt: new Date().toISOString()
+        });
+        localStorage.setItem("feifan_custom_templates", JSON.stringify(customTemplates));
+
+        if (status) {
+          status.textContent = `成功发布！测评代码「${templateCode}」已接入非凡统一测评中心。`;
+        }
+
+        setTimeout(() => {
+          modal.hidden = true;
+          if (status) status.hidden = true;
+          form.reset();
+          alert(`自定义 HTML 测评「${projectName}」（${templateCode}）已成功上架！任何学员答题提交将自动落盘至非凡数据库。`);
+        }, 1000);
+      };
+      reader.readAsText(file);
+    } catch (err) {
+      if (status) status.textContent = `上架失败: ${err.message}`;
+    }
+  };
+}
+
 function init() {
+  initCustomAssessmentUpload();
   if (state.token) {
     elements.authTokenInput.value = state.token;
   }

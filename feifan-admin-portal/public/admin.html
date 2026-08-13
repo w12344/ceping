@@ -22,6 +22,7 @@
         </div>
       </div>
       <div class="admin-user-bar">
+        <button id="uploadCustomAssessmentBtn" class="token-btn" style="background:#EEF2FF;color:#3730A3;border:1px solid #C7D2FE;font-weight:800;cursor:pointer">📤 上传自定义 HTML 测评</button>
         <a href="portal.html" target="_blank" class="token-btn" style="background:#FFFDF5;color:#D97706;border:1px solid #FDE68A;text-decoration:none;font-weight:800;display:inline-flex;align-items:center;gap:4px">📱 测评分发中心与二维码</a>
         <span id="authStatusBadge" class="status-pill offline">未授权</span>
         <button id="switchTokenBtn" class="token-btn">设置密钥 Token</button>
@@ -151,6 +152,44 @@
       </div>
       <div class="modal-body" id="modalReportContainer">
         <!-- 动态注入报告内容 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 自定义 HTML 测评上传模态框 -->
+  <div id="customUploadModal" class="admin-modal" hidden>
+    <div class="modal-content" style="max-width:560px;border-radius:16px;padding:24px">
+      <div class="modal-header" style="padding-bottom:12px;border-bottom:1px solid #F3F4F6">
+        <h2 style="font-size:18px;font-weight:900;color:#1E2066">📤 自定义 HTML 测评快速上架</h2>
+        <button id="closeCustomUploadBtn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body" style="padding-top:16px">
+        <form id="customUploadForm" style="display:flex;flex-direction:column;gap:16px">
+          <div>
+            <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:4px">测评代码 (Template Code)</label>
+            <input type="text" id="customCodeInput" placeholder="例如: 物理诊断" required style="width:100%;padding:10px 14px;border:1px solid #D1D5DB;border-radius:8px;font-size:14px">
+          </div>
+          <div>
+            <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:4px">测评名称 (Project Title)</label>
+            <input type="text" id="customNameInput" placeholder="例如: 2026 高考物理提分障碍诊断" required style="width:100%;padding:10px 14px;border:1px solid #D1D5DB;border-radius:8px;font-size:14px">
+          </div>
+          <div>
+            <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:4px">业务场景分类</label>
+            <select id="customCategorySelect" style="width:100%;padding:10px 14px;border:1px solid #D1D5DB;border-radius:8px;font-size:14px;background:#fff">
+              <option value="PRE_SALE">🛒 成交前测评 (痛点唤醒 / 引流留存 / 顾问话术抓手)</option>
+              <option value="POST_SALE">🎓 成交后测评 (深度学情 / 进门诊断 / 学练机推荐)</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:4px">选择 HTML 测评文件 (.html)</label>
+            <input type="file" id="customFileInput" accept=".html,.htm" required style="width:100%;padding:8px;border:1px dashed #9CA3AF;border-radius:8px;background:#F9FAFB">
+            <p style="font-size:11px;color:#6B7280;margin-top:6px;line-height:1.5">提示: 上传的 HTML 页面内部只需嵌入 <code>&lt;script src="assets/ceping-bridge.js"&gt;&lt;/script&gt;</code>，答题提交调用 <code>FeifanAssessment.submit({...})</code> 即可自动写入统一数据库。</p>
+          </div>
+          <div id="uploadStatusText" style="font-size:12px;color:#4F46E5;font-weight:600" hidden></div>
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+            <button type="submit" class="btn primary-gold-btn" style="padding:10px 20px;font-weight:800">确认发布上线测评</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
