@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "deploy": "python3 deploy-all-to-oss.py"
+    "deploy": "python3 deploy-all-to-oss.py",
+    "deploy:oss": "python3 deploy-all-to-oss.py",
+    "build:deploy": "npm run build && python3 deploy-all-to-oss.py"
   },
   "dependencies": {
     "ali-oss": "^6.23.0",
