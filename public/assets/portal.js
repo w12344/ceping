@@ -411,26 +411,51 @@ function cleanUrlCodeAndState() {
 }
 
 function updateAuthUI() {
-  if (state.user) {
-    if (elements.adminHeader) elements.adminHeader.hidden = false;
+  const urlParams = new URLSearchParams(window.location.search);
+  const hashParams = window.location.hash.includes("?")
+    ? new URLSearchParams(window.location.hash.split("?")[1] || "")
+    : null;
+
+  const getParam = (key) => urlParams.get(key) || hashParams?.get(key);
+  const hideHeaderVal = getParam("hideHeader");
+  const headerVal = getParam("header");
+  const hideTabsVal = getParam("hideTabs");
+  const tabsVal = getParam("tabs");
+  const embedVal = getParam("embed");
+  const simpleVal = getParam("simple");
+  const pureVal = getParam("pure");
+
+  const shouldHideHeader = hideHeaderVal === "1" || hideHeaderVal === "true" || headerVal === "0" || headerVal === "false" || embedVal === "1" || simpleVal === "1" || pureVal === "1";
+  const shouldHideTabs = hideTabsVal === "1" || hideTabsVal === "true" || tabsVal === "0" || tabsVal === "false" || embedVal === "1" || simpleVal === "1" || pureVal === "1";
+
+  if (shouldHideHeader && elements.adminHeader) {
+    elements.adminHeader.style.setProperty("display", "none", "important");
+  }
+
+  if (shouldHideTabs) {
+    const toolbarCard = document.querySelector(".toolbar-card");
+    if (toolbarCard) {
+      toolbarCard.style.setProperty("display", "none", "important");
+    }
+  }
+
+  if (state.user || shouldHideHeader || shouldHideTabs) {
+    if (!shouldHideHeader && elements.adminHeader) elements.adminHeader.hidden = false;
     if (elements.feishuLandingGate) elements.feishuLandingGate.hidden = true;
     if (elements.portalMainContent) elements.portalMainContent.hidden = false;
     if (elements.authBox) elements.authBox.hidden = false;
     
     if (elements.userAvatarImg) {
-      elements.userAvatarImg.src = state.user.avatar || SVG_DEFAULT_AVATAR;
-      elements.userAvatarImg.onerror = () => {
-        elements.userAvatarImg.src = SVG_DEFAULT_AVATAR;
-      };
+      elements.userAvatarImg.src = (state.user && state.user.avatar) || SVG_DEFAULT_AVATAR;
     }
     
     if (elements.userNameBadge) {
-      elements.userNameBadge.textContent = state.user.name || "飞书已认证用户";
+      elements.userNameBadge.textContent = (state.user && state.user.name) || "飞书已认证用户";
     }
 
     if (elements.userMobileBadge) {
-      const mobileStr = state.user.mobile ? `${state.user.mobile} · ` : "";
-      elements.userMobileBadge.textContent = `${mobileStr}${state.user.dept || '非凡教育'}`;
+      const mobileStr = state.user && state.user.mobile ? `${state.user.mobile} · ` : "";
+      elements.userMobileBadge.textContent = `${mobileStr}${(state.user && state.user.dept) || '非凡教育'}`;
     }
 
     renderPortal();
