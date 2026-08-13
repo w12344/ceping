@@ -1,208 +1,181 @@
 import React, { useState } from "react";
-import { QrCode, Copy, ExternalLink, Check, Sparkles, Smartphone, UserCheck, ArrowLeft } from "lucide-react";
-import QRCode from "qrcode";
+import { QRCodeSVG } from "qrcode.react";
+import { Copy, ExternalLink, QrCode, Sparkles, Check } from "lucide-react";
+import { getCustomTemplates } from "../services/api";
 
 interface AssessmentPortalProps {
-  onBackToAdmin: () => void;
+  token: string;
+  onUpdateToken: (token: string) => void;
 }
 
-const ASSESSMENT_LIST = [
-  {
-    id: "learningStyle",
-    title: "学习风格测评 (VAK 感官通道)",
-    path: "/report.html",
-    tag: "成交前 / 成交后通用",
-    tagClass: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
-    desc: "诊断学生视觉记忆、听觉理解与动觉体感主导模式，精准匹配辅导策略。"
-  },
-  {
-    id: "motivation",
-    title: "学习动机测评 (7维度自主力)",
-    path: "/xxdj/index.html",
-    tag: "成交后深度学情",
-    tagClass: "bg-amber-500/10 text-amber-700 border-amber-500/20",
-    desc: "从目标意义感、自我效能感与心理压力等 7 大机制深入诊断自主积极型。"
-  },
-  {
-    id: "fthBoss",
-    title: "FTH 创业者特质测评 (创始人版)",
-    path: "/fthboss/index.html",
-    tag: "成交前痛点唤醒",
-    tagClass: "bg-indigo-500/10 text-indigo-700 border-indigo-500/20",
-    desc: "评估创业者在开拓力、执行力、分析力及抗压力方面的综合商业特质。"
-  },
-  {
-    id: "fthTalent",
-    title: "FTH 微信版特质测评 (合伙人版)",
-    path: "/fthtalent/index.html",
-    tag: "成交前裂变引流",
-    tagClass: "bg-blue-500/10 text-blue-700 border-blue-500/20",
-    desc: "包含 Fighter、Runner、Climber、Thinker、Analyzer、Builder 6大角色模式。"
-  },
-  {
-    id: "fth1605",
-    title: "FTH 1605版 AI 研发特质",
-    path: "/fth1605/index.html",
-    tag: "高阶人才诊断",
-    tagClass: "bg-purple-500/10 text-purple-700 border-purple-500/20",
-    desc: "针对高阶 AI / 研发人才进行潜质分析并生成 PPT 风格产物诊断。"
-  }
-];
-
-export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({ onBackToAdmin }) => {
-  const [advisorToken, setAdvisorToken] = useState<string>("AQT6pTj1");
+export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
+  token,
+  onUpdateToken
+}) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [qrModalUrl, setQrModalUrl] = useState<string | null>(null);
-  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [advisorTokenInput, setAdvisorTokenInput] = useState<string>(token);
+  const customTemplates = getCustomTemplates();
 
-  const getFullUrl = (path: string) => {
-    const origin = window.location.origin;
-    const tokenStr = advisorToken.trim() ? `?token=${encodeURIComponent(advisorToken.trim())}` : "";
-    return `${origin}${path}${tokenStr}`;
-  };
-
-  const handleCopy = (id: string, path: string) => {
-    const url = getFullUrl(path);
-    navigator.clipboard.writeText(url);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  const handleShowQr = async (path: string) => {
-    const url = getFullUrl(path);
-    setQrModalUrl(url);
-    try {
-      const dataUrl = await QRCode.toDataURL(url, { width: 280, margin: 2 });
-      setQrDataUrl(dataUrl);
-    } catch {
-      setQrDataUrl(null);
+  const builtInAssessments = [
+    {
+      id: "learningStyle",
+      title: "学习风格诊断测评",
+      category: "POST_SALE",
+      categoryName: "🎓 成交后 · 进门学情诊断",
+      desc: "四大学习通道与目标学科深度匹配",
+      url: "https://ceping.1605ai.com/index.html"
+    },
+    {
+      id: "motivation",
+      title: "学习动机诊断测评",
+      category: "POST_SALE",
+      categoryName: "🎓 成交后 · 状态与动机归因",
+      desc: "七大维度与自主积极型行为诊断",
+      url: "https://ceping.1605ai.com/motivation/index.html"
+    },
+    {
+      id: "fthBoss",
+      title: "FTH 创业者特质测评",
+      category: "PRE_SALE",
+      categoryName: "🛒 成交前 · 痛点唤醒与引流",
+      desc: "创业者 / 领导者潜能剖析与团队匹配",
+      url: "https://ceping.1605ai.com/fthboss/index.html"
+    },
+    {
+      id: "fthTalent",
+      title: "FTH 职业特质 (微信版)",
+      category: "PRE_SALE",
+      categoryName: "🛒 成交前 · 痛点唤醒与引流",
+      desc: "轻量卡片化人际与思维模式测评",
+      url: "https://ceping.1605ai.com/fthtalent/index.html"
+    },
+    {
+      id: "fth1605",
+      title: "FTH 1605 深度专向版",
+      category: "POST_SALE",
+      categoryName: "🎓 成交后 · 教学方案匹配",
+      desc: "1605 强效能力与性格特征建模",
+      url: "https://ceping.1605ai.com/fth1605/index.html"
     }
+  ];
+
+  const allCards = [
+    ...builtInAssessments,
+    ...customTemplates.map((t) => ({
+      id: `custom_${t.templateCode}`,
+      title: t.projectName,
+      category: t.category,
+      categoryName: t.category === "PRE_SALE" ? "🛒 成交前测评" : "🎓 成交后测评",
+      desc: `自定义 HTML 测评 (代码: ${t.templateCode})`,
+      url: `https://ceping.1605ai.com/custom/${encodeURIComponent(t.templateCode)}/index.html`
+    }))
+  ];
+
+  const copyToClipboard = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 1500);
+  };
+
+  const getShareUrl = (baseUrl: string) => {
+    return advisorTokenInput ? `${baseUrl}?token=${encodeURIComponent(advisorTokenInput)}` : baseUrl;
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* 顶栏顾问 Token 绑定 Banner (Apple Glass Frost Banner) */}
-      <div className="relative rounded-3xl p-8 apple-glass-card overflow-hidden">
-        <div className="relative z-10 space-y-4 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-800 text-xs font-bold border border-amber-500/20 shadow-sm">
-            <UserCheck className="w-3.5 h-3.5" />
-            <span>顾问识别码 (Advisor Token) 智能引擎</span>
-          </div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">非凡科学测评 · 智能分发中心</h2>
-          <p className="text-xs text-slate-600 leading-relaxed font-medium">
-            输入您的专属顾问 Token，生成的发牌链接与二维码将自动携带识别码。学员答题提交后数据将自动写入数据库并实时落盘归属。
-          </p>
-
-          <div className="flex items-center gap-3 pt-2">
-            <div className="relative">
-              <input
-                type="text"
-                value={advisorToken}
-                onChange={(e) => setAdvisorToken(e.target.value)}
-                placeholder="输入顾问 Token"
-                className="apple-glass-input px-4 py-2.5 rounded-full text-xs font-mono font-bold text-slate-900 focus:outline-none w-64 shadow-sm"
-              />
+      {/* 顾问 Token 绑定卡片 */}
+      <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl p-6 text-amber-950 shadow-lg relative overflow-hidden">
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-amber-900 bg-amber-300/60 px-3 py-1 rounded-full w-fit mb-2">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>顾问个人专属 Token 绑定</span>
             </div>
-            <button
-              onClick={onBackToAdmin}
-              className="apple-glass-pill px-4 py-2.5 text-xs font-semibold text-slate-700 hover:text-slate-900 rounded-full transition-all active:scale-95 flex items-center gap-1.5"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>返回管理大屏</span>
-            </button>
+            <h2 className="text-xl font-black text-amber-950">
+              科学测评综合分发中心
+            </h2>
+            <p className="text-xs text-amber-900/80 mt-1">
+              绑定顾问 Token 后，生成的测评链接与二维码将自动归集客户线索至您的【销销乐】顾问名下。
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 bg-white/90 p-1.5 rounded-xl shadow-inner border border-amber-300/50 w-full md:w-auto">
+            <input
+              type="text"
+              value={advisorTokenInput}
+              onChange={(e) => {
+                setAdvisorTokenInput(e.target.value);
+                onUpdateToken(e.target.value);
+              }}
+              placeholder="输入顾问 Token (如: AQT6pTj1)..."
+              className="bg-transparent px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none w-full md:w-52"
+            />
           </div>
         </div>
       </div>
 
-      {/* 5 大测评卡片 Grid */}
+      {/* 测评卡片网格 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {ASSESSMENT_LIST.map((item) => (
-          <div
-            key={item.id}
-            className="apple-glass-card rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 group hover:-translate-y-1"
-          >
-            <div className="space-y-3">
-              <div className="flex items-start justify-between">
-                <span className={`px-3 py-1 text-[11px] font-bold rounded-full border shadow-sm ${item.tagClass}`}>
-                  {item.tag}
-                </span>
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm animate-pulse" />
-              </div>
-              <h3 className="text-lg font-extrabold text-slate-900 group-hover:text-amber-600 transition-colors leading-snug">
-                {item.title}
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                {item.desc}
-              </p>
-            </div>
-
-            <div className="pt-6 space-y-3 border-t border-slate-100/80 mt-6">
-              <div className="p-2.5 bg-slate-50/70 rounded-2xl border border-slate-200/50 font-mono text-[11px] text-slate-500 truncate">
-                {getFullUrl(item.path)}
-              </div>
-
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  onClick={() => handleCopy(item.id, item.path)}
-                  className="apple-glass-pill py-2 px-3 text-xs font-bold text-slate-700 hover:text-slate-900 rounded-full transition-all active:scale-95 flex items-center justify-center gap-1"
-                >
-                  {copiedId === item.id ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5 text-slate-400" />
-                  )}
-                  <span>{copiedId === item.id ? "已复制" : "复制"}</span>
-                </button>
-
-                <button
-                  onClick={() => handleShowQr(item.path)}
-                  className="apple-glass-pill py-2 px-3 text-xs font-bold text-slate-700 hover:text-slate-900 rounded-full transition-all active:scale-95 flex items-center justify-center gap-1"
-                >
-                  <QrCode className="w-3.5 h-3.5 text-amber-500" />
-                  <span>码图</span>
-                </button>
-
-                <a
-                  href={getFullUrl(item.path)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-3 py-2 text-xs font-extrabold text-slate-950 bg-gradient-to-r from-[#FFE100] to-[#F5C518] rounded-full shadow-sm hover:shadow-md transition-all active:scale-95 flex items-center justify-center gap-1"
-                >
-                  <span>打开</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Apple Glass 二维码 Modal */}
-      {qrModalUrl && (
-        <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="apple-glass-card bg-white/90 rounded-3xl p-8 max-w-sm w-full space-y-6 text-center shadow-2xl relative border border-white/80">
-            <h3 className="text-lg font-black text-slate-900">扫码立即体验测评</h3>
-            <p className="text-xs text-slate-500 font-medium">支持微信、学练机或浏览器直接扫描开考</p>
-
-            {qrDataUrl ? (
-              <div className="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-md inline-block">
-                <img src={qrDataUrl} alt="测评发牌二维码" className="w-56 h-56 mx-auto rounded-lg" />
-              </div>
-            ) : (
-              <div className="w-56 h-56 mx-auto bg-slate-100 rounded-2xl flex items-center justify-center text-xs text-slate-400">
-                生成二维码中...
-              </div>
-            )}
-
-            <button
-              onClick={() => setQrModalUrl(null)}
-              className="w-full py-3 bg-gradient-to-r from-[#FFE100] to-[#F5C518] text-slate-950 font-black text-xs rounded-full shadow-md hover:scale-[1.02] active:scale-95 transition-all"
+        {allCards.map((card) => {
+          const shareUrl = getShareUrl(card.url);
+          return (
+            <div
+              key={card.id}
+              className="bg-white rounded-2xl p-6 border border-amber-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-all space-y-4"
             >
-              关闭弹窗
-            </button>
-          </div>
-        </div>
-      )}
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                    {card.categoryName}
+                  </span>
+                </div>
+                <h3 className="text-base font-extrabold text-[#1E2066]">
+                  {card.title}
+                </h3>
+                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                  {card.desc}
+                </p>
+              </div>
+
+              {/* 二维码展示区 */}
+              <div className="bg-[#FFFDF6] p-4 rounded-xl border border-amber-100 flex items-center justify-center">
+                <QRCodeSVG value={shareUrl} size={140} level="M" />
+              </div>
+
+              {/* 操作按钮区 */}
+              <div className="space-y-2 pt-2 border-t border-gray-100">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => copyToClipboard(shareUrl, card.id)}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold text-amber-950 bg-[#FFE100] hover:bg-amber-300 rounded-xl shadow-sm transition-all"
+                  >
+                    {copiedId === card.id ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-800" />
+                        <span>已复制带参链接</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>复制发牌链接</span>
+                      </>
+                    )}
+                  </button>
+                  <a
+                    href={shareUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-2 text-gray-500 hover:text-amber-700 bg-gray-50 hover:bg-amber-50 rounded-xl border border-gray-200 transition-all"
+                    title="在浏览器直接打开"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

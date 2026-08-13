@@ -62,13 +62,7 @@ export async function fetchAssessmentList(token: string): Promise<AssessmentReco
         throw new Error(resData.message || "请求失败，请检查 Token 密钥");
       }
 
-      const list =
-        resData.data?.data ||
-        resData.data?.records ||
-        resData.data?.list ||
-        (Array.isArray(resData.data) ? resData.data : []) ||
-        [];
-
+      const list = resData.data?.records || resData.data?.list || resData.data || [];
       if (Array.isArray(list) && list.length > 0) {
         allRecords = allRecords.concat(list);
         if (list.length < pageSize) break;

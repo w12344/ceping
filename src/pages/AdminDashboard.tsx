@@ -1,45 +1,50 @@
 import React, { useState, useMemo } from "react";
-import { Search, Download, RefreshCw, FileText, CheckCircle, BarChart3, Layers, ChevronRight } from "lucide-react";
+import { Search, Download, RefreshCw, Eye, ExternalLink, FileText, Layers } from "lucide-react";
 import { AssessmentRecord } from "../services/types";
 import { ReportModal } from "../components/ReportModal";
 
 interface AdminDashboardProps {
   records: AssessmentRecord[];
-  loading: boolean;
+  isLoading: boolean;
   onRefresh: () => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   records,
-  loading,
+  isLoading,
   onRefresh
 }) => {
-  const [activeTab, setActiveTab] = useState<string>("ALL");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedRecord, setSelectedRecord] = useState<AssessmentRecord | null>(null);
 
-  // 核心统计指标计算
+  // Tab 统计与过滤
   const stats = useMemo(() => {
     const total = records.length;
-    const xxfg = records.filter((r) => r.projectKey === "learningStyle").length;
-    const xxdj = records.filter((r) => r.projectKey === "motivation").length;
-    const fth = records.filter((r) => ["fthBoss", "fthTalent", "fth1605"].includes(r.projectKey || "")).length;
-    const custom = records.filter((r) => r.projectKey === "customHTML").length;
-    return { total, xxfg, xxdj, fth, custom };
+    const learningStyle = records.filter((r) => r.projectKey === "learningStyle").length;
+    const motivation = records.filter((r) => r.projectKey === "motivation").length;
+    const fthBoss = records.filter((r) => r.projectKey === "fthBoss").length;
+    const fthTalent = records.filter((r) => r.projectKey === "fthTalent").length;
+    const fth1605 = records.filter((r) => r.projectKey === "fth1605").length;
+    const customHTML = records.filter((r) => r.projectKey === "customHTML").length;
+
+    return { total, learningStyle, motivation, fthBoss, fthTalent, fth1605, customHTML };
   }, [records]);
 
-  // 过滤记录列表
+  // 过滤结果
   const filteredRecords = useMemo(() => {
-    return records.filter((r) => {
-      if (activeTab !== "ALL" && r.projectKey !== activeTab) {
+    return records.filter((record) => {
+      // 1. Tab 过滤
+      if (activeTab !== "all" && record.projectKey !== activeTab) {
         return false;
       }
+      // 2. 搜索框过滤
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const matchName = (r.studentName || "").toLowerCase().includes(q);
-        const matchMobile = (r.phoneNumber || "").toLowerCase().includes(q);
-        const matchProject = (r.projectName || "").toLowerCase().includes(q);
-        return matchName || matchMobile || matchProject;
+        const name = (record.studentName || "").toLowerCase();
+        const mobile = (record.phoneNumber || "").toLowerCase();
+        const template = (record.projectName || record.templateCode || "").toLowerCase();
+        return name.includes(q) || mobile.includes(q) || template.includes(q);
       }
       return true;
     });
@@ -47,205 +52,200 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   // 导出 CSV
   const handleExportCsv = () => {
-    if (!filteredRecords.length) {
-      alert("当前没有可导出的数据！");
+    if (filteredRecords.length === 0) {
+      alert("没有可导出的测评记录！");
       return;
     }
 
-    const headers = ["ID", "测评模板", "学员姓名", "手机号", "提交时间", "答题用时(秒)"];
+    const headers = ["ID", "学员姓名", "手机号", "测评类型", "提交时间", "诊断结论"];
     const rows = filteredRecords.map((r) => [
       r.id,
-      r.projectName || r.templateCode,
       r.studentName,
       r.phoneNumber,
+      r.projectName || r.templateCode,
       new Date(r.submittedAt || "").toLocaleString(),
-      r.durationSeconds || 60
+      r.resultData?.profileName || r.resultData?.styleType || "普通提交"
     ]);
 
-    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = "\uFEFF" + [headers, ...rows].map((e) => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `非凡测评数据导出_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
+    link.href = URL.createObjectURL(blob);
+    link.download = `非凡测评导出数据_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
-    document.body.removeChild(link);
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 space-y-6">
-      {/* 4 大核心 Metrics Cards (飞书 + 苹果 简洁面板) */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      {/* 4 大核心指标卡片区 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="feishu-card p-5 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-[#646A73] font-medium">全量测评总报告</p>
-            <h3 className="text-2xl font-bold text-[#1F2329] mt-1 tracking-tight">{stats.total}</h3>
-            <p className="text-[11px] text-[#8F959E] mt-1">数据实时无缝落盘</p>
+        <div className="bg-white rounded-2xl p-5 border border-amber-200 shadow-sm relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-amber-800">全量测评总报告数</span>
+            <span className="p-2 rounded-lg bg-amber-50 text-amber-600"><FileText className="w-4 h-4" /></span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[#3370FF]/10 text-[#3370FF] flex items-center justify-center">
-            <BarChart3 className="w-5 h-5" />
-          </div>
+          <div className="text-3xl font-black text-[#1E2066] mt-2">{stats.total}</div>
+          <div className="text-[11px] text-gray-500 mt-1">包含全量测评与产物记录</div>
         </div>
 
-        <div className="feishu-card p-5 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-[#646A73] font-medium">学习风格测评</p>
-            <h3 className="text-2xl font-bold text-[#1F2329] mt-1 tracking-tight">{stats.xxfg}</h3>
-            <p className="text-[11px] text-[#8F959E] mt-1">VAK 感官通道分析</p>
+        <div className="bg-white rounded-2xl p-5 border border-emerald-200 shadow-sm relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-emerald-800">学习风格测评</span>
+            <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-100 text-emerald-800">xxfg</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-600 flex items-center justify-center">
-            <FileText className="w-5 h-5" />
-          </div>
+          <div className="text-3xl font-black text-emerald-950 mt-2">{stats.learningStyle}</div>
+          <div className="text-[11px] text-emerald-700 mt-1">目标学科与学习通道诊断</div>
         </div>
 
-        <div className="feishu-card p-5 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-[#646A73] font-medium">学习动机测评</p>
-            <h3 className="text-2xl font-bold text-[#1F2329] mt-1 tracking-tight">{stats.xxdj}</h3>
-            <p className="text-[11px] text-[#8F959E] mt-1">7 大维度自主积极力</p>
+        <div className="bg-white rounded-2xl p-5 border border-amber-200 shadow-sm relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-amber-800">学习动机测评</span>
+            <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-800">xxdj</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center">
-            <CheckCircle className="w-5 h-5" />
-          </div>
+          <div className="text-3xl font-black text-amber-950 mt-2">{stats.motivation}</div>
+          <div className="text-[11px] text-amber-700 mt-1">七大维度与自主积极型分析</div>
         </div>
 
-        <div className="feishu-card p-5 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-[#646A73] font-medium">FTH 特质与自定义</p>
-            <h3 className="text-2xl font-bold text-[#1F2329] mt-1 tracking-tight">{stats.fth + stats.custom}</h3>
-            <p className="text-[11px] text-[#8F959E] mt-1">创业者/微信/1605/自定义</p>
+        <div className="bg-white rounded-2xl p-5 border border-indigo-200 shadow-sm relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-indigo-800">FTH 职业特质系列</span>
+            <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-indigo-100 text-indigo-800">fth</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center">
-            <Layers className="w-5 h-5" />
+          <div className="text-3xl font-black text-indigo-950 mt-2">
+            {stats.fthBoss + stats.fthTalent + stats.fth1605}
           </div>
+          <div className="text-[11px] text-indigo-700 mt-1">创业者 + 微信版 + 1605版</div>
         </div>
       </div>
 
-      {/* 控制栏 (飞书风格 Segmented Tab Control & 工具栏) */}
-      <div className="feishu-card p-5 space-y-4">
-        {/* Feishu Segment Tabs */}
-        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-[#F2F3F5] rounded-xl">
+      {/* Tab 切换与工具栏 */}
+      <div className="bg-white rounded-2xl p-5 border border-amber-100 shadow-sm space-y-4">
+        <div className="flex flex-wrap items-center gap-2 border-b border-gray-100 pb-3">
           {[
-            { id: "ALL", label: "全量测评", count: stats.total },
-            { id: "learningStyle", label: "学习风格", count: stats.xxfg },
-            { id: "motivation", label: "学习动机", count: stats.xxdj },
-            { id: "fthBoss", label: "FTH 创业者", count: records.filter((r) => r.projectKey === "fthBoss").length },
-            { id: "fthTalent", label: "FTH 微信版", count: records.filter((r) => r.projectKey === "fthTalent").length },
-            { id: "fth1605", label: "FTH 1605版", count: records.filter((r) => r.projectKey === "fth1605").length },
-            { id: "customHTML", label: "自定义 HTML", count: stats.custom }
+            { id: "all", label: `全部测评 (${stats.total})` },
+            { id: "learningStyle", label: `学习风格 (${stats.learningStyle})` },
+            { id: "motivation", label: `学习动机 (${stats.motivation})` },
+            { id: "fthBoss", label: `FTH 创业者 (${stats.fthBoss})` },
+            { id: "fthTalent", label: `FTH 微信版 (${stats.fthTalent})` },
+            { id: "fth1605", label: `FTH 1605版 (${stats.fth1605})` },
+            { id: "customHTML", label: `自定义 HTML 测评 (${stats.customHTML})` }
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-3.5 py-1.5 text-xs transition-all ${
+              className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${
                 activeTab === tab.id
-                  ? "bg-white text-[#3370FF] font-semibold rounded-lg shadow-sm"
-                  : "text-[#646A73] hover:text-[#1F2329] font-medium"
+                  ? "bg-[#FFE100] text-amber-950 shadow-sm"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
               }`}
             >
-              {tab.label} <span className="opacity-75">({tab.count})</span>
+              {tab.label}
             </button>
           ))}
         </div>
 
-        {/* 搜索框与工具 */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="relative w-full sm:w-80">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#8F959E]" />
+            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="搜索学员姓名、手机号、测评项目..."
-              className="feishu-input w-full pl-9 pr-3 py-1.5 text-xs"
+              placeholder="搜索学员姓名、手机号、诊断结论..."
+              className="w-full pl-9 pr-4 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
             />
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <button
               onClick={handleExportCsv}
-              className="feishu-button-secondary px-3.5 py-1.5 text-xs font-semibold flex items-center gap-1.5"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-extrabold text-amber-950 bg-[#FFE100] hover:bg-amber-300 rounded-xl shadow-sm transition-all"
             >
-              <Download className="w-3.5 h-3.5 text-[#646A73]" />
+              <Download className="w-3.5 h-3.5" />
               <span>导出 CSV</span>
             </button>
             <button
               onClick={onRefresh}
-              className="feishu-button-secondary px-3 py-1.5 text-xs font-medium flex items-center gap-1.5"
+              disabled={isLoading}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-gray-600 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-all disabled:opacity-50"
             >
-              <RefreshCw className={`w-3.5 h-3.5 text-[#646A73] ${loading ? "animate-spin" : ""}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
               <span>刷新</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* 极简飞书数据表格 */}
-      <div className="feishu-card overflow-hidden">
+      {/* 测评数据主表格 */}
+      <div className="bg-white rounded-2xl border border-amber-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#F7F8FA] border-b border-[#E5E6EB] text-[#646A73] font-semibold uppercase">
-              <tr>
-                <th className="px-6 py-3">ID</th>
-                <th className="px-6 py-3">测评项目</th>
-                <th className="px-6 py-3">学员姓名</th>
-                <th className="px-6 py-3">手机号码</th>
-                <th className="px-6 py-3">提交时间</th>
-                <th className="px-6 py-3 text-right">操作诊断</th>
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="bg-amber-50/50 border-b border-amber-100 text-gray-600 font-bold">
+                <th className="p-3.5 pl-5">ID</th>
+                <th className="p-3.5">学员姓名</th>
+                <th className="p-3.5">联系电话</th>
+                <th className="p-3.5">测评项目</th>
+                <th className="p-3.5">提交时间</th>
+                <th className="p-3.5">诊断结论</th>
+                <th className="p-3.5 text-right pr-5">操作</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E5E6EB]/60">
-              {loading ? (
+            <tbody className="divide-y divide-gray-100">
+              {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-10 text-center text-[#8F959E] font-medium">
+                  <td colSpan={7} className="text-center py-12 text-gray-400">
+                    <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-500" />
                     正在加载全量测评数据...
                   </td>
                 </tr>
               ) : filteredRecords.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-10 text-center text-[#8F959E] font-medium">
-                    暂无匹配的测评记录
+                  <td colSpan={7} className="text-center py-12 text-gray-400">
+                    <Layers className="w-8 h-8 mx-auto mb-2 text-amber-300" />
+                    暂无匹配的测评数据记录
                   </td>
                 </tr>
               ) : (
-                filteredRecords.map((r) => {
-                  let tagStyle = "bg-[#F2F3F5] text-[#1F2329] border-[#E5E6EB]";
-                  if (r.projectKey === "learningStyle") tagStyle = "bg-teal-50 text-teal-700 border-teal-200/60";
-                  if (r.projectKey === "motivation") tagStyle = "bg-blue-50 text-blue-700 border-blue-200/60";
-                  if (["fthBoss", "fthTalent", "fth1605"].includes(r.projectKey || "")) tagStyle = "bg-purple-50 text-purple-700 border-purple-200/60";
-
-                  return (
-                    <tr key={r.id} className="hover:bg-[#F7F8FA] transition-colors">
-                      <td className="px-6 py-3.5 font-mono text-[#8F959E]">#{r.id}</td>
-                      <td className="px-6 py-3.5">
-                        <span className={`px-2.5 py-0.5 text-[11px] font-medium rounded border ${tagStyle}`}>
-                          {r.projectName || r.templateCode}
-                        </span>
-                      </td>
-                      <td className="px-6 py-3.5 font-semibold text-[#1F2329]">{r.studentName}</td>
-                      <td className="px-6 py-3.5 font-mono text-[#646A73]">{r.phoneNumber}</td>
-                      <td className="px-6 py-3.5 text-[#8F959E] font-mono">
-                        {new Date(r.submittedAt || "").toLocaleString()}
-                      </td>
-                      <td className="px-6 py-3.5 text-right">
-                        <button
-                          onClick={() => setSelectedRecord(r)}
-                          className="feishu-button-ghost px-3 py-1 text-xs inline-flex items-center gap-0.5"
-                        >
-                          <span>查看报告</span>
-                          <ChevronRight className="w-3 h-3" />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
+                filteredRecords.map((item) => (
+                  <tr key={item.id} className="hover:bg-amber-50/30 transition-colors">
+                    <td className="p-3.5 pl-5 font-mono text-gray-400">#{item.id}</td>
+                    <td className="p-3.5 font-bold text-gray-900">{item.studentName}</td>
+                    <td className="p-3.5 font-mono text-gray-600">{item.phoneNumber}</td>
+                    <td className="p-3.5">
+                      <span className={`px-2.5 py-0.5 text-[11px] font-bold rounded-full border ${item.projectTagClass}`}>
+                        {item.projectName || item.templateCode}
+                      </span>
+                    </td>
+                    <td className="p-3.5 text-gray-500">
+                      {new Date(item.submittedAt || "").toLocaleString("zh-CN", {
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                      })}
+                    </td>
+                    <td className="p-3.5 font-medium text-amber-800">
+                      {item.resultData?.profileName || item.resultData?.styleType || "普通答题数据"}
+                    </td>
+                    <td className="p-3.5 text-right pr-5">
+                      <button
+                        onClick={() => setSelectedRecord(item)}
+                        className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold text-amber-900 bg-amber-100 hover:bg-amber-200 rounded-lg transition-all"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>查看报告</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* 报告预览 Modal */}
+      {/* 报告预览弹窗 */}
       <ReportModal
         item={selectedRecord}
         isOpen={!!selectedRecord}

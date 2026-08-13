@@ -2,6 +2,7 @@
 import os
 import mimetypes
 from pathlib import Path
+import subprocess
 import oss2
 
 ROOT_DIR = Path(__file__).parent.resolve()
@@ -22,8 +23,6 @@ auth = oss2.Auth(OSS_ACCESS_KEY_ID, OSS_ACCESS_KEY_SECRET)
 endpoint = f"https://{OSS_REGION}.aliyuncs.com"
 bucket = oss2.Bucket(auth, endpoint, OSS_BUCKET)
 
-ROOT_DIR = Path(__file__).parent.resolve()
-
 def upload_file(local_path, object_key):
     mime_type, _ = mimetypes.guess_type(str(local_path))
     headers = {}
@@ -37,32 +36,38 @@ def upload_file(local_path, object_key):
 
 def deploy_all():
     print("==================================================")
-    print("开始全量同步 React 统一测评平台与公共资产至 OSS...")
+    print("1. 正在编译打包 React 生产代码 (npm run build)...")
+    print("==================================================")
+    subprocess.run(["npm", "run", "build"], cwd=str(ROOT_DIR), check=True)
+
+    print("\n==================================================")
+    print("2. 开始全量同步 React 统一中台与测评静态资源至 OSS...")
     print("==================================================")
 
-    # 1. 部署 React 构建产物 (dist)
+    # 1. 部署 dist 里的 React 统一后台与主入口
     dist_dir = ROOT_DIR / "dist"
     if dist_dir.exists():
-        print("\n1. 部署 React 主程序构建产物 (dist)...")
+        print("\n[A] 部署 React 生产静态资产 (dist)...")
         for f in dist_dir.rglob("*"):
             if f.is_file() and not f.name.startswith("."):
                 rel_path = f.relative_to(dist_dir)
                 upload_file(f, str(rel_path))
-                if str(rel_path) == "index.html":
-                    upload_file(f, "admin.html")
+                if rel_path.name == "index.html":
                     upload_file(f, "admin")
+                    upload_file(f, "admin.html")
+                    upload_file(f, "portal.html")
 
-    # 2. 部署 public 静态资源隔离区 (public)
+    # 2. 部署 public/ 里的 SDK、自定义与内置测评静态资源
     public_dir = ROOT_DIR / "public"
     if public_dir.exists():
-        print("\n2. 部署公共静态资产与第三方 HTML 隔离区 (public)...")
+        print("\n[B] 部署 public 资源 (SDK, 自定义与内置测评静态模版)...")
         for f in public_dir.rglob("*"):
             if f.is_file() and not f.name.startswith("."):
                 rel_path = f.relative_to(public_dir)
                 upload_file(f, str(rel_path))
 
     print("\n==================================================")
-    print("全量 React 2.0 测评平台部署成功！")
+    print("🎉 全量 React 平台与静态测评部署阿里云 OSS 成功！")
     print("==================================================")
 
 if __name__ == "__main__":
