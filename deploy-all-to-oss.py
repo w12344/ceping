@@ -44,26 +44,24 @@ def deploy_all():
     print("2. 开始全量同步 React 统一中台与测评静态资源至 OSS...")
     print("==================================================")
 
-    # 1. 部署 dist 里的 React 统一后台与主入口
-    dist_dir = ROOT_DIR / "dist"
-    if dist_dir.exists():
-        print("\n[A] 部署 React 生产静态资产 (dist)...")
-        for f in dist_dir.rglob("*"):
-            if f.is_file() and not f.name.startswith("."):
-                rel_path = f.relative_to(dist_dir)
-                upload_file(f, str(rel_path))
-                if rel_path.name == "index.html":
-                    upload_file(f, "admin")
-                    upload_file(f, "admin.html")
-                    upload_file(f, "portal.html")
-
-    # 2. 部署 public/ 里的 SDK、自定义与内置测评静态资源
+    # 1. 部署 public/ 里的 SDK、自定义与内置测评静态资源 (含 admin.html, portal.html)
     public_dir = ROOT_DIR / "public"
     if public_dir.exists():
-        print("\n[B] 部署 public 资源 (SDK, 自定义与内置测评静态模版)...")
+        print("\n[A] 部署 public 资源 (admin.html, SDK, 自定义与内置测评静态模版)...")
         for f in public_dir.rglob("*"):
             if f.is_file() and not f.name.startswith("."):
                 rel_path = f.relative_to(public_dir)
+                upload_file(f, str(rel_path))
+                if rel_path.name == "admin.html":
+                    upload_file(f, "admin")
+
+    # 2. 部署 dist 里的 React 统一后台与主入口
+    dist_dir = ROOT_DIR / "dist"
+    if dist_dir.exists():
+        print("\n[B] 部署 React 生产静态资产 (dist)...")
+        for f in dist_dir.rglob("*"):
+            if f.is_file() and not f.name.startswith("."):
+                rel_path = f.relative_to(dist_dir)
                 upload_file(f, str(rel_path))
 
     print("\n==================================================")
