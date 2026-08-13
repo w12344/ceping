@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#FFFDF6">
+  <title>非凡教育 · 科学测评综合分发中心</title>
+  <link rel="stylesheet" href="assets/admin.css?v=20260812_v38">
+  <style>
+    /* 强效适配飞书 SDK 300x300 原生 iframe 尺寸，彻底消除滚动条与遮挡 */
+    #feishu_login_container {
+      width: 300px !important;
+      height: 300px !important;
+      margin: 0 auto !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      overflow: hidden !important;
+      position: relative !important;
+    }
+    #feishu_login_container iframe {
+      width: 300px !important;
+      height: 300px !important;
+      border: none !important;
+      outline: none !important;
+      margin: 0 auto !important;
+      display: block !important;
+    }
+    #feishu_login_container img,
+    #feishu_login_container canvas {
+      max-width: 260px !important;
+      max-height: 260px !important;
+      display: block !important;
+      margin: 0 auto !important;
+    }
+
+    .card-action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.2fr;
+      gap: 6px;
+    }
+  </style>
+  <script src="assets/qrcode.min.js"></script>
+  <script id="feishu-sdk" src="https://lf-package-cn.feishucdn.com/obj/feishu-static/lark/passport/qrcode/LarkSSOSDKWebQRCode-1.0.3.js"></script>
+</head>
+<body class="admin-body" style="background:#FFFDF6">
+
+  <!-- 顶部导航 Header (登录后显示) -->
+  <header id="adminHeader" class="admin-header" hidden>
+    <div class="admin-header-inner">
+      <div class="admin-brand">
+        <img src="assets/van_school_logo.png" alt="非凡 VAN SCHOOL Logo" class="brand-logo-img" style="height:46px;width:auto;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);vertical-align:middle;object-fit:contain" />
+        <div>
+          <h1 class="brand-title">非凡教育 · 5大科学测评分发中心</h1>
+          <p class="brand-subtitle">融合学习风格、学习动机与 FTH 职业特质 · 开启科学诊断与智能分发</p>
+        </div>
+      </div>
+      
+      <div class="admin-user-bar">
+        <div id="authBox" style="display:flex;align-items:center;gap:12px">
+          <img id="userAvatarImg" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%231E2066'/><circle cx='50' cy='38' r='18' fill='%23FFE100'/><path d='M20,85 C20,62 33,54 50,54 C67,54 80,62 80,85 Z' fill='%23FFE100'/></svg>" style="width:40px;height:40px;border-radius:50%;border:2px solid #FFE100;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.08)" alt="飞书用户头像">
+          <div style="text-align:left">
+            <div id="userNameBadge" style="font-weight:900;font-size:14px;color:#1E2066;line-height:1.2">飞书已认证用户</div>
+            <div id="userMobileBadge" style="font-size:11px;color:#D97706;font-weight:600;margin-top:2px">非凡教育</div>
+          </div>
+          <button id="logoutBtn" class="token-btn" style="padding:6px 14px;font-size:12px;border-radius:9999px;background:#FFFDF5;border:1.5px solid #FDE68A;color:#D97706;cursor:pointer;font-weight:800;transition:all 0.2s">退出登录</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 1. 飞书扫码登录界面 -->
+  <section id="feishuLandingGate" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 16px;position:relative;background:#FFFDF6;overflow:hidden">
+    <div style="max-width:450px;width:100%;background:#FFFFFF;border:1.5px solid #FDE68A;border-radius:24px;padding:32px 28px;box-shadow:0 12px 36px rgba(45,48,146,0.06);position:relative;z-index:1;text-align:center">
+      
+      <img src="assets/van_school_logo.png" alt="非凡 VAN SCHOOL Logo" style="height:60px;width:auto;margin:0 auto 16px auto;display:block;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,0.08);object-fit:contain" />
+
+      <div style="display:flex;justify-content:center;align-items:center;margin-bottom:18px">
+        <div style="display:flex;align-items:center;gap:6px;background:#FFFDF5;border:1px solid #FDE68A;padding:4px 12px;border-radius:9999px">
+          <span style="width:6px;height:6px;border-radius:50%;background:#D97706"></span>
+          <span style="font-size:11px;font-weight:800;letter-spacing:0.8px;color:#D97706;font-family:monospace">FEISHU OAUTH 2.0 官方安全认证</span>
+        </div>
+      </div>
+
+      <h1 style="font-size:26px;font-weight:900;color:#1E2066;margin-bottom:6px;letter-spacing:-0.5px">飞书扫码授权登录</h1>
+      <p style="font-size:13px;color:#64748B;margin-bottom:18px">回顾真实学习与思维场景 · 开启科学诊断</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#FFFDF5;border:1px solid #FDE68A;padding:4px;border-radius:10px;margin-bottom:18px" id="loginMethodTabs">
+        <button id="tabQrBtn" class="btn" style="background:#FFFFFF;border:1px solid #FCD34D;color:#92400E;font-size:13px;font-weight:800;padding:7px;border-radius:8px;cursor:pointer">飞书扫码登录</button>
+        <button id="tabAccountBtn" class="btn" style="background:transparent;border:none;color:#64748B;font-size:13px;font-weight:600;padding:7px;border-radius:8px;cursor:pointer">账号密码登录</button>
+      </div>
+
+      <div id="qrLoginSection">
+        <div style="background:#FFFDF5;border:1.5px dashed #FDE68A;border-radius:20px;padding:16px 12px;margin-bottom:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:330px">
+          <div id="feishu_login_container"></div>
+          <div style="font-size:12px;color:#D97706;font-weight:800;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:6px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.5">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+              <line x1="12" y1="18" x2="12.01" y2="18"/>
+            </svg>
+            使用飞书 App 扫描二维码授权
+          </div>
+        </div>
+
+        <div style="position:relative;margin:14px 0;text-align:center">
+          <div style="border-top:1px solid #FEF3C7;position:absolute;top:50%;left:0;right:0"></div>
+          <span style="position:relative;background:#FFFFFF;padding:0 12px;font-size:12px;color:#94A3B8">或</span>
+        </div>
+
+        <button id="feishuClientLoginBtn" class="btn" style="width:100%;background:#1E2066;border:1px solid #FDE68A;color:#FFE100;font-size:14px;font-weight:800;padding:11px 16px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(30,32,102,0.2);transition:all 0.2s">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#FFE100"/>
+            <path d="M2 17L12 22L22 17L12 12L2 17Z" fill="#D97706"/>
+          </svg>
+          已登录飞书客户端，点这里免登
+        </button>
+      </div>
+
+      <form id="accountLoginForm" style="text-align:left;display:none">
+        <div style="margin-bottom:14px">
+          <label style="font-size:12px;font-weight:800;color:#374151;display:block;margin-bottom:4px">手机号 / 账号</label>
+          <input type="text" id="loginMobile" placeholder="请输入手机号" style="width:100%;padding:10px 14px;border:1px solid #FDE68A;border-radius:10px;font-size:14px;background:#FFFDF5">
+        </div>
+        <div style="margin-bottom:20px">
+          <label style="font-size:12px;font-weight:800;color:#374151;display:block;margin-bottom:4px">密码</label>
+          <input type="password" id="loginPassword" placeholder="请输入密码" style="width:100%;padding:10px 14px;border:1px solid #FDE68A;border-radius:10px;font-size:14px;background:#FFFDF5">
+        </div>
+        <button type="submit" class="btn" style="width:100%;background:#1E2066;color:#FFE100;padding:12px;font-size:14px;font-weight:800;border-radius:10px;cursor:pointer;border:none;box-shadow:0 4px 14px rgba(30,32,102,0.2)">登录系统</button>
+      </form>
+
+      <div style="font-size:12px;color:#94A3B8;margin-top:20px;display:flex;align-items:center;justify-content:center;gap:6px">
+        <span style="font-weight:800;color:#1E2066">非凡教育</span>
+        <span>·</span>
+        <span>测评分发诊断平台</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 2. 登录后解锁的测评分发大厅 -->
+  <main id="portalMainContent" class="admin-main" hidden>
+    <section class="admin-card toolbar-card">
+      <div class="project-tabs" id="portalTabs">
+        <button class="tab-btn active" data-tab="all">全部测评 (5)</button>
+        <button class="tab-btn" data-tab="learningStyle">学习风格 (1)</button>
+        <button class="tab-btn" data-tab="motivation">学习动机 (1)</button>
+        <button class="tab-btn" data-tab="fthBoss">FTH 创业者 (1)</button>
+        <button class="tab-btn" data-tab="fthTalent">FTH 微信版 (1)</button>
+        <button class="tab-btn" data-tab="fth1605">FTH 1605版 (1)</button>
+      </div>
+
+      <div class="toolbar-bottom">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="searchInput" placeholder="搜索测评名称、特点与说明...">
+        </div>
+
+        <div class="toolbar-actions">
+          <button id="refreshBtn" class="btn text-btn">
+            刷新大厅
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="portalCardGrid" class="portal-card-grid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(290px, 1fr));gap:16px;margin-top:16px">
+      <!-- 动态渲染 5 大测评卡片 -->
+    </section>
+  </main>
+
+  <div id="toast" style="position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:rgba(30,26,28,0.92);color:#FFE100;padding:10px 20px;border-radius:9999px;font-size:13px;font-weight:800;z-index:2000;box-shadow:0 10px 30px rgba(0,0,0,0.3)" hidden>已复制到剪贴板！</div>
+
+  <script type="module" src="assets/portal.js?v=20260812_v38"></script>
+</body>
+</html>

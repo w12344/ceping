@@ -54,6 +54,8 @@ def deploy_all():
                 upload_file(f, str(rel_path))
                 if rel_path.name == "admin.html":
                     upload_file(f, "admin")
+                if rel_path.name == "portal.html":
+                    upload_file(f, "portal")
 
     # 2. 部署 dist 里的 React 统一后台与主入口
     dist_dir = ROOT_DIR / "dist"
