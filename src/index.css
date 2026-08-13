@@ -4,89 +4,92 @@
 
 @layer base {
   :root {
-    /* FFCRM-H5 (销销乐/老板看板) Design System Tokens */
-    --ffcrm-bg-canvas: linear-gradient(135deg, #E2E4F0 0%, #ECEEF8 50%, #F0F2FA 100%);
-    --ffcrm-blue: #3370FF;
-    --ffcrm-purple: #7F3BF5;
-    --ffcrm-pink: #EC4899;
-    --ffcrm-amber: #F59E0B;
-    --ffcrm-emerald: #10B981;
-    
-    --ffcrm-text-title: #1f2329;
-    --ffcrm-text-main: #373c43;
-    --ffcrm-text-muted: #8f959e;
+    --feishu-blue: #3370FF;
+    --feishu-blue-hover: #2860E1;
+    --feishu-bg: #F7F8FA;
+    --feishu-text-primary: #1F2329;
+    --feishu-text-secondary: #646A73;
+    --feishu-text-muted: #8F959E;
+    --feishu-border: #E5E6EB;
+    --feishu-card-bg: #FFFFFF;
   }
 
   body {
-    background: linear-gradient(135deg, #E2E4F0 0%, #ECEEF8 50%, #F0F2FA 100%);
-    background-attachment: fixed;
-    color: #1f2329;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background-color: #F7F8FA;
+    color: #1F2329;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* FFCRM-H5 Glassmorphism Components */
-.ffcrm-glass-header {
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(24px) saturate(190%);
-  -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 4px 20px rgba(31, 35, 41, 0.04);
-}
-
-.ffcrm-glass-card {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(24px) saturate(190%);
-  -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  box-shadow: 0 8px 30px 0 rgba(31, 35, 41, 0.05);
-  border-radius: 20px;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.ffcrm-glass-card:hover {
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 16px 40px -8px rgba(31, 35, 41, 0.09), 0 0 0 1px rgba(127, 59, 245, 0.15);
-  transform: translateY(-2px);
-}
-
-.ffcrm-segmented-bar {
-  background: rgba(229, 231, 243, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  padding: 4px;
+/* Feishu + Apple Design System Utilities */
+.feishu-card {
+  background: #FFFFFF;
+  border: 1px solid #E5E6EB;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 1px 3px 0 rgba(31, 35, 41, 0.04), 0 2px 8px -2px rgba(31, 35, 41, 0.02);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
-.ffcrm-pill-active {
-  background: #ffffff;
-  color: #1f2329;
-  box-shadow: 0 2px 10px rgba(31, 35, 41, 0.08);
-  border-radius: 12px;
-  font-weight: 700;
+.feishu-card:hover {
+  box-shadow: 0 4px 16px 0 rgba(31, 35, 41, 0.08);
 }
 
-.ffcrm-glass-input {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(222, 224, 227, 0.8);
-  border-radius: 14px;
-  transition: all 0.2s ease;
+.feishu-button-primary {
+  background-color: #3370FF;
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.15s ease;
 }
 
-.ffcrm-glass-input:focus {
-  background: #ffffff;
-  border-color: #7F3BF5;
-  box-shadow: 0 0 0 3px rgba(127, 59, 245, 0.15);
+.feishu-button-primary:hover {
+  background-color: #2860E1;
+  box-shadow: 0 2px 6px rgba(51, 112, 255, 0.25);
+}
+
+.feishu-button-secondary {
+  background-color: #F2F3F5;
+  color: #1F2329;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.feishu-button-secondary:hover {
+  background-color: #E5E6EB;
+}
+
+.feishu-button-ghost {
+  background-color: transparent;
+  color: #3370FF;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.feishu-button-ghost:hover {
+  background-color: rgba(51, 112, 255, 0.08);
+}
+
+.feishu-input {
+  background: #FFFFFF;
+  border: 1px solid #DEE0E3;
+  border-radius: 8px;
+  color: #1F2329;
+  transition: all 0.15s ease;
+}
+
+.feishu-input:focus {
+  border-color: #3370FF;
+  box-shadow: 0 0 0 3px rgba(51, 112, 255, 0.15);
+  outline: none;
 }
 
 .report-preview-frame {
   width: 100%;
   height: 80vh;
   border: none;
-  border-radius: 20px;
+  border-radius: 16px;
 }
