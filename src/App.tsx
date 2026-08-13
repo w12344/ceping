@@ -8,11 +8,15 @@ import { AssessmentRecord } from "./services/types";
 
 import { LearningStyleQuiz } from "./pages/LearningStyleQuiz";
 
+import { MotivationQuiz } from "./pages/MotivationQuiz";
+
 export const App: React.FC = () => {
   const [token, setToken] = useState<string>(() => localStorage.getItem("adminToken") || "feifan2026admin");
-  const [currentView, setCurrentView] = useState<"admin" | "portal" | "quiz_learningStyle">(() => {
+  const [currentView, setCurrentView] = useState<string>(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("quiz") === "learningStyle") return "quiz_learningStyle";
+    const q = urlParams.get("quiz");
+    if (q === "learningStyle") return "quiz_learningStyle";
+    if (q === "motivation") return "quiz_motivation";
     return "admin";
   });
   const [records, setRecords] = useState<AssessmentRecord[]>([]);
@@ -66,6 +70,8 @@ export const App: React.FC = () => {
           <AssessmentPortal
             onBackToAdmin={() => setCurrentView("admin")}
           />
+        ) : currentView === "quiz_motivation" ? (
+          <MotivationQuiz />
         ) : (
           <LearningStyleQuiz />
         )}
