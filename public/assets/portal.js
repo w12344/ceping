@@ -295,18 +295,18 @@ async function init() {
     ? new URLSearchParams(window.location.hash.split("?")[1] || "")
     : null;
 
-  // 校验 URL 参数控制 Header 与 分类 Tab 的显隐
+  // 校验 URL 单参数控制 Header 与 分类/搜索 Tab 栏的整体隐藏 (如 ?hide=1 或 ?embed=1 或 ?pure=1)
   const getParam = (key) => urlParams.get(key) || hashParams?.get(key);
-  const hideHeaderVal = getParam("hideHeader");
-  const headerVal = getParam("header");
-  const hideTabsVal = getParam("hideTabs");
-  const tabsVal = getParam("tabs");
+  const hideVal = getParam("hide");
   const embedVal = getParam("embed");
-  const simpleVal = getParam("simple");
   const pureVal = getParam("pure");
+  const simpleVal = getParam("simple");
+  const hideHeaderVal = getParam("hideHeader");
+  const hideTabsVal = getParam("hideTabs");
 
-  const shouldHideHeader = hideHeaderVal === "1" || hideHeaderVal === "true" || headerVal === "0" || headerVal === "false" || embedVal === "1" || simpleVal === "1" || pureVal === "1";
-  const shouldHideTabs = hideTabsVal === "1" || hideTabsVal === "true" || tabsVal === "0" || tabsVal === "false" || embedVal === "1" || simpleVal === "1" || pureVal === "1";
+  const isHideAll = hideVal === "1" || hideVal === "true" || embedVal === "1" || pureVal === "1" || simpleVal === "1";
+  const shouldHideHeader = isHideAll || hideHeaderVal === "1" || hideHeaderVal === "true";
+  const shouldHideTabs = isHideAll || hideTabsVal === "1" || hideTabsVal === "true";
 
   if (shouldHideHeader) {
     const headerEl = document.getElementById("adminHeader");
@@ -417,16 +417,16 @@ function updateAuthUI() {
     : null;
 
   const getParam = (key) => urlParams.get(key) || hashParams?.get(key);
-  const hideHeaderVal = getParam("hideHeader");
-  const headerVal = getParam("header");
-  const hideTabsVal = getParam("hideTabs");
-  const tabsVal = getParam("tabs");
+  const hideVal = getParam("hide");
   const embedVal = getParam("embed");
-  const simpleVal = getParam("simple");
   const pureVal = getParam("pure");
+  const simpleVal = getParam("simple");
+  const hideHeaderVal = getParam("hideHeader");
+  const hideTabsVal = getParam("hideTabs");
 
-  const shouldHideHeader = hideHeaderVal === "1" || hideHeaderVal === "true" || headerVal === "0" || headerVal === "false" || embedVal === "1" || simpleVal === "1" || pureVal === "1";
-  const shouldHideTabs = hideTabsVal === "1" || hideTabsVal === "true" || tabsVal === "0" || tabsVal === "false" || embedVal === "1" || simpleVal === "1" || pureVal === "1";
+  const isHideAll = hideVal === "1" || hideVal === "true" || embedVal === "1" || pureVal === "1" || simpleVal === "1";
+  const shouldHideHeader = isHideAll || hideHeaderVal === "1" || hideHeaderVal === "true";
+  const shouldHideTabs = isHideAll || hideTabsVal === "1" || hideTabsVal === "true";
 
   if (shouldHideHeader && elements.adminHeader) {
     elements.adminHeader.style.setProperty("display", "none", "important");

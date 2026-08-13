@@ -45,16 +45,16 @@ export function App() {
   const params = new URLSearchParams(window.location.search);
   const getParam = (key: string) => params.get(key);
 
-  const hideHeaderVal = getParam("hideHeader");
-  const headerVal = getParam("header");
-  const hideTabsVal = getParam("hideTabs");
-  const tabsVal = getParam("tabs");
+  const hideVal = getParam("hide");
   const embedVal = getParam("embed");
-  const simpleVal = getParam("simple");
   const pureVal = getParam("pure");
+  const simpleVal = getParam("simple");
+  const hideHeaderVal = getParam("hideHeader");
+  const hideTabsVal = getParam("hideTabs");
 
-  const shouldHideHeader = hideHeaderVal === "1" || hideHeaderVal === "true" || headerVal === "0" || headerVal === "false" || embedVal === "1" || simpleVal === "1" || pureVal === "1";
-  const shouldHideTabs = hideTabsVal === "1" || hideTabsVal === "true" || tabsVal === "0" || tabsVal === "false" || embedVal === "1" || simpleVal === "1" || pureVal === "1";
+  const isHideAll = hideVal === "1" || hideVal === "true" || embedVal === "1" || pureVal === "1" || simpleVal === "1";
+  const shouldHideHeader = isHideAll || hideHeaderVal === "1" || hideHeaderVal === "true";
+  const shouldHideTabs = isHideAll || hideTabsVal === "1" || hideTabsVal === "true";
 
   return (
     <div className="min-h-screen bg-[#FFFDF6]">
