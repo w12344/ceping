@@ -40,17 +40,26 @@ def deploy_all():
     print("开始全量同步前端测评与统一后台至阿里云 OSS...")
     print("==================================================")
 
-    # 1. 部署 独立统一后台与测评分发中心 (feifan-admin-portal/public)
+    # 1. 构建并部署 React 统一主应用 (dist)
+    dist_dir = ROOT_DIR / "dist"
+    if dist_dir.exists():
+        print("\n1. 部署 React 统一主应用 (dist)...")
+        for f in dist_dir.rglob("*"):
+            if f.is_file() and not f.name.startswith("."):
+                rel_path = f.relative_to(dist_dir)
+                upload_file(f, str(rel_path))
+                if str(rel_path) == "index.html":
+                    upload_file(f, "admin.html")
+                    upload_file(f, "admin")
+
+    # 1.1 部署 独立统一后台与测评分发中心 (feifan-admin-portal/public)
     admin_portal_public = ROOT_DIR / "feifan-admin-portal" / "public"
     if admin_portal_public.exists():
-        print("\n1. 部署 独立统一后台与测评分发中心 (feifan-admin-portal)...")
+        print("\n1.1 部署 独立统一后台与测评分发中心 (feifan-admin-portal)...")
         for f in admin_portal_public.rglob("*"):
             if f.is_file() and not f.name.startswith("."):
                 rel_path = f.relative_to(admin_portal_public)
                 upload_file(f, str(rel_path))
-        admin_html = admin_portal_public / "admin.html"
-        if admin_html.exists():
-            upload_file(admin_html, "admin")
 
     # 2. 部署 学习风格测评 (learning-style-assessment/public)
     ls_public = ROOT_DIR / "learning-style-assessment" / "public"
