@@ -6,9 +6,15 @@ import { CustomUploadModal } from "./components/CustomUploadModal";
 import { fetchAssessmentList } from "./services/api";
 import { AssessmentRecord } from "./services/types";
 
+import { LearningStyleQuiz } from "./pages/LearningStyleQuiz";
+
 export const App: React.FC = () => {
   const [token, setToken] = useState<string>(() => localStorage.getItem("adminToken") || "feifan2026admin");
-  const [currentView, setCurrentView] = useState<"admin" | "portal">("admin");
+  const [currentView, setCurrentView] = useState<"admin" | "portal" | "quiz_learningStyle">(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("quiz") === "learningStyle") return "quiz_learningStyle";
+    return "admin";
+  });
   const [records, setRecords] = useState<AssessmentRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [isUploadOpen, setIsUploadOpen] = useState<boolean>(false);
@@ -56,10 +62,12 @@ export const App: React.FC = () => {
             loading={loading}
             onRefresh={loadData}
           />
-        ) : (
+        ) : currentView === "portal" ? (
           <AssessmentPortal
             onBackToAdmin={() => setCurrentView("admin")}
           />
+        ) : (
+          <LearningStyleQuiz />
         )}
       </main>
 

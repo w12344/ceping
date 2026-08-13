@@ -5,7 +5,7 @@ interface HeaderProps {
   onOpenUpload: () => void;
   onSwitchToken: () => void;
   onNavigatePortal: () => void;
-  currentView: "admin" | "portal";
+  currentView: "admin" | "portal" | string;
   token: string;
 }
 
