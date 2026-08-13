@@ -4,92 +4,81 @@
 
 @layer base {
   :root {
-    /* FFCRM-H5 & Feishu Bitable Theme Tokens */
+    /* FFCRM-H5 销销乐 Glassmorphism Design Tokens */
     --color-primary: #3370ff;
     --color-primary-hover: #2b58d9;
-    --color-primary-bg: rgba(51, 112, 255, 0.08);
     --brand-gold: #FFE100;
-    --brand-gold-hover: #F5C518;
+    
+    --dashboard-bg-gradient-start: #e0e4f2;
+    --dashboard-bg-gradient-mid: #f5f7fa;
+    --dashboard-bg-gradient-end: #eceff9;
     
     --color-text-title: #1f2329;
     --color-text-main: #373c43;
     --color-text-muted: #8f959e;
-    
-    --color-bg-page: #f5f6f7;
-    --color-bg-card: rgba(255, 255, 255, 0.82);
-    --color-border: #dee0e3;
-    --color-border-subtle: #eff0f1;
-    
-    --shadow-glass-card: 0 8px 32px 0 rgba(31, 35, 41, 0.06);
-    --shadow-glass-hover: 0 16px 40px 0 rgba(31, 35, 41, 0.1);
   }
 
   body {
-    background-color: #f5f6f7;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(51, 112, 255, 0.08) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(255, 225, 0, 0.12) 0px, transparent 50%),
-      radial-gradient(at 50% 100%, rgba(127, 59, 245, 0.05) 0px, transparent 50%);
+    background-image: linear-gradient(180deg, #e0e4f2 0%, #f5f7fa 50%, #eceff9 100%);
     background-attachment: fixed;
     color: #1f2329;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    min-h-screen: 100vh;
   }
 }
 
-/* FFCRM-H5 Glassmorphism Components & Utilities */
-.ff-glass-header {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid rgba(222, 224, 227, 0.8);
-  box-shadow: 0 4px 16px rgba(31, 35, 41, 0.04);
+/* FFCRM-H5 销销乐 Glassmorphism Glass Utilities */
+.boss-glass-header {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 20px rgba(31, 38, 135, 0.04);
 }
 
-.ff-glass-card {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(222, 224, 227, 0.8);
-  box-shadow: 0 6px 24px -4px rgba(31, 35, 41, 0.05);
-  border-radius: 20px;
+.boss-glass-card {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  border-radius: 24px;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.ff-glass-card:hover {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(51, 112, 255, 0.3);
-  box-shadow: 0 12px 36px -6px rgba(31, 35, 41, 0.09), 0 0 0 1px rgba(51, 112, 255, 0.1);
-  transform: translateY(-2px);
+.boss-glass-card:hover {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 16px 40px 0 rgba(31, 38, 135, 0.08), inset 0 1px 0 0 #ffffff;
 }
 
-.ff-glass-pill {
-  background: rgba(245, 246, 247, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(222, 224, 227, 0.8);
+.boss-glass-pill {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 9999px;
   transition: all 0.2s ease;
 }
 
-.ff-glass-pill:hover {
-  background: rgba(255, 255, 255, 0.95);
+.boss-glass-pill:hover {
+  background: rgba(255, 255, 255, 0.9);
   border-color: rgba(51, 112, 255, 0.4);
   color: #3370ff;
 }
 
-.ff-glass-input {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(222, 224, 227, 0.8);
-  border-radius: 12px;
-  transition: all 0.2s ease;
+.boss-glass-input {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 9999px;
 }
 
-.ff-glass-input:focus {
-  background: #ffffff;
+.boss-glass-input:focus {
+  background: rgba(255, 255, 255, 0.95);
   border-color: #3370ff;
   box-shadow: 0 0 0 3px rgba(51, 112, 255, 0.15);
 }
@@ -98,5 +87,5 @@
   width: 100%;
   height: 80vh;
   border: none;
-  border-radius: 16px;
+  border-radius: 20px;
 }
