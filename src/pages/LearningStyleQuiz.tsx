@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { User, Phone, ArrowRight, ArrowLeft, CheckCircle, Sparkles, Award, Printer, Download } from "lucide-react";
 import { RadarChart } from "../components/RadarChart";
-import staticQuestions from "../../learning-style-assessment/public/assets/static-questions.json";
+import staticQuestions from "../assets/static-questions.json";
 
 export const LearningStyleQuiz: React.FC = () => {
   const [step, setStep] = useState<"info" | "quiz" | "report">("info");

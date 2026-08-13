@@ -37,13 +37,13 @@ def upload_file(local_path, object_key):
 
 def deploy_all():
     print("==================================================")
-    print("开始全量同步前端测评与统一后台至阿里云 OSS...")
+    print("开始全量同步 React 统一测评平台与公共资产至 OSS...")
     print("==================================================")
 
-    # 1. 构建并部署 React 统一主应用 (dist)
+    # 1. 部署 React 构建产物 (dist)
     dist_dir = ROOT_DIR / "dist"
     if dist_dir.exists():
-        print("\n1. 部署 React 统一主应用 (dist)...")
+        print("\n1. 部署 React 主程序构建产物 (dist)...")
         for f in dist_dir.rglob("*"):
             if f.is_file() and not f.name.startswith("."):
                 rel_path = f.relative_to(dist_dir)
@@ -52,65 +52,17 @@ def deploy_all():
                     upload_file(f, "admin.html")
                     upload_file(f, "admin")
 
-    # 1.1 部署 独立统一后台与测评分发中心 (feifan-admin-portal/public)
-    admin_portal_public = ROOT_DIR / "feifan-admin-portal" / "public"
-    if admin_portal_public.exists():
-        print("\n1.1 部署 独立统一后台与测评分发中心 (feifan-admin-portal)...")
-        for f in admin_portal_public.rglob("*"):
+    # 2. 部署 public 静态资源隔离区 (public)
+    public_dir = ROOT_DIR / "public"
+    if public_dir.exists():
+        print("\n2. 部署公共静态资产与第三方 HTML 隔离区 (public)...")
+        for f in public_dir.rglob("*"):
             if f.is_file() and not f.name.startswith("."):
-                rel_path = f.relative_to(admin_portal_public)
+                rel_path = f.relative_to(public_dir)
                 upload_file(f, str(rel_path))
-
-    # 2. 部署 学习风格测评 (learning-style-assessment/public)
-    ls_public = ROOT_DIR / "learning-style-assessment" / "public"
-    if ls_public.exists():
-        print("\n2. 部署 学习风格测评 (learning-style-assessment)...")
-        for f in ls_public.rglob("*"):
-            if f.is_file() and not f.name.startswith("."):
-                rel_path = f.relative_to(ls_public)
-                upload_file(f, str(rel_path))
-
-    # 2. 部署 学习动机测评 (motivation-assessment/xxdj-deploy)
-    mot_public = ROOT_DIR / "motivation-assessment" / "xxdj-deploy"
-    if mot_public.exists():
-        print("\n2. 部署 学习动机测评 (xxdj & motivation)...")
-        for f in mot_public.rglob("*"):
-            if f.is_file() and not f.name.startswith(".") and "node_modules" not in f.parts:
-                rel_path = f.relative_to(mot_public)
-                upload_file(f, f"xxdj/{rel_path}")
-                upload_file(f, f"motivation/{rel_path}")
-
-    # 3. 部署 FTH 创业者测评 (fth-boss-assessment/frontend)
-    fth_boss_public = ROOT_DIR / "fth-boss-assessment" / "frontend"
-    if fth_boss_public.exists():
-        print("\n3. 部署 FTH 创业者测评 (fthboss)...")
-        for f in fth_boss_public.rglob("*"):
-            if f.is_file() and not f.name.startswith("."):
-                rel_path = f.relative_to(fth_boss_public)
-                obj_name = "index.html" if rel_path.name == "founder-talent-assessment.html" else str(rel_path)
-                upload_file(f, f"fthboss/{obj_name}")
-
-    # 4. 部署 FTH 微信版特质测评 (fth-talent-assessment)
-    fth_talent_public = ROOT_DIR / "fth-talent-assessment" / "source" / "fighter-runner-climber-thinker-analyzer-builder" / "outputs"
-    if fth_talent_public.exists():
-        print("\n4. 部署 FTH 微信版特质测评 (fthtalent)...")
-        for f in fth_talent_public.rglob("*"):
-            if f.is_file() and not f.name.startswith("."):
-                rel_path = f.relative_to(fth_talent_public)
-                obj_name = "index.html" if rel_path.name == "wechat-talent-assessment.html" else str(rel_path)
-                upload_file(f, f"fthtalent/{obj_name}")
-
-    # 5. 部署 FTH 1605版 (fth-1605-assessment)
-    fth_1605_public = ROOT_DIR / "fth-1605-assessment"
-    if fth_1605_public.exists():
-        print("\n5. 部署 FTH 1605版 (fth1605)...")
-        for f in fth_1605_public.rglob("*"):
-            if f.is_file() and not f.name.startswith(".") and "node_modules" not in f.parts and ".git" not in f.parts:
-                rel_path = f.relative_to(fth_1605_public)
-                upload_file(f, f"fth1605/{rel_path}")
 
     print("\n==================================================")
-    print("全量无后端 API 依赖纯前端静态化测评部署成功！")
+    print("全量 React 2.0 测评平台部署成功！")
     print("==================================================")
 
 if __name__ == "__main__":
