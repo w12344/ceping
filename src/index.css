@@ -4,83 +4,84 @@
 
 @layer base {
   :root {
-    /* FFCRM-H5 销销乐 Glassmorphism Design Tokens */
-    --color-primary: #3370ff;
-    --color-primary-hover: #2b58d9;
-    --brand-gold: #FFE100;
+    /* FFCRM-H5 (销销乐/老板看板) Design System Tokens */
+    --ffcrm-bg-canvas: linear-gradient(135deg, #E2E4F0 0%, #ECEEF8 50%, #F0F2FA 100%);
+    --ffcrm-blue: #3370FF;
+    --ffcrm-purple: #7F3BF5;
+    --ffcrm-pink: #EC4899;
+    --ffcrm-amber: #F59E0B;
+    --ffcrm-emerald: #10B981;
     
-    --dashboard-bg-gradient-start: #e0e4f2;
-    --dashboard-bg-gradient-mid: #f5f7fa;
-    --dashboard-bg-gradient-end: #eceff9;
-    
-    --color-text-title: #1f2329;
-    --color-text-main: #373c43;
-    --color-text-muted: #8f959e;
+    --ffcrm-text-title: #1f2329;
+    --ffcrm-text-main: #373c43;
+    --ffcrm-text-muted: #8f959e;
   }
 
   body {
-    background-image: linear-gradient(180deg, #e0e4f2 0%, #f5f7fa 50%, #eceff9 100%);
+    background: linear-gradient(135deg, #E2E4F0 0%, #ECEEF8 50%, #F0F2FA 100%);
     background-attachment: fixed;
     color: #1f2329;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    min-h-screen: 100vh;
   }
 }
 
-/* FFCRM-H5 销销乐 Glassmorphism Glass Utilities */
-.boss-glass-header {
-  background: rgba(255, 255, 255, 0.65);
+/* FFCRM-H5 Glassmorphism Components */
+.ffcrm-glass-header {
+  background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(24px) saturate(190%);
   -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 4px 20px rgba(31, 38, 135, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 20px rgba(31, 35, 41, 0.04);
 }
 
-.boss-glass-card {
-  background: rgba(255, 255, 255, 0.65);
+.ffcrm-glass-card {
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(24px) saturate(190%);
   -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
-  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 8px 30px 0 rgba(31, 35, 41, 0.05);
+  border-radius: 20px;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.boss-glass-card:hover {
-  background: rgba(255, 255, 255, 0.82);
-  border-color: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 16px 40px 0 rgba(31, 38, 135, 0.08), inset 0 1px 0 0 #ffffff;
+.ffcrm-glass-card:hover {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 16px 40px -8px rgba(31, 35, 41, 0.09), 0 0 0 1px rgba(127, 59, 245, 0.15);
+  transform: translateY(-2px);
 }
 
-.boss-glass-pill {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 9999px;
+.ffcrm-segmented-bar {
+  background: rgba(229, 231, 243, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 4px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.ffcrm-pill-active {
+  background: #ffffff;
+  color: #1f2329;
+  box-shadow: 0 2px 10px rgba(31, 35, 41, 0.08);
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.ffcrm-glass-input {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(222, 224, 227, 0.8);
+  border-radius: 14px;
   transition: all 0.2s ease;
 }
 
-.boss-glass-pill:hover {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(51, 112, 255, 0.4);
-  color: #3370ff;
-}
-
-.boss-glass-input {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 9999px;
-}
-
-.boss-glass-input:focus {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: #3370ff;
-  box-shadow: 0 0 0 3px rgba(51, 112, 255, 0.15);
+.ffcrm-glass-input:focus {
+  background: #ffffff;
+  border-color: #7F3BF5;
+  box-shadow: 0 0 0 3px rgba(127, 59, 245, 0.15);
 }
 
 .report-preview-frame {

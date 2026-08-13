@@ -80,35 +80,33 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({ onBackToAdmi
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* 顶栏顾问 Token 绑定 Banner (Apple Glass Frost Banner) */}
-      <div className="relative rounded-3xl p-8 apple-glass-card overflow-hidden">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* 顶栏顾问 Token 绑定 Banner */}
+      <div className="relative rounded-3xl p-8 ffcrm-glass-card overflow-hidden">
         <div className="relative z-10 space-y-4 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-800 text-xs font-bold border border-amber-500/20 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 text-purple-700 text-xs font-bold border border-purple-500/20 shadow-sm">
             <UserCheck className="w-3.5 h-3.5" />
             <span>顾问识别码 (Advisor Token) 智能引擎</span>
           </div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">非凡科学测评 · 智能分发中心</h2>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">销销乐 · 智能测评分发中心</h2>
           <p className="text-xs text-slate-600 leading-relaxed font-medium">
-            输入您的专属顾问 Token，生成的发牌链接与二维码将自动携带识别码。学员答题提交后数据将自动写入数据库并实时落盘归属。
+            输入您的专属顾问 Token，生成的发牌链接与二维码将自动携带识别码。学员答题提交后数据将自动写入 FFCRM-H5 数据库。
           </p>
 
           <div className="flex items-center gap-3 pt-2">
-            <div className="relative">
-              <input
-                type="text"
-                value={advisorToken}
-                onChange={(e) => setAdvisorToken(e.target.value)}
-                placeholder="输入顾问 Token"
-                className="apple-glass-input px-4 py-2.5 rounded-full text-xs font-mono font-bold text-slate-900 focus:outline-none w-64 shadow-sm"
-              />
-            </div>
+            <input
+              type="text"
+              value={advisorToken}
+              onChange={(e) => setAdvisorToken(e.target.value)}
+              placeholder="输入顾问 Token"
+              className="ffcrm-glass-input px-4 py-2 text-xs font-mono font-bold text-slate-900 focus:outline-none w-64 shadow-sm"
+            />
             <button
               onClick={onBackToAdmin}
-              className="apple-glass-pill px-4 py-2.5 text-xs font-semibold text-slate-700 hover:text-slate-900 rounded-full transition-all active:scale-95 flex items-center gap-1.5"
+              className="px-4 py-2 text-xs font-bold text-slate-700 bg-white/80 border border-slate-200/80 hover:bg-white rounded-full transition-all active:scale-95 flex items-center gap-1.5"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>返回管理大屏</span>
+              <span>返回 BI 看板</span>
             </button>
           </div>
         </div>
@@ -119,16 +117,16 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({ onBackToAdmi
         {ASSESSMENT_LIST.map((item) => (
           <div
             key={item.id}
-            className="apple-glass-card rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 group hover:-translate-y-1"
+            className="ffcrm-glass-card rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 group"
           >
             <div className="space-y-3">
               <div className="flex items-start justify-between">
                 <span className={`px-3 py-1 text-[11px] font-bold rounded-full border shadow-sm ${item.tagClass}`}>
                   {item.tag}
                 </span>
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm animate-pulse" />
+                <span className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-sm animate-pulse" />
               </div>
-              <h3 className="text-lg font-extrabold text-slate-900 group-hover:text-amber-600 transition-colors leading-snug">
+              <h3 className="text-lg font-extrabold text-slate-900 group-hover:text-purple-600 transition-colors leading-snug">
                 {item.title}
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed font-medium">
@@ -136,15 +134,15 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({ onBackToAdmi
               </p>
             </div>
 
-            <div className="pt-6 space-y-3 border-t border-slate-100/80 mt-6">
-              <div className="p-2.5 bg-slate-50/70 rounded-2xl border border-slate-200/50 font-mono text-[11px] text-slate-500 truncate">
+            <div className="pt-6 space-y-3 border-t border-slate-200/60 mt-6">
+              <div className="p-2.5 bg-slate-100/70 rounded-xl border border-slate-200/50 font-mono text-[11px] text-slate-500 truncate">
                 {getFullUrl(item.path)}
               </div>
 
               <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={() => handleCopy(item.id, item.path)}
-                  className="apple-glass-pill py-2 px-3 text-xs font-bold text-slate-700 hover:text-slate-900 rounded-full transition-all active:scale-95 flex items-center justify-center gap-1"
+                  className="px-3 py-2 text-xs font-bold text-slate-700 bg-white/80 hover:bg-white border border-slate-200/80 rounded-full transition-all active:scale-95 flex items-center justify-center gap-1"
                 >
                   {copiedId === item.id ? (
                     <Check className="w-3.5 h-3.5 text-emerald-600" />
@@ -156,9 +154,9 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({ onBackToAdmi
 
                 <button
                   onClick={() => handleShowQr(item.path)}
-                  className="apple-glass-pill py-2 px-3 text-xs font-bold text-slate-700 hover:text-slate-900 rounded-full transition-all active:scale-95 flex items-center justify-center gap-1"
+                  className="px-3 py-2 text-xs font-bold text-slate-700 bg-white/80 hover:bg-white border border-slate-200/80 rounded-full transition-all active:scale-95 flex items-center justify-center gap-1"
                 >
-                  <QrCode className="w-3.5 h-3.5 text-amber-500" />
+                  <QrCode className="w-3.5 h-3.5 text-purple-600" />
                   <span>码图</span>
                 </button>
 
@@ -166,7 +164,7 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({ onBackToAdmi
                   href={getFullUrl(item.path)}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-2 text-xs font-extrabold text-slate-950 bg-gradient-to-r from-[#FFE100] to-[#F5C518] rounded-full shadow-sm hover:shadow-md transition-all active:scale-95 flex items-center justify-center gap-1"
+                  className="px-3 py-2 text-xs font-extrabold text-white bg-gradient-to-r from-[#7F3BF5] to-[#3370FF] rounded-full shadow-sm hover:shadow-md transition-all active:scale-95 flex items-center justify-center gap-1"
                 >
                   <span>打开</span>
                   <ExternalLink className="w-3 h-3" />
@@ -177,11 +175,10 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({ onBackToAdmi
         ))}
       </div>
 
-      {/* Apple Glass 二维码 Modal */}
       {qrModalUrl && (
         <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="apple-glass-card bg-white/90 rounded-3xl p-8 max-w-sm w-full space-y-6 text-center shadow-2xl relative border border-white/80">
-            <h3 className="text-lg font-black text-slate-900">扫码立即体验测评</h3>
+          <div className="ffcrm-glass-card bg-white/95 rounded-3xl p-8 max-w-sm w-full space-y-6 text-center shadow-2xl relative border border-white">
+            <h3 className="text-lg font-black text-slate-900">扫码体验测评</h3>
             <p className="text-xs text-slate-500 font-medium">支持微信、学练机或浏览器直接扫描开考</p>
 
             {qrDataUrl ? (
@@ -196,7 +193,7 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({ onBackToAdmi
 
             <button
               onClick={() => setQrModalUrl(null)}
-              className="w-full py-3 bg-gradient-to-r from-[#FFE100] to-[#F5C518] text-slate-950 font-black text-xs rounded-full shadow-md hover:scale-[1.02] active:scale-95 transition-all"
+              className="w-full py-3 bg-gradient-to-r from-[#7F3BF5] to-[#3370FF] text-white font-black text-xs rounded-full shadow-md hover:opacity-90 active:scale-95 transition-all"
             >
               关闭弹窗
             </button>

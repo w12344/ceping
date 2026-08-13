@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Search, Download, RefreshCw, FileText, CheckCircle, BarChart3, Layers, Sparkles, ChevronRight, MessageSquare, Send, HelpCircle, ArrowUpRight, ArrowDownRight, Compass, Grid } from "lucide-react";
+import { Search, Download, RefreshCw, FileText, CheckCircle, BarChart3, Layers, Sparkles, ChevronRight, MessageSquare, Send } from "lucide-react";
 import { AssessmentRecord } from "../services/types";
 import { ReportModal } from "../components/ReportModal";
 
@@ -15,10 +15,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onRefresh
 }) => {
   const [activeTab, setActiveTab] = useState<string>("ALL");
-  const [viewMode, setViewMode] = useState<"orbit" | "table">("orbit");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRecord, setSelectedRecord] = useState<AssessmentRecord | null>(null);
-  const [chatInput, setChatInput] = useState("");
 
   const stats = useMemo(() => {
     const total = records.length;
@@ -72,341 +70,266 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto px-6 py-6">
-      {/* 2-Column Split: Left BI Dashboard (75%) + Right Boss Assistant Drawer (25%) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column (9 Cols) */}
-        <div className="lg:col-span-8 xl:col-span-9 space-y-6">
-          {/* KPI Top Row: 2 Big Translucent Glass Cards (Replicating Image 2) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* KPI Card 1: 测评完成人数 */}
-            <div className="boss-glass-card p-6 flex items-center justify-between relative overflow-hidden group">
-              <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  大盘测评完成人数
-                </p>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-black text-slate-900 font-mono tracking-tight">
-                    {stats.total * 20 + 159}人
-                  </span>
-                  <span className="text-xs font-bold text-slate-400 font-mono">/ 1200人</span>
-                </div>
-              </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* FFCRM-H5 销销乐 Boss Summary Cards Grid (with Circular Progress Arc Gauges) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPI Card 1: Total Reports */}
+        <div className="ffcrm-glass-card p-5 flex items-center justify-between relative overflow-hidden group">
+          <div>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">全量测评总报告</span>
+            <div className="flex items-baseline gap-2 mt-1">
+              <h3 className="text-3xl font-black text-slate-900 font-mono tracking-tight">{stats.total}</h3>
+              <span className="text-xs text-slate-400 font-medium">/ 1000 份</span>
+            </div>
+            <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 text-[11px] font-semibold text-slate-600">
+              <span>完成度</span>
+              <span className="text-blue-600 font-bold">13.3%</span>
+            </div>
+          </div>
+          {/* Blue Circular Arc Progress Gauge */}
+          <div className="relative w-14 h-14 flex items-center justify-center">
+            <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
+              <path className="text-slate-200" strokeWidth="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path className="text-blue-500" strokeDasharray="65, 100" strokeWidth="3.5" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            </svg>
+            <span className="absolute text-[10px] font-mono font-black text-blue-600">13.3%</span>
+          </div>
+        </div>
 
-              <div className="flex items-center gap-4">
-                <div className="px-3 py-1 bg-slate-200/50 rounded-lg text-xs font-mono font-bold text-slate-600 flex items-center gap-1">
-                  <ArrowDownRight className="w-3.5 h-3.5 text-rose-500" />
-                  <span>年 -162人</span>
-                </div>
+        {/* KPI Card 2: Learning Style */}
+        <div className="ffcrm-glass-card p-5 flex items-center justify-between relative overflow-hidden group">
+          <div>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">学习风格测评</span>
+            <div className="flex items-baseline gap-2 mt-1">
+              <h3 className="text-3xl font-black text-slate-900 font-mono tracking-tight">{stats.xxfg}</h3>
+              <span className="text-xs text-slate-400 font-medium">/ 500 份</span>
+            </div>
+            <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-50 text-[11px] font-semibold text-emerald-700">
+              <span>VAK 认知通道</span>
+            </div>
+          </div>
+          <div className="relative w-14 h-14 flex items-center justify-center">
+            <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
+              <path className="text-slate-200" strokeWidth="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path className="text-emerald-500" strokeDasharray="45, 100" strokeWidth="3.5" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            </svg>
+            <span className="absolute text-[10px] font-mono font-black text-emerald-600">62.5%</span>
+          </div>
+        </div>
 
-                {/* Progress Arc / Semi Donut */}
-                <div className="relative w-16 h-16 flex items-center justify-center">
-                  <svg className="w-16 h-16 transform -rotate-90">
-                    <circle cx="32" cy="32" r="26" stroke="rgba(226,232,240,0.8)" strokeWidth="6" fill="transparent" />
-                    <circle cx="32" cy="32" r="26" stroke="#3370ff" strokeWidth="6" fill="transparent" strokeDasharray="163" strokeDashoffset="130" strokeLinecap="round" />
-                  </svg>
-                  <div className="absolute text-center">
-                    <span className="text-[11px] font-black text-[#3370ff] font-mono">13.3%</span>
-                  </div>
-                </div>
-              </div>
+        {/* KPI Card 3: Motivation */}
+        <div className="ffcrm-glass-card p-5 flex items-center justify-between relative overflow-hidden group">
+          <div>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">学习动机测评</span>
+            <div className="flex items-baseline gap-2 mt-1">
+              <h3 className="text-3xl font-black text-slate-900 font-mono tracking-tight">{stats.xxdj}</h3>
+              <span className="text-xs text-slate-400 font-medium">/ 500 份</span>
+            </div>
+            <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-amber-50 text-[11px] font-semibold text-amber-700">
+              <span>目标感达成</span>
+              <span className="text-amber-600 font-bold">2.5%</span>
+            </div>
+          </div>
+          {/* Orange Circular Arc Gauge */}
+          <div className="relative w-14 h-14 flex items-center justify-center">
+            <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
+              <path className="text-slate-200" strokeWidth="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path className="text-amber-500" strokeDasharray="30, 100" strokeWidth="3.5" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            </svg>
+            <span className="absolute text-[10px] font-mono font-black text-amber-600">2.5%</span>
+          </div>
+        </div>
+
+        {/* KPI Card 4: FTH Talent */}
+        <div className="ffcrm-glass-card p-5 flex items-center justify-between relative overflow-hidden group">
+          <div>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">FTH 特质与自定义</span>
+            <div className="flex items-baseline gap-2 mt-1">
+              <h3 className="text-3xl font-black text-slate-900 font-mono tracking-tight">{stats.fth + stats.custom}</h3>
+              <span className="text-xs text-slate-400 font-medium">/ 300 份</span>
+            </div>
+            <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-purple-50 text-[11px] font-semibold text-purple-700">
+              <span>创业者/微信/1605</span>
+            </div>
+          </div>
+          <div className="relative w-14 h-14 flex items-center justify-center">
+            <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
+              <path className="text-slate-200" strokeWidth="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path className="text-purple-500" strokeDasharray="50, 100" strokeWidth="3.5" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            </svg>
+            <span className="absolute text-[10px] font-mono font-black text-purple-600">50.0%</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Grid: Data Table & Right AI Assistant Drawer */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Left 3 Columns: Table & Controls */}
+        <div className="lg:col-span-3 space-y-5">
+          {/* FFCRM Segmented Filter Tabs & Search */}
+          <div className="ffcrm-glass-card p-5 space-y-4">
+            <div className="flex flex-wrap gap-2 pb-3 border-b border-slate-200/60">
+              {[
+                { id: "ALL", label: "全量测评", count: stats.total },
+                { id: "learningStyle", label: "学习风格", count: stats.xxfg },
+                { id: "motivation", label: "学习动机", count: stats.xxdj },
+                { id: "fthBoss", label: "FTH 创业者", count: records.filter((r) => r.projectKey === "fthBoss").length },
+                { id: "fthTalent", label: "FTH 微信版", count: records.filter((r) => r.projectKey === "fthTalent").length },
+                { id: "fth1605", label: "FTH 1605版", count: records.filter((r) => r.projectKey === "fth1605").length },
+                { id: "customHTML", label: "自定义 HTML", count: stats.custom }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-3.5 py-1.5 text-xs transition-all duration-200 ${
+                    activeTab === tab.id
+                      ? "ffcrm-pill-active bg-gradient-to-r from-[#7F3BF5] to-[#3370FF] text-white shadow-md shadow-purple-500/20"
+                      : "px-3.5 py-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                  }`}
+                >
+                  {tab.label} ({tab.count})
+                </button>
+              ))}
             </div>
 
-            {/* KPI Card 2: 测评生成总收益/价值 */}
-            <div className="boss-glass-card p-6 flex items-center justify-between relative overflow-hidden group">
-              <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  实际转化学费总额
-                </p>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-black text-slate-900 font-mono tracking-tight">
-                    301.2万元
-                  </span>
-                  <span className="text-xs font-bold text-slate-400 font-mono">/ 12000万元</span>
-                </div>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="relative w-full sm:w-80">
+                <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="搜索学员姓名、手机号、测评项目..."
+                  className="ffcrm-glass-input w-full pl-9 pr-4 py-2 text-xs outline-none"
+                />
               </div>
 
-              <div className="flex items-center gap-4">
-                <div className="px-3 py-1 bg-slate-200/50 rounded-lg text-xs font-mono font-bold text-slate-600 flex items-center gap-1">
-                  <ArrowDownRight className="w-3.5 h-3.5 text-rose-500" />
-                  <span>年 -900万</span>
-                </div>
-
-                <div className="relative w-16 h-16 flex items-center justify-center">
-                  <svg className="w-16 h-16 transform -rotate-90">
-                    <circle cx="32" cy="32" r="26" stroke="rgba(226,232,240,0.8)" strokeWidth="6" fill="transparent" />
-                    <circle cx="32" cy="32" r="26" stroke="#00b67a" strokeWidth="6" fill="transparent" strokeDasharray="163" strokeDashoffset="150" strokeLinecap="round" />
-                  </svg>
-                  <div className="absolute text-center">
-                    <span className="text-[11px] font-black text-[#00b67a] font-mono">2.5%</span>
-                  </div>
-                </div>
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <button
+                  onClick={handleExportCsv}
+                  className="px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-[#7F3BF5] to-[#3370FF] hover:shadow-md rounded-full shadow-sm transition-all active:scale-95 flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>导出 CSV</span>
+                </button>
+                <button
+                  onClick={onRefresh}
+                  className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white/80 border border-slate-200/80 hover:bg-white rounded-full transition-all active:scale-95 flex items-center gap-1.5"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+                  <span>刷新</span>
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Central Cosmic Orbit & Controls (Replicating Image 2 Central Visual Area) */}
-          <div className="boss-glass-card p-6 space-y-6 relative overflow-hidden">
-            {/* Mode Switcher Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200/60">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setViewMode("orbit")}
-                  className={`px-4 py-1.5 text-xs font-bold rounded-full transition-all flex items-center gap-1.5 ${
-                    viewMode === "orbit"
-                      ? "bg-slate-900 text-white shadow-md"
-                      : "boss-glass-pill text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  <Compass className="w-3.5 h-3.5" />
-                  <span>星系模式</span>
-                </button>
-                <button
-                  onClick={() => setViewMode("table")}
-                  className={`px-4 py-1.5 text-xs font-bold rounded-full transition-all flex items-center gap-1.5 ${
-                    viewMode === "table"
-                      ? "bg-slate-900 text-white shadow-md"
-                      : "boss-glass-pill text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  <Grid className="w-3.5 h-3.5" />
-                  <span>坐标轴 / Bitable 模式</span>
-                </button>
-              </div>
-
-              {/* Status Indicators (优秀, 保持, 预期, 预警) */}
-              <div className="hidden sm:flex items-center gap-4 text-xs text-slate-500 font-medium">
-                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#7f3bf5]" />优秀</span>
-                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#00b67a]" />保持</span>
-                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#ff8800]" />预期</span>
-                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#3370ff]" />预警</span>
-              </div>
-            </div>
-
-            {/* Central Orbit / Bitable Display */}
-            {viewMode === "orbit" ? (
-              <div className="relative py-12 flex items-center justify-center min-h-[340px]">
-                {/* Concentric Orbit Circles */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
-                  <div className="w-[320px] h-[320px] rounded-full border border-dashed border-slate-300 animate-spin-slow" />
-                  <div className="w-[220px] h-[220px] rounded-full border border-slate-300 absolute" />
-                </div>
-
-                {/* Orbit Bubble Nodes */}
-                <div className="absolute top-6 left-12 p-3 rounded-full bg-[#3370ff] text-white text-xs font-bold shadow-lg shadow-blue-500/30 animate-pulse">
-                  张静 · 2.6
-                </div>
-                <div className="absolute top-16 right-20 p-2.5 rounded-full bg-[#00b67a] text-white text-xs font-bold shadow-lg shadow-emerald-500/30">
-                  马健雄 · 0.9
-                </div>
-                <div className="absolute bottom-10 left-24 p-3 rounded-full bg-[#ff8800] text-white text-xs font-bold shadow-lg shadow-orange-500/30">
-                  吴亚丽 · 0.6
-                </div>
-                <div className="absolute bottom-12 right-16 p-3 rounded-full bg-[#7f3bf5] text-white text-xs font-bold shadow-lg shadow-purple-500/30">
-                  陈智超 · 1.3
-                </div>
-
-                {/* Central Big Sphere (Replicating Central Orbit Sphere from Image 2) */}
-                <div className="w-48 h-48 rounded-full bg-gradient-to-br from-[#3370ff] via-[#2563eb] to-[#1d4ed8] text-white flex flex-col items-center justify-center p-4 text-center shadow-2xl shadow-blue-500/40 relative z-10 border-4 border-white/60">
-                  <span className="text-[10px] font-bold text-blue-100 uppercase tracking-widest">年度总营收达成率</span>
-                  <span className="text-3xl font-black font-mono my-1">2.5%</span>
-                  <span className="text-[10px] text-blue-200 font-mono">301.2万元 / 12000万元</span>
-                  <div className="mt-2 pt-2 border-t border-white/20 w-full text-[10px] font-bold text-amber-300">
-                    总净招生人数: 159 / 1200人
-                  </div>
-                </div>
-              </div>
-            ) : null}
-
-            {/* Bitable Filters & Record Table */}
-            <div className="space-y-4 pt-2">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                {/* Project Tabs */}
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { id: "ALL", label: "全量测评", count: stats.total },
-                    { id: "learningStyle", label: "学习风格", count: stats.xxfg },
-                    { id: "motivation", label: "学习动机", count: stats.xxdj },
-                    { id: "fthBoss", label: "FTH 创业者", count: records.filter((r) => r.projectKey === "fthBoss").length },
-                    { id: "fthTalent", label: "FTH 微信版", count: records.filter((r) => r.projectKey === "fthTalent").length },
-                    { id: "fth1605", label: "FTH 1605版", count: records.filter((r) => r.projectKey === "fth1605").length },
-                    { id: "customHTML", label: "自定义 HTML", count: stats.custom }
-                  ].map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`px-3.5 py-1 text-xs font-bold rounded-full transition-all ${
-                        activeTab === tab.id
-                          ? "bg-[#3370ff] text-white shadow-md shadow-blue-500/20"
-                          : "boss-glass-pill text-slate-600 hover:text-slate-900"
-                      }`}
-                    >
-                      {tab.label} ({tab.count})
-                    </button>
-                  ))}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <div className="relative w-48">
-                    <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="搜索学员姓名..."
-                      className="boss-glass-input w-full pl-8 pr-3 py-1.5 text-xs outline-none"
-                    />
-                  </div>
-                  <button
-                    onClick={handleExportCsv}
-                    className="px-3.5 py-1.5 text-xs font-bold text-slate-950 bg-gradient-to-r from-[#FFE100] to-[#F5C518] rounded-full shadow-sm hover:scale-[1.02] active:scale-95 transition-all"
-                  >
-                    导出 CSV
-                  </button>
-                  <button
-                    onClick={onRefresh}
-                    className="boss-glass-pill p-1.5 rounded-full text-slate-600"
-                  >
-                    <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Data Table */}
-              <div className="overflow-x-auto rounded-2xl border border-slate-200/60 bg-white/70">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50/70 text-slate-500 font-bold border-b border-slate-200/60">
+          {/* Bitable Style Data Table */}
+          <div className="ffcrm-glass-card overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-100/70 border-b border-slate-200/80 text-slate-500 font-bold uppercase tracking-wider">
+                  <tr>
+                    <th className="px-6 py-3.5">ID</th>
+                    <th className="px-6 py-3.5">测评项目</th>
+                    <th className="px-6 py-3.5">学员姓名</th>
+                    <th className="px-6 py-3.5">手机号码</th>
+                    <th className="px-6 py-3.5">提交时间</th>
+                    <th className="px-6 py-3.5 text-right">操作诊断</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200/60">
+                  {loading ? (
                     <tr>
-                      <th className="px-5 py-3">ID</th>
-                      <th className="px-5 py-3">测评项目</th>
-                      <th className="px-5 py-3">学员姓名</th>
-                      <th className="px-5 py-3">手机号码</th>
-                      <th className="px-5 py-3">提交时间</th>
-                      <th className="px-5 py-3 text-right">操作诊断</th>
+                      <td colSpan={6} className="px-6 py-12 text-center text-slate-400 font-medium">
+                        正在加载全量测评数据...
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {loading ? (
-                      <tr>
-                        <td colSpan={6} className="px-6 py-8 text-center text-slate-400 font-medium">
-                          正在加载全量数据...
+                  ) : filteredRecords.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-12 text-center text-slate-400 font-medium">
+                        暂无匹配的测评记录
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredRecords.map((r) => (
+                      <tr key={r.id} className="hover:bg-purple-50/40 transition-all duration-150">
+                        <td className="px-6 py-4 font-mono font-bold text-slate-400">#{r.id}</td>
+                        <td className="px-6 py-4">
+                          <span className="px-2.5 py-1 text-[11px] font-bold rounded-md border border-purple-500/20 bg-purple-50 text-purple-700">
+                            {r.projectName || r.templateCode}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 font-bold text-slate-900">{r.studentName}</td>
+                        <td className="px-6 py-4 font-mono text-slate-600">{r.phoneNumber}</td>
+                        <td className="px-6 py-4 text-slate-500 font-mono">
+                          {new Date(r.submittedAt || "").toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button
+                            onClick={() => setSelectedRecord(r)}
+                            className="px-3.5 py-1.5 text-xs font-extrabold text-white bg-gradient-to-r from-[#7F3BF5] to-[#3370FF] hover:shadow-md rounded-full shadow-sm transition-all flex items-center gap-1 ml-auto active:scale-95"
+                          >
+                            <span>查看报告</span>
+                            <ChevronRight className="w-3 h-3" />
+                          </button>
                         </td>
                       </tr>
-                    ) : filteredRecords.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="px-6 py-8 text-center text-slate-400 font-medium">
-                          暂无匹配的测评记录
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredRecords.map((r) => (
-                        <tr key={r.id} className="hover:bg-blue-50/30 transition-colors">
-                          <td className="px-5 py-3 font-mono font-bold text-slate-400">#{r.id}</td>
-                          <td className="px-5 py-3">
-                            <span className="px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-blue-50 text-[#3370ff] border border-blue-200">
-                              {r.projectName || r.templateCode}
-                            </span>
-                          </td>
-                          <td className="px-5 py-3 font-extrabold text-slate-900">{r.studentName}</td>
-                          <td className="px-5 py-3 font-mono text-slate-600">{r.phoneNumber}</td>
-                          <td className="px-5 py-3 font-mono text-slate-500">
-                            {new Date(r.submittedAt || "").toLocaleString()}
-                          </td>
-                          <td className="px-5 py-3 text-right">
-                            <button
-                              onClick={() => setSelectedRecord(r)}
-                              className="px-3 py-1 text-xs font-bold text-white bg-[#3370ff] hover:bg-[#2b58d9] rounded-full shadow-sm transition-all active:scale-95 flex items-center gap-1 ml-auto"
-                            >
-                              <span>查看报告</span>
-                              <ChevronRight className="w-3 h-3" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
 
-        {/* Right Column: AI Assistant Sidecar Drawer ("老板助手") (Replicating Image 2 Right Drawer) */}
-        <div className="lg:col-span-4 xl:col-span-3 boss-glass-card p-5 space-y-5 sticky top-20">
-          {/* Drawer Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-slate-200/60">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#7f3bf5] to-[#6366f1] text-white flex items-center justify-center font-bold text-xs shadow-md">
-                <Sparkles className="w-4 h-4" />
+        {/* Right 1 Column: FFCRM-H5 "老板助手" AI Drawer Panel */}
+        <div className="lg:col-span-1 space-y-4">
+          <div className="ffcrm-glass-card p-5 h-full flex flex-col justify-between space-y-4">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-200/60 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse" />
+                  <h4 className="text-sm font-black text-slate-900">老板助手 AI</h4>
+                </div>
+                <Sparkles className="w-4 h-4 text-purple-600" />
               </div>
-              <h3 className="text-base font-black text-slate-900">老板助手</h3>
-            </div>
-            <div className="flex items-center gap-1.5 text-slate-400">
-              <MessageSquare className="w-4 h-4" />
-              <HelpCircle className="w-4 h-4" />
-            </div>
-          </div>
 
-          {/* AI Structured Insight Section */}
-          <div className="space-y-3 text-xs leading-relaxed text-slate-700 bg-white/60 p-4 rounded-2xl border border-white/90">
-            <p className="font-bold text-slate-900 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#7f3bf5]" />
-              学情总结与顾问赋能建议:
-            </p>
-            <p>
-              尊敬的管理者，本周测评平台新增 <strong className="text-[#3370ff] font-mono">{stats.total}</strong> 份学情报告。学员在【VAK 视觉通道】与【学习动机·自我效能感】维度表现突出。
-            </p>
-            <div className="space-y-1.5 pt-1">
-              <div className="p-2 bg-blue-50/70 rounded-xl border border-blue-100 text-blue-900 font-semibold">
-                强IP: 专业的资深艺考规划老师，通过抛专业的授课获得大家的认可和追捧。
-              </div>
-              <div className="p-2 bg-purple-50/70 rounded-xl border border-purple-100 text-purple-900 font-semibold">
-                核心用户 KOL: 有一定专业知识的活跃用户。
+              <p className="text-xs text-slate-600 leading-relaxed bg-white/80 p-3.5 rounded-2xl border border-slate-200/60">
+                您好，我是学情诊断助手。您可以通过自然语言指令查询全量学员提分瓶颈或学情提效建议。
+              </p>
+
+              {/* Prompt Suggestion Pills */}
+              <div className="space-y-2 pt-1">
+                {[
+                  "如何根据 VAK 风格优化课程安排？",
+                  "如何针对待激活学员做动机复盘？",
+                  "导出高风险学员名单并分析归因"
+                ].map((prompt, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => alert(`AI 助手思考中: ${prompt}`)}
+                    className="w-full text-left p-2.5 rounded-xl bg-slate-100/70 hover:bg-purple-50 text-slate-700 hover:text-purple-700 text-[11px] font-semibold transition-all border border-slate-200/50 flex items-center justify-between group"
+                  >
+                    <span className="truncate">{prompt}</span>
+                    <ChevronRight className="w-3 h-3 text-slate-400 group-hover:text-purple-600 flex-shrink-0" />
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
 
-          {/* Prompt Suggestion Cards (Replicating Image 2 Bottom Prompt Pills) */}
-          <div className="space-y-2">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              快捷指令对策
-            </p>
-            {[
-              "如何制定社群运营计划? ->",
-              "如何在社群中进行用户运营? ->",
-              "如何在社群中进行内容运营? ->"
-            ].map((prompt, i) => (
-              <button
-                key={i}
-                onClick={() => setChatInput(prompt.replace(" ->", ""))}
-                className="w-full p-2.5 text-left text-xs font-semibold text-slate-700 bg-white/70 hover:bg-white hover:text-[#3370ff] rounded-xl border border-slate-200/60 shadow-sm transition-all flex items-center justify-between group active:scale-98"
-              >
-                <span className="truncate">{prompt}</span>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-            ))}
-          </div>
-
-          {/* Glass Chat Input at Bottom (Replicating Image 2 Chat Input) */}
-          <div className="relative pt-2">
-            <input
-              type="text"
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              placeholder="输入您的问题或指令..."
-              className="boss-glass-input w-full pl-4 pr-10 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none"
-            />
-            <button
-              onClick={() => {
-                if (chatInput.trim()) {
-                  alert(`AI 老板助手已收到指令: "${chatInput}"，正在生成分析大屏...`);
-                  setChatInput("");
-                }
-              }}
-              className="w-7 h-7 absolute right-1.5 top-3 bg-[#3370ff] hover:bg-[#2b58d9] text-white rounded-full flex items-center justify-center shadow-md active:scale-95 transition-all"
-            >
-              <Send className="w-3.5 h-3.5" />
-            </button>
+            {/* Input Box */}
+            <div className="pt-2">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="输入您的问题或指令..."
+                  className="ffcrm-glass-input w-full pl-3.5 pr-10 py-2 text-xs outline-none"
+                />
+                <button className="absolute right-2 top-1.5 p-1 rounded-lg bg-gradient-to-r from-[#7F3BF5] to-[#3370FF] text-white hover:opacity-90 transition-opacity">
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
