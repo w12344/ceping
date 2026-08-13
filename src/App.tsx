@@ -42,15 +42,31 @@ export function App() {
     }
   };
 
+  const params = new URLSearchParams(window.location.search);
+  const getParam = (key: string) => params.get(key);
+
+  const hideHeaderVal = getParam("hideHeader");
+  const headerVal = getParam("header");
+  const hideTabsVal = getParam("hideTabs");
+  const tabsVal = getParam("tabs");
+  const embedVal = getParam("embed");
+  const simpleVal = getParam("simple");
+  const pureVal = getParam("pure");
+
+  const shouldHideHeader = hideHeaderVal === "1" || hideHeaderVal === "true" || headerVal === "0" || headerVal === "false" || embedVal === "1" || simpleVal === "1" || pureVal === "1";
+  const shouldHideTabs = hideTabsVal === "1" || hideTabsVal === "true" || tabsVal === "0" || tabsVal === "false" || embedVal === "1" || simpleVal === "1" || pureVal === "1";
+
   return (
     <div className="min-h-screen bg-[#FFFDF6]">
-      <Header
-        token={token}
-        currentView={currentView}
-        onOpenUpload={() => setIsUploadOpen(true)}
-        onSwitchToken={handleSwitchToken}
-        onNavigatePortal={() => setCurrentView(currentView === "admin" ? "portal" : "admin")}
-      />
+      {!shouldHideHeader && (
+        <Header
+          token={token}
+          currentView={currentView}
+          onOpenUpload={() => setIsUploadOpen(true)}
+          onSwitchToken={handleSwitchToken}
+          onNavigatePortal={() => setCurrentView(currentView === "admin" ? "portal" : "admin")}
+        />
+      )}
 
       <main>
         {currentView === "admin" ? (
@@ -62,6 +78,7 @@ export function App() {
         ) : (
           <AssessmentPortal
             token={token}
+            hideTabs={shouldHideTabs}
             onUpdateToken={(newToken) => {
               setToken(newToken);
               localStorage.setItem("adminToken", newToken);

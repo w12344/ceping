@@ -6,11 +6,13 @@ import { getCustomTemplates } from "../services/api";
 interface AssessmentPortalProps {
   token: string;
   onUpdateToken: (token: string) => void;
+  hideTabs?: boolean;
 }
 
 export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
   token,
-  onUpdateToken
+  onUpdateToken,
+  hideTabs = false
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [advisorTokenInput, setAdvisorTokenInput] = useState<string>(token);
@@ -84,35 +86,37 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* 顾问 Token 绑定卡片 */}
-      <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl p-6 text-amber-950 shadow-lg relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-amber-900 bg-amber-300/60 px-3 py-1 rounded-full w-fit mb-2">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>顾问个人专属 Token 绑定</span>
+      {!hideTabs && (
+        <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl p-6 text-amber-950 shadow-lg relative overflow-hidden">
+          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-amber-900 bg-amber-300/60 px-3 py-1 rounded-full w-fit mb-2">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>顾问个人专属 Token 绑定</span>
+              </div>
+              <h2 className="text-xl font-black text-amber-950">
+                科学测评综合分发中心
+              </h2>
+              <p className="text-xs text-amber-900/80 mt-1">
+                绑定顾问 Token 后，生成的测评链接与二维码将自动归集客户线索至您的【销销乐】顾问名下。
+              </p>
             </div>
-            <h2 className="text-xl font-black text-amber-950">
-              科学测评综合分发中心
-            </h2>
-            <p className="text-xs text-amber-900/80 mt-1">
-              绑定顾问 Token 后，生成的测评链接与二维码将自动归集客户线索至您的【销销乐】顾问名下。
-            </p>
-          </div>
 
-          <div className="flex items-center gap-2 bg-white/90 p-1.5 rounded-xl shadow-inner border border-amber-300/50 w-full md:w-auto">
-            <input
-              type="text"
-              value={advisorTokenInput}
-              onChange={(e) => {
-                setAdvisorTokenInput(e.target.value);
-                onUpdateToken(e.target.value);
-              }}
-              placeholder="输入顾问 Token (如: AQT6pTj1)..."
-              className="bg-transparent px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none w-full md:w-52"
-            />
+            <div className="flex items-center gap-2 bg-white/90 p-1.5 rounded-xl shadow-inner border border-amber-300/50 w-full md:w-auto">
+              <input
+                type="text"
+                value={advisorTokenInput}
+                onChange={(e) => {
+                  setAdvisorTokenInput(e.target.value);
+                  onUpdateToken(e.target.value);
+                }}
+                placeholder="输入顾问 Token (如: AQT6pTj1)..."
+                className="bg-transparent px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none w-full md:w-52"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 测评卡片网格 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

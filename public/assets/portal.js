@@ -294,6 +294,34 @@ async function init() {
   const hashParams = window.location.hash.includes("?")
     ? new URLSearchParams(window.location.hash.split("?")[1] || "")
     : null;
+
+  // 校验 URL 参数控制 Header 与 分类 Tab 的显隐
+  const getParam = (key) => urlParams.get(key) || hashParams?.get(key);
+  const hideHeaderVal = getParam("hideHeader");
+  const headerVal = getParam("header");
+  const hideTabsVal = getParam("hideTabs");
+  const tabsVal = getParam("tabs");
+  const embedVal = getParam("embed");
+  const simpleVal = getParam("simple");
+  const pureVal = getParam("pure");
+
+  const shouldHideHeader = hideHeaderVal === "1" || hideHeaderVal === "true" || headerVal === "0" || headerVal === "false" || embedVal === "1" || simpleVal === "1" || pureVal === "1";
+  const shouldHideTabs = hideTabsVal === "1" || hideTabsVal === "true" || tabsVal === "0" || tabsVal === "false" || embedVal === "1" || simpleVal === "1" || pureVal === "1";
+
+  if (shouldHideHeader) {
+    const headerEl = document.getElementById("adminHeader");
+    if (headerEl) {
+      headerEl.style.setProperty("display", "none", "important");
+    }
+  }
+
+  if (shouldHideTabs) {
+    const toolbarEl = document.querySelector(".toolbar-card");
+    if (toolbarEl) {
+      toolbarEl.style.setProperty("display", "none", "important");
+    }
+  }
+
   const code = urlParams.get("code") || hashParams?.get("code");
   const feishuSso = urlParams.get("feishu_sso") || hashParams?.get("feishu_sso");
 
