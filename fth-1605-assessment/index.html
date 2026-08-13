@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FTH 职业特质测评 · 1605权威版 | 非凡教育</title>
+  <style>
+    :root {
+      --bg: linear-gradient(135deg, #FFFDF6 0%, #FAF5E8 50%, #FFFDF8 100%);
+      --panel: #FFFFFF;
+      --panel-2: #FFFDF5;
+      --line: #FDE68A;
+      --text: #1F2937;
+      --muted: #4B5563;
+      --gold: #F5C518;
+      --gold-dark: #D97706;
+      --shadow: 0 16px 40px rgba(217, 119, 6, 0.08);
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: min(1080px, 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .hero-card {
+      background: var(--panel);
+      border: 1.5px solid var(--line);
+      border-radius: 24px;
+      padding: 36px 28px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      background: #FEF3C7;
+      color: var(--gold-dark);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: clamp(24px, 5vw, 36px);
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 12px;
+    }
+
+    .lead {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 680px;
+      margin: 0 auto 24px auto;
+      line-height: 1.6;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, #F5C518 0%, #E5B209 100%);
+      color: #78350F;
+      font-weight: 700;
+      font-size: 15px;
+      text-decoration: none;
+      box-shadow: 0 8px 20px rgba(245, 197, 24, 0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(245, 197, 24, 0.45);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 9999px;
+      background: #FFFDF5;
+      border: 1.5px solid var(--line);
+      color: #B45309;
+      font-weight: 700;
+      font-size: 15px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: #FEF3C7;
+    }
+
+    .gallery-section {
+      background: var(--panel);
+      border: 1.5px solid var(--line);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #92400E;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .slide-card {
+      border: 1px solid #FDE68A;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #FAF5E8;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .slide-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px rgba(217, 119, 6, 0.15);
+    }
+
+    .slide-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .slide-info {
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #78350F;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Modal / Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.85);
+      z-index: 100;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .lightbox.is-open { display: grid; }
+
+    .lightbox-content {
+      max-width: 90vw;
+      max-height: 90vh;
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header class="hero-card">
+      <span class="badge">FTH 1605 权威版</span>
+      <h1>FTH 职业特质测评 · 1605 产物包</h1>
+      <p class="lead">包含 AI 研发人才三大特质 (Fighter / Thinker / Helper) 与六型匹配模型权威 PPT 讲义产物包、全套矢量分页面布局与源码文件。</p>
+      
+      <div class="btn-row">
+        <a class="btn-primary" href="output/FTH职业特质测评-1605.pptx" download>
+          📥 下载完整 PPTX 讲义产物包 (.pptx)
+        </a>
+        <a class="btn-secondary" href="output/ai-rd-talent-attributes-types.pptx" download>
+          📄 下载 AI 研发人才分型 PPT
+        </a>
+        <a class="btn-secondary" href="/fthtalent/index.html">
+          💬 在线进行 FTH 特质测评
+        </a>
+      </div>
+    </header>
+
+    <section class="gallery-section">
+      <div class="section-title">
+        <span>🖼️ 讲义幻灯片全景图预览 (共 14 页)</span>
+        <small style="font-weight:400; font-size:13px; color:#B45309;">点击图片可放大查看</small>
+      </div>
+
+      <div class="grid">
+        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-01.png')">
+          <img src="source/ai-rd-ppt/preview/slide-01.png" alt="Slide 01">
+          <div class="slide-info"><span>P01. 封面标题页</span><span>🔍 放大</span></div>
+        </div>
+        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-02.png')">
+          <img src="source/ai-rd-ppt/preview/slide-02.png" alt="Slide 02">
+          <div class="slide-info"><span>P02. 评估背景与意义</span><span>🔍 放大</span></div>
+        </div>
+        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-03.png')">
+          <img src="source/ai-rd-ppt/preview/slide-03.png" alt="Slide 03">
+          <div class="slide-info"><span>P03. 三大核心维度模型</span><span>🔍 放大</span></div>
+        </div>
+        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-04.png')">
+          <img src="source/ai-rd-ppt/preview/slide-04.png" alt="Slide 04">
+          <div class="slide-info"><span>P04. Fighter 进取者解构</span><span>🔍 放大</span></div>
+        </div>
+        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-05.png')">
+          <img src="source/ai-rd-ppt/preview/slide-05.png" alt="Slide 05">
+          <div class="slide-info"><span>P05. Thinker 思辨者解构</span><span>🔍 放大</span></div>
+        </div>
+        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-06.png')">
+          <img src="source/ai-rd-ppt/preview/slide-06.png" alt="Slide 06">
+          <div class="slide-info"><span>P06. Helper 赋能者解构</span><span>🔍 放大</span></div>
+        </div>
+        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-07.png')">
+          <img src="source/ai-rd-ppt/preview/slide-07.png" alt="Slide 07">
+          <div class="slide-info"><span>P07. 六大匹配分型矩阵</span><span>🔍 放大</span></div>
+        </div>
+        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-08.png')">
+          <img src="source/ai-rd-ppt/preview/slide-08.png" alt="Slide 08">
+          <div class="slide-info"><span>P08. 团队角色互补策略</span><span>🔍 放大</span></div>
+        </div>
+        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-09.png')">
+          <img src="source/ai-rd-ppt/preview/slide-09.png" alt="Slide 09">
+          <div class="slide-info"><span>P09. 研发场景实战应用</span><span>🔍 放大</span></div>
+        </div>
+        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-10.png')">
+          <img src="source/ai-rd-ppt/preview/slide-10.png" alt="Slide 10">
+          <div class="slide-info"><span>P10. 领导力发展建议</span><span>🔍 放大</span></div>
+        </div>
+        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-11.png')">
+          <img src="source/ai-rd-ppt/preview/slide-11.png" alt="Slide 11">
+          <div class="slide-info"><span>P11. 职业成长路径推荐</span><span>🔍 放大</span></div>
+        </div>
+        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-12.png')">
+          <img src="source/ai-rd-ppt/preview/slide-12.png" alt="Slide 12">
+          <div class="slide-info"><span>P12. 团队协作沟通原则</span><span>🔍 放大</span></div>
+        </div>
+        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-13.png')">
+          <img src="source/ai-rd-ppt/preview/slide-13.png" alt="Slide 13">
+          <div class="slide-info"><span>P13. 测评维度换算逻辑</span><span>🔍 放大</span></div>
+        </div>
+        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-14.png')">
+          <img src="source/ai-rd-ppt/preview/slide-14.png" alt="Slide 14">
+          <div class="slide-info"><span>P14. 结语与版权声明</span><span>🔍 放大</span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <img id="lightboxImg" class="lightbox-content" src="" alt="Enlarged slide">
+  </div>
+
+  <script>
+    function openLightbox(src) {
+      document.getElementById('lightboxImg').src = src;
+      document.getElementById('lightbox').classList.add('is-open');
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('is-open');
+    }
+  </script>
+</body>
+</html>

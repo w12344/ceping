@@ -1,0 +1,227 @@
+{"kind":"deck","id":"pr/b6ddaq","name":"Deck"}
+{"kind":"layout","layoutId":"02984209-8927-44ac-9335-6ff2d87745a9","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"62a990e1-8769-4cb5-96f6-b2a03ba3a6c9","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/zu8nc0","slide":1,"title":"F","textShapes":8}
+{"kind":"shape","id":"sh/mtwra5gb","slide":1,"bbox":[870,-160,420,420]}
+{"kind":"shape","id":"sh/xkf6dcbu","slide":1,"bbox":[-170,520,360,360]}
+{"kind":"shape","id":"sh/4zidonyd","slide":1,"bbox":[88,86,52,52]}
+{"kind":"textbox","id":"sh/f6dcbulw","slide":1,"text":"F","textPreview":"F","textChars":1,"textLines":1,"bbox":[88,93,52,34]}
+{"kind":"shape","id":"sh/mlkjm1cf","slide":1,"bbox":[158,86,52,52]}
+{"kind":"textbox","id":"sh/xc3ylc7u","slide":1,"text":"T","textPreview":"T","textChars":1,"textLines":1,"bbox":[158,93,52,34]}
+{"kind":"shape","id":"sh/4r65wjud","slide":1,"bbox":[228,86,52,52]}
+{"kind":"textbox","id":"sh/fu18jqh0","slide":1,"text":"H","textPreview":"H","textChars":1,"textLines":1,"bbox":[228,93,52,34]}
+{"kind":"textbox","id":"sh/m94fu18j","slide":1,"text":"FTH创业者职业特质测评","textPreview":"FTH创业者职业特质测评","textChars":12,"textLines":1,"bbox":[88,198,920,82]}
+{"kind":"textbox","id":"sh/sji5snel","slide":1,"text":"看见创始人的创业驱动力、决策方式与团队协作说明书","textPreview":"看见创始人的创业驱动力、决策方式与团队协作说明书","textChars":24,"textLines":1,"bbox":[92,302,850,44]}
+{"kind":"shape","id":"sh/h4byhgn2","slide":1,"bbox":[88,430,760,120]}
+{"kind":"textbox","id":"sh/adsji5sn","slide":1,"text":"适合创始人分享 / 合伙人沟通 / 团队复盘","textPreview":"适合创始人分享 / 合伙人沟通 / 团队复盘","textChars":22,"textLines":1,"bbox":[124,460,700,34]}
+{"kind":"textbox","id":"sh/3ylc7u54","slide":1,"text":"结果用于自我理解与协作沟通，不用于简单贴标签。","textPreview":"结果用于自我理解与协作沟通，不用于简单贴标签。","textChars":23,"textLines":1,"bbox":[124,504,680,30]}
+{"kind":"textbox","id":"sh/s72x4nap","slide":1,"text":"2026","textPreview":"2026","textChars":4,"textLines":1,"bbox":[1110,630,100,40]}
+{"kind":"notes","id":"nt/zu8nc0","slide":1,"text":""}
+{"kind":"slide","id":"sl/6aql6b","slide":2,"title":"02","textShapes":10}
+{"kind":"shape","id":"sh/2lszqtcj","slide":2,"bbox":[870,-160,420,420]}
+{"kind":"shape","id":"sh/d8bat47y","slide":2,"bbox":[-170,520,360,360]}
+{"kind":"textbox","id":"sh/knih4byh","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[72,42,52,28]}
+{"kind":"textbox","id":"sh/vu9knih4","slide":2,"text":"FTH 创业者职业特质测评","textPreview":"FTH 创业者职业特质测评","textChars":13,"textLines":1,"bbox":[128,42,430,28]}
+{"kind":"textbox","id":"sh/29gr2p8n","slide":2,"text":"FTH：三种创业底层驱动力","textPreview":"FTH：三种创业底层驱动力","textChars":13,"textLines":1,"bbox":[72,86,880,56]}
+{"kind":"shape","id":"sh/d0z61032","slide":2,"bbox":[72,156,1136,2]}
+{"kind":"shape","id":"sh/kf6dcbul","slide":2,"bbox":[88,210,330,280]}
+{"kind":"textbox","id":"sh/vixczed8","slide":2,"text":"Fighter 进取者","textPreview":"Fighter 进取者","textChars":11,"textLines":1,"bbox":[112,232,282,34]}
+{"kind":"textbox","id":"sh/2x4nap4r","slide":2,"text":"目标、进攻、破局、拿结果。\n更适合市场开拓、关键客户、增长突破和逆境翻盘。","textPreview":"目标、进攻、破局、拿结果。 | 更适合市场开拓、关键客户、增长突破和逆境翻盘。","textChars":37,"textLines":2,"bbox":[112,280,282,198]}
+{"kind":"shape","id":"sh/gfmlkjm1","slide":2,"bbox":[475,210,330,280]}
+{"kind":"textbox","id":"sh/90je9cvi","slide":2,"text":"Thinker 思辨者","textPreview":"Thinker 思辨者","textChars":11,"textLines":1,"bbox":[499,232,282,34]}
+{"kind":"textbox","id":"sh/yd0z6103","slide":2,"text":"判断、结构、产品、系统。\n更适合战略选择、商业模式、产品架构和复杂决策。","textPreview":"判断、结构、产品、系统。 | 更适合战略选择、商业模式、产品架构和复杂决策。","textChars":36,"textLines":2,"bbox":[499,280,282,198]}
+{"kind":"shape","id":"sh/rytsvu9k","slide":2,"bbox":[862,210,330,280]}
+{"kind":"textbox","id":"sh/g7adsji5","slide":2,"text":"Helper 赋能者","textPreview":"Helper 赋能者","textChars":10,"textLines":1,"bbox":[886,232,282,34]}
+{"kind":"textbox","id":"sh/9s36hcrm","slide":2,"text":"连接、组织、文化、稳定。\n更适合团队凝聚、客户关系、合伙人协同和长期经营。","textPreview":"连接、组织、文化、稳定。 | 更适合团队凝聚、客户关系、合伙人协同和长期经营。","textChars":37,"textLines":2,"bbox":[886,280,282,198]}
+{"kind":"textbox","id":"sh/y1kre1w7","slide":2,"text":"三大特质不是三种人，而是每个创始人身上的三组能力配比。","textPreview":"三大特质不是三种人，而是每个创始人身上的三组能力配比。","textChars":27,"textLines":1,"bbox":[120,570,1040,36]}
+{"kind":"notes","id":"nt/6aql6b","slide":2,"text":""}
+{"kind":"slide","id":"sl/78mphv","slide":3,"title":"03","textShapes":11}
+{"kind":"shape","id":"sh/ulwval87","slide":3,"bbox":[870,-160,420,420]}
+{"kind":"shape","id":"sh/1cfa9w3m","slide":3,"bbox":[-170,520,360,360]}
+{"kind":"textbox","id":"sh/crmhk3q5","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[72,42,52,28]}
+{"kind":"textbox","id":"sh/ji5snelo","slide":3,"text":"三大特质之一","textPreview":"三大特质之一","textChars":6,"textLines":1,"bbox":[128,42,430,28]}
+{"kind":"textbox","id":"sh/uxc3ylc7","slide":3,"text":"Fighter 进取者：前线破局与增长推进","textPreview":"Fighter 进取者：前线破局与增长推进","textChars":21,"textLines":1,"bbox":[72,86,880,56]}
+{"kind":"shape","id":"sh/1kre1w7m","slide":3,"bbox":[72,156,1136,2]}
+{"kind":"textbox","id":"sh/c3ylc7u5","slide":3,"text":"破局型能量","textPreview":"破局型能量","textChars":5,"textLines":1,"bbox":[88,210,480,70]}
+{"kind":"textbox","id":"sh/jqh0fepk","slide":3,"text":"更适合把机会变成行动，把压力变成推进力，在不确定中抢出结果。","textPreview":"更适合把机会变成行动，把压力变成推进力，在不确定中抢出结果。","textChars":30,"textLines":1,"bbox":[90,300,500,110]}
+{"kind":"shape","id":"sh/q5o7qpg3","slide":3,"bbox":[675,200,460,310]}
+{"kind":"textbox","id":"sh/kzupwb2h","slide":3,"text":"适合场景","textPreview":"适合场景","textChars":4,"textLines":1,"bbox":[715,236,280,32]}
+{"kind":"shape","id":"sh/9knih4by","slide":3,"bbox":[725,304,12,12]}
+{"kind":"textbox","id":"sh/2t83itgf","slide":3,"text":"市场开拓","textPreview":"市场开拓","textChars":4,"textLines":1,"bbox":[753,296,332,44]}
+{"kind":"shape","id":"sh/re1w7mp0","slide":3,"bbox":[725,352,12,12]}
+{"kind":"textbox","id":"sh/kb6xkf6d","slide":3,"text":"融资冲刺","textPreview":"融资冲刺","textChars":4,"textLines":1,"bbox":[753,344,332,44]}
+{"kind":"shape","id":"sh/9w3m94fu","slide":3,"bbox":[725,400,12,12]}
+{"kind":"textbox","id":"sh/25kb6xkf","slide":3,"text":"关键客户","textPreview":"关键客户","textChars":4,"textLines":1,"bbox":[753,392,332,44]}
+{"kind":"shape","id":"sh/rqd4vmtw","slide":3,"bbox":[725,448,12,12]}
+{"kind":"textbox","id":"sh/kjm1cfa9","slide":3,"text":"增长突破","textPreview":"增长突破","textChars":4,"textLines":1,"bbox":[753,440,332,44]}
+{"kind":"textbox","id":"sh/94fu18jq","slide":3,"text":"提醒：速度和强度是优势，但团队也需要节奏、复盘和组织承压能力。","textPreview":"提醒：速度和强度是优势，但团队也需要节奏、复盘和组织承压能力。","textChars":31,"textLines":1,"bbox":[92,520,940,52]}
+{"kind":"notes","id":"nt/78mphv","slide":3,"text":""}
+{"kind":"slide","id":"sl/v60lim","slide":4,"title":"04","textShapes":11}
+{"kind":"shape","id":"sh/k3q5o7qp","slide":4,"bbox":[870,-160,420,420]}
+{"kind":"shape","id":"sh/vixczed8","slide":4,"bbox":[-170,520,360,360]}
+{"kind":"textbox","id":"sh/2x4nap4r","slide":4,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[72,42,52,28]}
+{"kind":"textbox","id":"sh/dcbulwva","slide":4,"text":"三大特质之一","textPreview":"三大特质之一","textChars":6,"textLines":1,"bbox":[128,42,430,28]}
+{"kind":"textbox","id":"sh/kre1w7mp","slide":4,"text":"Thinker 思辨者：战略判断与系统设计","textPreview":"Thinker 思辨者：战略判断与系统设计","textChars":21,"textLines":1,"bbox":[72,86,880,56]}
+{"kind":"shape","id":"sh/val87ed8","slide":4,"bbox":[72,156,1136,2]}
+{"kind":"textbox","id":"sh/6psfil0r","slide":4,"text":"架构型能量","textPreview":"架构型能量","textChars":5,"textLines":1,"bbox":[88,210,480,70]}
+{"kind":"textbox","id":"sh/d8bat47y","slide":4,"text":"更适合看清问题本质，搭建产品、机制和长期可复用的经营系统。","textPreview":"更适合看清问题本质，搭建产品、机制和长期可复用的经营系统。","textChars":29,"textLines":1,"bbox":[90,300,500,110]}
+{"kind":"shape","id":"sh/knih4byh","slide":4,"bbox":[675,200,460,310]}
+{"kind":"textbox","id":"sh/uxc3ylc7","slide":4,"text":"适合场景","textPreview":"适合场景","textChars":4,"textLines":1,"bbox":[715,236,280,32]}
+{"kind":"shape","id":"sh/ji5snelo","slide":4,"bbox":[725,304,12,12]}
+{"kind":"textbox","id":"sh/c3ylc7u5","slide":4,"text":"战略选择","textPreview":"战略选择","textChars":4,"textLines":1,"bbox":[753,296,332,44]}
+{"kind":"shape","id":"sh/1kre1w7m","slide":4,"bbox":[725,352,12,12]}
+{"kind":"textbox","id":"sh/ulwval87","slide":4,"text":"商业模式","textPreview":"商业模式","textChars":4,"textLines":1,"bbox":[753,344,332,44]}
+{"kind":"shape","id":"sh/j6tovaho","slide":4,"bbox":[725,400,12,12]}
+{"kind":"textbox","id":"sh/crmhk3q5","slide":4,"text":"产品架构","textPreview":"产品架构","textChars":4,"textLines":1,"bbox":[753,392,332,44]}
+{"kind":"shape","id":"sh/1cfa9w3m","slide":4,"bbox":[725,448,12,12]}
+{"kind":"textbox","id":"sh/qh0fepkz","slide":4,"text":"复杂决策","textPreview":"复杂决策","textChars":4,"textLines":1,"bbox":[753,440,332,44]}
+{"kind":"textbox","id":"sh/j2t83itg","slide":4,"text":"提醒：判断和结构是优势，但也需要真实市场反馈和执行节奏。","textPreview":"提醒：判断和结构是优势，但也需要真实市场反馈和执行节奏。","textChars":28,"textLines":1,"bbox":[92,520,940,52]}
+{"kind":"notes","id":"nt/v60lim","slide":4,"text":""}
+{"kind":"slide","id":"sl/1jc94i","slide":5,"title":"05","textShapes":11}
+{"kind":"shape","id":"sh/a1gvy90j","slide":5,"bbox":[870,-160,420,420]}
+{"kind":"shape","id":"sh/hoza1gvy","slide":5,"bbox":[-170,520,360,360]}
+{"kind":"textbox","id":"sh/s36hcrmh","slide":5,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[72,42,52,28]}
+{"kind":"textbox","id":"sh/za1gvy90","slide":5,"text":"三大特质之一","textPreview":"三大特质之一","textChars":6,"textLines":1,"bbox":[128,42,430,28]}
+{"kind":"textbox","id":"sh/ap4r65wj","slide":5,"text":"Helper 赋能者：组织连接与长期经营","textPreview":"Helper 赋能者：组织连接与长期经营","textChars":20,"textLines":1,"bbox":[72,86,880,56]}
+{"kind":"shape","id":"sh/hgn29gr2","slide":5,"bbox":[72,156,1136,2]}
+{"kind":"textbox","id":"sh/svu9knih","slide":5,"text":"组织型能量","textPreview":"组织型能量","textChars":5,"textLines":1,"bbox":[88,210,480,70]}
+{"kind":"textbox","id":"sh/3ylc7u54","slide":5,"text":"更适合建立信任、凝聚团队、经营客户关系，让组织持续协作和成长。","textPreview":"更适合建立信任、凝聚团队、经营客户关系，让组织持续协作和成长。","textChars":31,"textLines":1,"bbox":[90,300,500,110]}
+{"kind":"shape","id":"sh/adsji5sn","slide":5,"bbox":[675,200,460,310]}
+{"kind":"textbox","id":"sh/w7mp0bi9","slide":5,"text":"适合场景","textPreview":"适合场景","textChars":4,"textLines":1,"bbox":[715,236,280,32]}
+{"kind":"shape","id":"sh/psfil0rq","slide":5,"bbox":[725,304,12,12]}
+{"kind":"textbox","id":"sh/e1w7mp0b","slide":5,"text":"团队凝聚","textPreview":"团队凝聚","textChars":4,"textLines":1,"bbox":[753,296,332,44]}
+{"kind":"shape","id":"sh/7mp0bi9s","slide":5,"bbox":[725,352,12,12]}
+{"kind":"textbox","id":"sh/wval87ed","slide":5,"text":"客户关系","textPreview":"客户关系","textChars":4,"textLines":1,"bbox":[753,344,332,44]}
+{"kind":"shape","id":"sh/pg3ex0nu","slide":5,"bbox":[725,400,12,12]}
+{"kind":"textbox","id":"sh/epkzupwb","slide":5,"text":"合伙人协同","textPreview":"合伙人协同","textChars":5,"textLines":1,"bbox":[753,392,332,44]}
+{"kind":"shape","id":"sh/7adsji5s","slide":5,"bbox":[725,448,12,12]}
+{"kind":"textbox","id":"sh/wra5gbq1","slide":5,"text":"文化建设","textPreview":"文化建设","textChars":4,"textLines":1,"bbox":[753,440,332,44]}
+{"kind":"textbox","id":"sh/lc7u54zi","slide":5,"text":"提醒：关系和稳定是优势，但关键窗口也需要果断拍板和外部突破。","textPreview":"提醒：关系和稳定是优势，但关键窗口也需要果断拍板和外部突破。","textChars":30,"textLines":1,"bbox":[92,520,940,52]}
+{"kind":"notes","id":"nt/1jc94i","slide":5,"text":""}
+{"kind":"slide","id":"sl/g5lwdj","slide":6,"title":"06","textShapes":15}
+{"kind":"shape","id":"sh/nuxc3ylc","slide":6,"bbox":[870,-160,420,420]}
+{"kind":"shape","id":"sh/gbq1oryt","slide":6,"bbox":[-170,520,360,360]}
+{"kind":"textbox","id":"sh/5wjudg7a","slide":6,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[72,42,52,28]}
+{"kind":"textbox","id":"sh/yhgn29gr","slide":6,"text":"FTH 创业者职业特质测评","textPreview":"FTH 创业者职业特质测评","textChars":13,"textLines":1,"bbox":[128,42,430,28]}
+{"kind":"textbox","id":"sh/n29gr2p8","slide":6,"text":"六大创业者分型：更具体的贡献模式","textPreview":"六大创业者分型：更具体的贡献模式","textChars":16,"textLines":1,"bbox":[72,86,880,56]}
+{"kind":"shape","id":"sh/gn29gr2p","slide":6,"bbox":[72,156,1136,2]}
+{"kind":"shape","id":"sh/58z25kb6","slide":6,"bbox":[96,206,500,92]}
+{"kind":"textbox","id":"sh/ytsvu9kn","slide":6,"text":"冲刺型 Runner","textPreview":"冲刺型 Runner","textChars":10,"textLines":1,"bbox":[120,222,430,28]}
+{"kind":"textbox","id":"sh/neloj2t8","slide":6,"text":"机会捕手 / 增长冲刺者","textPreview":"机会捕手 / 增长冲刺者","textChars":12,"textLines":1,"bbox":[120,258,430,24]}
+{"kind":"shape","id":"sh/nap4r65w","slide":6,"bbox":[656,206,500,92]}
+{"kind":"textbox","id":"sh/upwb2hwf","slide":6,"text":"攻坚型 Climber","textPreview":"攻坚型 Climber","textChars":11,"textLines":1,"bbox":[680,222,430,28]}
+{"kind":"textbox","id":"sh/5gbq1ory","slide":6,"text":"硬仗型创始人 / 关键突破者","textPreview":"硬仗型创始人 / 关键突破者","textChars":14,"textLines":1,"bbox":[680,258,430,24]}
+{"kind":"shape","id":"sh/cvixczed","slide":6,"bbox":[96,330,500,92]}
+{"kind":"textbox","id":"sh/nyd0z610","slide":6,"text":"分析型 Analyzer","textPreview":"分析型 Analyzer","textChars":12,"textLines":1,"bbox":[120,346,430,28]}
+{"kind":"textbox","id":"sh/udg7adsj","slide":6,"text":"战略判断者 / 问题拆解者","textPreview":"战略判断者 / 问题拆解者","textChars":13,"textLines":1,"bbox":[120,382,430,24]}
+{"kind":"shape","id":"sh/54zidony","slide":6,"bbox":[656,330,500,92]}
+{"kind":"textbox","id":"sh/cj6tovah","slide":6,"text":"创构型 Builder","textPreview":"创构型 Builder","textChars":11,"textLines":1,"bbox":[680,346,430,28]}
+{"kind":"textbox","id":"sh/judg7ads","slide":6,"text":"系统搭建者 / 产品机制设计者","textPreview":"系统搭建者 / 产品机制设计者","textChars":15,"textLines":1,"bbox":[680,382,430,24]}
+{"kind":"shape","id":"sh/u9knih4b","slide":6,"bbox":[96,454,500,92]}
+{"kind":"textbox","id":"sh/2hwfyxob","slide":6,"text":"人际型 Socializer","textPreview":"人际型 Socializer","textChars":14,"textLines":1,"bbox":[120,470,430,28]}
+{"kind":"textbox","id":"sh/r2p8nqxs","slide":6,"text":"关系经营者 / 组织凝聚者","textPreview":"关系经营者 / 组织凝聚者","textChars":13,"textLines":1,"bbox":[120,506,430,24]}
+{"kind":"shape","id":"sh/kjm1cfa9","slide":6,"bbox":[656,454,500,92]}
+{"kind":"textbox","id":"sh/94fu18jq","slide":6,"text":"流程型 Keeper","textPreview":"流程型 Keeper","textChars":10,"textLines":1,"bbox":[680,470,430,28]}
+{"kind":"textbox","id":"sh/2p8nqxs7","slide":6,"text":"秩序守护者 / 稳定运营者","textPreview":"秩序守护者 / 稳定运营者","textChars":13,"textLines":1,"bbox":[680,506,430,24]}
+{"kind":"notes","id":"nt/g5lwdj","slide":6,"text":""}
+{"kind":"slide","id":"sl/2tm3pk","slide":7,"title":"07","textShapes":16}
+{"kind":"shape","id":"sh/z61032ls","slide":7,"bbox":[870,-160,420,420]}
+{"kind":"shape","id":"sh/orytsvu9","slide":7,"bbox":[-170,520,360,360]}
+{"kind":"textbox","id":"sh/hcrmhk3q","slide":7,"text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[72,42,52,28]}
+{"kind":"textbox","id":"sh/a9w3m94f","slide":7,"text":"FTH 创业者职业特质测评","textPreview":"FTH 创业者职业特质测评","textChars":13,"textLines":1,"bbox":[128,42,430,28]}
+{"kind":"textbox","id":"sh/zupwb2hw","slide":7,"text":"如何读懂测评结果","textPreview":"如何读懂测评结果","textChars":8,"textLines":1,"bbox":[72,86,880,56]}
+{"kind":"shape","id":"sh/sfil0rqd","slide":7,"bbox":[72,156,1136,2]}
+{"kind":"shape","id":"sh/h0fepkzu","slide":7,"bbox":[86,208,500,122]}
+{"kind":"textbox","id":"sh/65wjudg7","slide":7,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[110,231,54,50]}
+{"kind":"textbox","id":"sh/zqtcj6to","slide":7,"text":"三大特质排序","textPreview":"三大特质排序","textChars":6,"textLines":1,"bbox":[182,232,360,30]}
+{"kind":"textbox","id":"sh/zupwb2hw","slide":7,"text":"例如 FTH / TFH / HFT，代表创业中的主驱动力顺序。","textPreview":"例如 FTH / TFH / HFT，代表创业中的主驱动力顺序。","textChars":32,"textLines":1,"bbox":[182,272,360,44]}
+{"kind":"shape","id":"sh/a9w3m94f","slide":7,"bbox":[641,208,500,122]}
+{"kind":"textbox","id":"sh/h0fepkzu","slide":7,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[665,231,54,50]}
+{"kind":"textbox","id":"sh/sfil0rqd","slide":7,"text":"当前创业倾向","textPreview":"当前创业倾向","textChars":6,"textLines":1,"bbox":[737,232,360,30]}
+{"kind":"textbox","id":"sh/z61032ls","slide":7,"text":"先看三大特质，再看该特质内部更高的具体分型。","textPreview":"先看三大特质，再看该特质内部更高的具体分型。","textChars":22,"textLines":1,"bbox":[737,272,360,44]}
+{"kind":"shape","id":"sh/al87ed8b","slide":7,"bbox":[86,378,500,122]}
+{"kind":"textbox","id":"sh/hcrmhk3q","slide":7,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[110,401,54,50]}
+{"kind":"textbox","id":"sh/orytsvu9","slide":7,"text":"六大分型排名","textPreview":"六大分型排名","textChars":6,"textLines":1,"bbox":[182,402,360,30]}
+{"kind":"textbox","id":"sh/zed8v6ps","slide":7,"text":"主分型、次分型、第三倾向共同构成你的创业者画像。","textPreview":"主分型、次分型、第三倾向共同构成你的创业者画像。","textChars":24,"textLines":1,"bbox":[182,442,360,44]}
+{"kind":"shape","id":"sh/6xkf6dcb","slide":7,"bbox":[641,378,500,122]}
+{"kind":"textbox","id":"sh/e1w7mp0b","slide":7,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[665,401,54,50]}
+{"kind":"textbox","id":"sh/7mp0bi9s","slide":7,"text":"内核与外延","textPreview":"内核与外延","textChars":5,"textLines":1,"bbox":[737,402,360,30]}
+{"kind":"textbox","id":"sh/w7mp0bi9","slide":7,"text":"内核代表稳定显现，外延代表情境性、过渡性或潜在倾向。","textPreview":"内核代表稳定显现，外延代表情境性、过渡性或潜在倾向。","textChars":26,"textLines":1,"bbox":[737,442,360,44]}
+{"kind":"textbox","id":"sh/psfil0rq","slide":7,"text":"重点：结果要用于发展对话，而不是给创始人或团队贴固定标签。","textPreview":"重点：结果要用于发展对话，而不是给创始人或团队贴固定标签。","textChars":29,"textLines":1,"bbox":[120,602,1040,36]}
+{"kind":"notes","id":"nt/2tm3pk","slide":7,"text":""}
+{"kind":"slide","id":"sl/jygg0k","slide":8,"title":"08","textShapes":13}
+{"kind":"shape","id":"sh/oza1gvy9","slide":8,"bbox":[870,-160,420,420]}
+{"kind":"shape","id":"sh/zed8v6ps","slide":8,"bbox":[-170,520,360,360]}
+{"kind":"textbox","id":"sh/6xkf6dcb","slide":8,"text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[72,42,52,28]}
+{"kind":"textbox","id":"sh/hwfyxobm","slide":8,"text":"FTH 创业者职业特质测评","textPreview":"FTH 创业者职业特质测评","textChars":13,"textLines":1,"bbox":[128,42,430,28]}
+{"kind":"textbox","id":"sh/obm58z25","slide":8,"text":"报告会给创始人什么","textPreview":"报告会给创始人什么","textChars":9,"textLines":1,"bbox":[72,86,880,56]}
+{"kind":"shape","id":"sh/zqtcj6to","slide":8,"bbox":[72,156,1136,2]}
+{"kind":"textbox","id":"sh/65wjudg7","slide":8,"text":"典型优势","textPreview":"典型优势","textChars":4,"textLines":1,"bbox":[112,204,260,32]}
+{"kind":"textbox","id":"sh/h0fepkzu","slide":8,"text":"看见天然强项，以及最容易形成势能的场景","textPreview":"看见天然强项，以及最容易形成势能的场景","textChars":19,"textLines":1,"bbox":[390,206,700,32]}
+{"kind":"shape","id":"sh/sfil0rqd","slide":8,"bbox":[112,254,990,2]}
+{"kind":"textbox","id":"sh/qtcj6tov","slide":8,"text":"可能提醒","textPreview":"可能提醒","textChars":4,"textLines":1,"bbox":[112,282,260,32]}
+{"kind":"textbox","id":"sh/je9cvixc","slide":8,"text":"识别高压或失衡时容易出现的经营盲区","textPreview":"识别高压或失衡时容易出现的经营盲区","textChars":17,"textLines":1,"bbox":[390,284,700,32]}
+{"kind":"shape","id":"sh/8z25kb6x","slide":8,"bbox":[112,332,990,2]}
+{"kind":"textbox","id":"sh/1gvy90je","slide":8,"text":"适合行业 / 业务场景","textPreview":"适合行业 / 业务场景","textChars":11,"textLines":1,"bbox":[112,360,260,32]}
+{"kind":"textbox","id":"sh/q1orytsv","slide":8,"text":"把特质翻译成更适合发挥的业务类型","textPreview":"把特质翻译成更适合发挥的业务类型","textChars":16,"textLines":1,"bbox":[390,362,700,32]}
+{"kind":"shape","id":"sh/fmlkjm1c","slide":8,"bbox":[112,410,990,2]}
+{"kind":"textbox","id":"sh/87ed8bat","slide":8,"text":"团队使用说明书","textPreview":"团队使用说明书","textChars":7,"textLines":1,"bbox":[112,438,260,32]}
+{"kind":"textbox","id":"sh/xs72x4na","slide":8,"text":"告诉团队如何汇报、沟通、协同和补位","textPreview":"告诉团队如何汇报、沟通、协同和补位","textChars":17,"textLines":1,"bbox":[390,440,700,32]}
+{"kind":"shape","id":"sh/qd4vmtwr","slide":8,"bbox":[112,488,990,2]}
+{"kind":"textbox","id":"sh/fyxobm58","slide":8,"text":"适合搭档类型","textPreview":"适合搭档类型","textChars":6,"textLines":1,"bbox":[112,516,260,32]}
+{"kind":"textbox","id":"sh/7y1kre1w","slide":8,"text":"识别最需要的合伙人、二把手或核心补位角色","textPreview":"识别最需要的合伙人、二把手或核心补位角色","textChars":20,"textLines":1,"bbox":[390,518,700,32]}
+{"kind":"shape","id":"sh/ed8v6psf","slide":8,"bbox":[112,566,990,2]}
+{"kind":"notes","id":"nt/jygg0k","slide":8,"text":""}
+{"kind":"slide","id":"sl/xmz588","slide":9,"title":"09","textShapes":10}
+{"kind":"shape","id":"sh/0nuxc3yl","slide":9,"bbox":[870,-160,420,420]}
+{"kind":"shape","id":"sh/72x4nap4","slide":9,"bbox":[-170,520,360,360]}
+{"kind":"textbox","id":"sh/ih4byhgn","slide":9,"text":"09","textPreview":"09","textChars":2,"textLines":1,"bbox":[72,42,52,28]}
+{"kind":"textbox","id":"sh/pkzupwb2","slide":9,"text":"FTH 创业者职业特质测评","textPreview":"FTH 创业者职业特质测评","textChars":13,"textLines":1,"bbox":[128,42,430,28]}
+{"kind":"textbox","id":"sh/0z61032l","slide":9,"text":"团队使用说明书：把创始人优势用对","textPreview":"团队使用说明书：把创始人优势用对","textChars":16,"textLines":1,"bbox":[72,86,880,56]}
+{"kind":"shape","id":"sh/7ed8bat4","slide":9,"bbox":[72,156,1136,2]}
+{"kind":"shape","id":"sh/itgfmlkj","slide":9,"bbox":[96,210,330,270]}
+{"kind":"textbox","id":"sh/pwb2hwfy","slide":9,"text":"如何汇报","textPreview":"如何汇报","textChars":4,"textLines":1,"bbox":[120,232,282,34]}
+{"kind":"textbox","id":"sh/0bi9s36h","slide":9,"text":"先说结论、卡点和下一步。\n不同特质的创始人关注点不同。","textPreview":"先说结论、卡点和下一步。 | 不同特质的创始人关注点不同。","textChars":27,"textLines":2,"bbox":[120,280,282,188]}
+{"kind":"shape","id":"sh/u18jqh0f","slide":9,"bbox":[475,210,330,270]}
+{"kind":"textbox","id":"sh/jm1cfa9w","slide":9,"text":"如何决策","textPreview":"如何决策","textChars":4,"textLines":1,"bbox":[499,232,282,34]}
+{"kind":"textbox","id":"sh/c7u54zid","slide":9,"text":"F 看结果窗口，T 看逻辑结构，H 看人和协作影响。","textPreview":"F 看结果窗口，T 看逻辑结构，H 看人和协作影响。","textChars":26,"textLines":1,"bbox":[499,280,282,188]}
+{"kind":"shape","id":"sh/1orytsvu","slide":9,"bbox":[854,210,330,270]}
+{"kind":"textbox","id":"sh/u9knih4b","slide":9,"text":"如何补位","textPreview":"如何补位","textChars":4,"textLines":1,"bbox":[878,232,282,34]}
+{"kind":"textbox","id":"sh/judg7ads","slide":9,"text":"不要要求创始人全能。\n让团队承担他不天然擅长的那一块。","textPreview":"不要要求创始人全能。 | 让团队承担他不天然擅长的那一块。","textChars":27,"textLines":2,"bbox":[878,280,282,188]}
+{"kind":"textbox","id":"sh/cfa9w3m9","slide":9,"text":"好团队不是复制创始人，而是补足创始人。","textPreview":"好团队不是复制创始人，而是补足创始人。","textChars":19,"textLines":1,"bbox":[120,575,1040,42]}
+{"kind":"notes","id":"nt/xmz588","slide":9,"text":""}
+{"kind":"slide","id":"sl/ojgtb2","slide":10,"title":"10","textShapes":9}
+{"kind":"shape","id":"sh/knih4byh","slide":10,"bbox":[870,-160,420,420]}
+{"kind":"shape","id":"sh/v6psfil0","slide":10,"bbox":[-170,520,360,360]}
+{"kind":"textbox","id":"sh/2lszqtcj","slide":10,"text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[72,42,52,28]}
+{"kind":"textbox","id":"sh/d0z61032","slide":10,"text":"FTH 创业者职业特质测评","textPreview":"FTH 创业者职业特质测评","textChars":13,"textLines":1,"bbox":[128,42,430,28]}
+{"kind":"textbox","id":"sh/kf6dcbul","slide":10,"text":"适合搭档类型：创始人的最佳组合方式","textPreview":"适合搭档类型：创始人的最佳组合方式","textChars":17,"textLines":1,"bbox":[72,86,880,56]}
+{"kind":"shape","id":"sh/vu9knih4","slide":10,"bbox":[72,156,1136,2]}
+{"kind":"shape","id":"sh/29gr2p8n","slide":10,"bbox":[112,212,1020,92]}
+{"kind":"textbox","id":"sh/donyd0z6","slide":10,"text":"Fighter 主导","textPreview":"Fighter 主导","textChars":10,"textLines":1,"bbox":[148,236,240,32]}
+{"kind":"textbox","id":"sh/k3q5o7qp","slide":10,"text":"优先搭配 Thinker 帮你拆清打法，再搭配 Helper 稳住团队和关系。","textPreview":"优先搭配 Thinker 帮你拆清打法，再搭配 Helper 稳住团队和关系。","textChars":39,"textLines":1,"bbox":[420,235,650,42]}
+{"kind":"shape","id":"sh/at47y1kr","slide":10,"bbox":[112,344,1020,92]}
+{"kind":"textbox","id":"sh/3ex0nuxc","slide":10,"text":"Thinker 主导","textPreview":"Thinker 主导","textChars":10,"textLines":1,"bbox":[148,368,240,32]}
+{"kind":"textbox","id":"sh/szqtcj6t","slide":10,"text":"优先搭配 Fighter 把判断推向市场，再搭配 Helper 处理共识和组织动员。","textPreview":"优先搭配 Fighter 把判断推向市场，再搭配 Helper 处理共识和组织动员。","textChars":42,"textLines":1,"bbox":[420,367,650,42]}
+{"kind":"shape","id":"sh/lkjm1cfa","slide":10,"bbox":[112,476,1020,92]}
+{"kind":"textbox","id":"sh/ahoza1gv","slide":10,"text":"Helper 主导","textPreview":"Helper 主导","textChars":9,"textLines":1,"bbox":[148,500,240,32]}
+{"kind":"textbox","id":"sh/32lszqtc","slide":10,"text":"优先搭配 Fighter 增强破局与拍板，再搭配 Thinker 把经验沉淀成系统。","textPreview":"优先搭配 Fighter 增强破局与拍板，再搭配 Thinker 把经验沉淀成系统。","textChars":42,"textLines":1,"bbox":[420,499,650,42]}
+{"kind":"notes","id":"nt/ojgtb2","slide":10,"text":""}
+{"kind":"slide","id":"sl/jv6upm","slide":11,"title":"11","textShapes":9}
+{"kind":"shape","id":"sh/kre1w7mp","slide":11,"bbox":[870,-160,420,420]}
+{"kind":"shape","id":"sh/val87ed8","slide":11,"bbox":[-170,520,360,360]}
+{"kind":"textbox","id":"sh/6psfil0r","slide":11,"text":"11","textPreview":"11","textChars":2,"textLines":1,"bbox":[72,42,52,28]}
+{"kind":"textbox","id":"sh/donyd0z6","slide":11,"text":"现场使用","textPreview":"现场使用","textChars":4,"textLines":1,"bbox":[128,42,430,28]}
+{"kind":"textbox","id":"sh/k3q5o7qp","slide":11,"text":"扫码完成测评","textPreview":"扫码完成测评","textChars":6,"textLines":1,"bbox":[72,86,880,56]}
+{"kind":"shape","id":"sh/vixczed8","slide":11,"bbox":[72,156,1136,2]}
+{"kind":"textbox","id":"sh/2x4nap4r","slide":11,"text":"FTH创业者职业特质测评","textPreview":"FTH创业者职业特质测评","textChars":12,"textLines":1,"bbox":[88,210,570,60]}
+{"kind":"textbox","id":"sh/d0z61032","slide":11,"text":"建议现场完成后，用结果开启三类对话：自我理解、合伙人互补、团队协作方式。","textPreview":"建议现场完成后，用结果开启三类对话：自我理解、合伙人互补、团队协作方式。","textChars":36,"textLines":1,"bbox":[90,292,560,94]}
+{"kind":"shape","id":"sh/kf6dcbul","slide":11,"bbox":[102,438,12,12]}
+{"kind":"textbox","id":"sh/ylc7u54z","slide":11,"text":"测评链接：https://fthboss.msrtai.com","textPreview":"测评链接：https://fthboss.msrtai.com","textChars":31,"textLines":1,"bbox":[130,430,562,64]}
+{"kind":"shape","id":"sh/r65wjudg","slide":11,"bbox":[102,506,12,12]}
+{"kind":"textbox","id":"sh/gr2p8nqx","slide":11,"text":"结果包含：特质排序、六型画像、适合行业、团队说明书。","textPreview":"结果包含：特质排序、六型画像、适合行业、团队说明书。","textChars":26,"textLines":1,"bbox":[130,498,562,64]}
+{"kind":"shape","id":"sh/9cvixcze","slide":11,"bbox":[102,574,12,12]}
+{"kind":"textbox","id":"sh/yxobm58z","slide":11,"text":"建议不要现场互相贴标签，而是讨论如何协作得更顺。","textPreview":"建议不要现场互相贴标签，而是讨论如何协作得更顺。","textChars":24,"textLines":1,"bbox":[130,566,562,64]}
+{"kind":"textbox","id":"sh/g3ex0nux","slide":11,"text":"https://fthboss.msrtai.com","textPreview":"https://fthboss.msrtai.com","textChars":26,"textLines":1,"bbox":[752,548,370,34]}
+{"kind":"image","id":"im/47y1kre1","slide":11,"name":"","geometry":"roundRect","alt":"FTH创业者职业特质测评海报","bbox":[780,96,315,420]}
+{"kind":"notes","id":"nt/jv6upm","slide":11,"text":""}

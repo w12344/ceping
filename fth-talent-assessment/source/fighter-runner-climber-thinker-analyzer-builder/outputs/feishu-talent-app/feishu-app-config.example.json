@@ -1,0 +1,11 @@
+{
+  "app_name": "人才三大主属性测评",
+  "app_type": "飞书网页应用 / H5 应用",
+  "homepage_url": "https://your-domain.example.com/talent-assessment/index.html",
+  "desktop_homepage_url": "https://your-domain.example.com/talent-assessment/index.html",
+  "mobile_homepage_url": "https://your-domain.example.com/talent-assessment/index.html",
+  "icon_file": "icon.svg",
+  "data_collection": "当前版本仅浏览器本地计算，不自动上传员工结果",
+  "recommended_visibility": "企业内部成员可见",
+  "required_permissions": []
+}
