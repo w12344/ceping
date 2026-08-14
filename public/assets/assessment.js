@@ -602,7 +602,9 @@ async function finalSubmit() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          templateCode: "学习风格",
+          templateCode: "LEARNING_STYLE",
+          templateName: "学习风格测评",
+          templateType: "STUDENT_LEARNING",
           token: advisorToken,
           advisorToken: advisorToken,
           advisorUserId: advisorUserId,

@@ -363,7 +363,9 @@
       const session = `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
       const payload = {
-        templateCode: "FTH 1605版",
+        templateCode: "FTH_1605",
+        templateName: "FTH 职业特质测评(1605版)",
+        templateType: "CAREER_TALENT",
         token: crmCtx.token,
         advisorToken: crmCtx.token,
         advisorUserId: crmCtx.advisorUserId,

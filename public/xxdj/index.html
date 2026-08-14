@@ -373,7 +373,9 @@
       const session = `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
       const payload = {
-        templateCode: "学习动机",
+        templateCode: "MOTIVATION",
+        templateName: "学习动机测评",
+        templateType: "STUDENT_LEARNING",
         token: crmCtx.token,
         advisorToken: crmCtx.token,
         advisorUserId: crmCtx.advisorUserId,

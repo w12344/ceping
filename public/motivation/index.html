@@ -726,7 +726,9 @@ async function saveServerResult(){
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        templateCode: "学习动机",
+        templateCode: "MOTIVATION",
+        templateName: "学习动机测评",
+        templateType: "STUDENT_LEARNING",
         token: token,
         advisorToken: token,
         advisorUserId: ctx.advisor.userId,

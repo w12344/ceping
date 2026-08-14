@@ -206,7 +206,9 @@
       }
 
       const ctx = getFFCRMContextFromUrl();
-      const templateCode = config.templateCode || "自定义测评";
+      const templateCode = config.templateCode || "CUSTOM_HTML";
+      const templateName = config.templateName || config.projectName || "自定义 HTML 测评";
+      const templateType = config.templateType || "CAREER_TALENT";
       const token = config.token || ctx.advisor.token || "";
       const name = config.name || ctx.student.name || "未填写姓名";
       const contact = config.contact || config.mobile || ctx.student.mobile || "";
@@ -214,6 +216,8 @@
 
       const payload = {
         templateCode: templateCode,
+        templateName: templateName,
+        templateType: templateType,
         token: token,
         name: name,
         contact: contact,

@@ -178,7 +178,9 @@ export const LearningStyleAssessment: React.FC = () => {
     };
 
     const payload = {
-      templateCode: "学习风格",
+      templateCode: "LEARNING_STYLE",
+      templateName: "学习风格测评",
+      templateType: "STUDENT_LEARNING",
       token: ctx.advisor.token,
       advisorToken: ctx.advisor.token,
       advisorUserId: ctx.advisor.userId,

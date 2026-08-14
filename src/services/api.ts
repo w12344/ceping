@@ -8,30 +8,132 @@ export const parseAssessmentContextFromUrl = parseCtx;
 export const getFFCRMContextFromUrl = getContext;
 export const getAssessmentDataFromCtx = getDataFromCtx;
 
-export const TEMPLATE_META: Record<string, { projectKey: string; projectName: string; projectTagClass: string }> = {
-  "学习风格": { projectKey: "learningStyle", projectName: "学习风格测评", projectTagClass: "bg-amber-100 text-amber-800 border-amber-200" },
-  LEARNING_STYLE: { projectKey: "learningStyle", projectName: "学习风格测评", projectTagClass: "bg-amber-100 text-amber-800 border-amber-200" },
-  "学习动机": { projectKey: "motivation", projectName: "学习动机测评", projectTagClass: "bg-sky-100 text-sky-800 border-sky-200" },
-  MOTIVATION: { projectKey: "motivation", projectName: "学习动机测评", projectTagClass: "bg-sky-100 text-sky-800 border-sky-200" },
-  "FTH创业者": { projectKey: "fthBoss", projectName: "FTH 创业者职业特质", projectTagClass: "bg-rose-100 text-rose-800 border-rose-200" },
-  FTH_BOSS: { projectKey: "fthBoss", projectName: "FTH 创业者职业特质", projectTagClass: "bg-rose-100 text-rose-800 border-rose-200" },
-  "FTH微信版": { projectKey: "fthTalent", projectName: "FTH 职业特质(微信版)", projectTagClass: "bg-emerald-100 text-emerald-800 border-emerald-200" },
-  FTH_TALENT: { projectKey: "fthTalent", projectName: "FTH 职业特质(微信版)", projectTagClass: "bg-emerald-100 text-emerald-800 border-emerald-200" },
-  "FTH1605": { projectKey: "fth1605", projectName: "FTH 职业特质(1605版)", projectTagClass: "bg-purple-100 text-purple-800 border-purple-200" },
-  "FTH 1605版": { projectKey: "fth1605", projectName: "FTH 职业特质(1605版)", projectTagClass: "bg-purple-100 text-purple-800 border-purple-200" },
-  FTH_1605: { projectKey: "fth1605", projectName: "FTH 职业特质(1605版)", projectTagClass: "bg-purple-100 text-purple-800 border-purple-200" }
+export interface TemplateMeta {
+  templateCode: string;
+  templateName: string;
+  templateType: "STUDENT_LEARNING" | "CAREER_TALENT" | string;
+  templateTypeName: string;
+  projectKey: string;
+  projectName: string;
+  projectTagClass: string;
+}
+
+export const TEMPLATE_META: Record<string, TemplateMeta> = {
+  LEARNING_STYLE: {
+    templateCode: "LEARNING_STYLE",
+    templateName: "学习风格测评",
+    templateType: "STUDENT_LEARNING",
+    templateTypeName: "学生学习测评",
+    projectKey: "learningStyle",
+    projectName: "学习风格测评",
+    projectTagClass: "bg-amber-100 text-amber-800 border-amber-200"
+  },
+  "学习风格": {
+    templateCode: "LEARNING_STYLE",
+    templateName: "学习风格测评",
+    templateType: "STUDENT_LEARNING",
+    templateTypeName: "学生学习测评",
+    projectKey: "learningStyle",
+    projectName: "学习风格测评",
+    projectTagClass: "bg-amber-100 text-amber-800 border-amber-200"
+  },
+  MOTIVATION: {
+    templateCode: "MOTIVATION",
+    templateName: "学习动机测评",
+    templateType: "STUDENT_LEARNING",
+    templateTypeName: "学生学习测评",
+    projectKey: "motivation",
+    projectName: "学习动机测评",
+    projectTagClass: "bg-sky-100 text-sky-800 border-sky-200"
+  },
+  "学习动机": {
+    templateCode: "MOTIVATION",
+    templateName: "学习动机测评",
+    templateType: "STUDENT_LEARNING",
+    templateTypeName: "学生学习测评",
+    projectKey: "motivation",
+    projectName: "学习动机测评",
+    projectTagClass: "bg-sky-100 text-sky-800 border-sky-200"
+  },
+  FTH_BOSS: {
+    templateCode: "FTH_BOSS",
+    templateName: "FTH 创业者职业特质测评",
+    templateType: "CAREER_TALENT",
+    templateTypeName: "职业特质测评",
+    projectKey: "fthBoss",
+    projectName: "FTH 创业者职业特质测评",
+    projectTagClass: "bg-rose-100 text-rose-800 border-rose-200"
+  },
+  "FTH创业者": {
+    templateCode: "FTH_BOSS",
+    templateName: "FTH 创业者职业特质测评",
+    templateType: "CAREER_TALENT",
+    templateTypeName: "职业特质测评",
+    projectKey: "fthBoss",
+    projectName: "FTH 创业者职业特质测评",
+    projectTagClass: "bg-rose-100 text-rose-800 border-rose-200"
+  },
+  FTH_TALENT: {
+    templateCode: "FTH_TALENT",
+    templateName: "FTH 职业特质测评(微信版)",
+    templateType: "CAREER_TALENT",
+    templateTypeName: "职业特质测评",
+    projectKey: "fthTalent",
+    projectName: "FTH 职业特质测评(微信版)",
+    projectTagClass: "bg-emerald-100 text-emerald-800 border-emerald-200"
+  },
+  "FTH微信版": {
+    templateCode: "FTH_TALENT",
+    templateName: "FTH 职业特质测评(微信版)",
+    templateType: "CAREER_TALENT",
+    templateTypeName: "职业特质测评",
+    projectKey: "fthTalent",
+    projectName: "FTH 职业特质测评(微信版)",
+    projectTagClass: "bg-emerald-100 text-emerald-800 border-emerald-200"
+  },
+  FTH_1605: {
+    templateCode: "FTH_1605",
+    templateName: "FTH 职业特质测评(1605版)",
+    templateType: "CAREER_TALENT",
+    templateTypeName: "职业特质测评",
+    projectKey: "fth1605",
+    projectName: "FTH 职业特质测评(1605版)",
+    projectTagClass: "bg-purple-100 text-purple-800 border-purple-200"
+  },
+  "FTH1605": {
+    templateCode: "FTH_1605",
+    templateName: "FTH 职业特质测评(1605版)",
+    templateType: "CAREER_TALENT",
+    templateTypeName: "职业特质测评",
+    projectKey: "fth1605",
+    projectName: "FTH 职业特质测评(1605版)",
+    projectTagClass: "bg-purple-100 text-purple-800 border-purple-200"
+  },
+  "FTH 1605版": {
+    templateCode: "FTH_1605",
+    templateName: "FTH 职业特质测评(1605版)",
+    templateType: "CAREER_TALENT",
+    templateTypeName: "职业特质测评",
+    projectKey: "fth1605",
+    projectName: "FTH 职业特质测评(1605版)",
+    projectTagClass: "bg-purple-100 text-purple-800 border-purple-200"
+  }
 };
 
-export function resolveTemplateMeta(templateCode: string) {
+export function resolveTemplateMeta(templateCode: string): TemplateMeta {
   if (TEMPLATE_META[templateCode]) return TEMPLATE_META[templateCode];
   const code = String(templateCode || "").toLowerCase();
-  if (code.includes("学习风格") || code.includes("learning")) return TEMPLATE_META["学习风格"];
-  if (code.includes("学习动机") || code.includes("motivation")) return TEMPLATE_META["学习动机"];
-  if (code.includes("微信") || code.includes("talent")) return TEMPLATE_META["FTH微信版"];
-  if (code.includes("1605")) return TEMPLATE_META["FTH1605"];
-  if (code.includes("fth") || code.includes("创业者") || code.includes("boss")) return TEMPLATE_META["FTH创业者"];
+  if (code.includes("学习风格") || code.includes("style") || code.includes("learning")) return TEMPLATE_META["LEARNING_STYLE"];
+  if (code.includes("学习动机") || code.includes("motivation")) return TEMPLATE_META["MOTIVATION"];
+  if (code.includes("微信") || code.includes("talent")) return TEMPLATE_META["FTH_TALENT"];
+  if (code.includes("1605")) return TEMPLATE_META["FTH_1605"];
+  if (code.includes("fth") || code.includes("创业者") || code.includes("boss")) return TEMPLATE_META["FTH_BOSS"];
 
   return {
+    templateCode: String(templateCode || "CUSTOM_HTML"),
+    templateName: String(templateCode || "自定义测评"),
+    templateType: "CAREER_TALENT",
+    templateTypeName: "自定义测评",
     projectKey: "customHTML",
     projectName: String(templateCode || "自定义测评"),
     projectTagClass: "bg-violet-100 text-violet-800 border-violet-200"
