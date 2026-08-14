@@ -6,35 +6,56 @@
   <meta name="theme-color" content="#fbf7ef">
   <title>学习风格测评｜非凡教育</title>
   <link rel="stylesheet" href="/assets/styles.css">
-  <script type="module" src="/assets/assessment.js?v=20260813_v2"></script>
+  <script type="module" src="/assets/assessment.js?v=20260813_v600"></script>
 </head>
 <body class="assessment-page">
   <header class="brand-bar">
     <div class="brand-lockup">
-      <span class="brand-en">FEIFAN EDUCATION</span>
-      <span class="brand-cn">文化课学习风格测评</span>
+      <div class="brand-left">
+        <div class="brand-badge-box">凡</div>
+        <div class="brand-text">
+          <span class="brand-cn">非凡教育 · 学习风格测评</span>
+          <span class="brand-en">MAKE SILENCE VOICE · 让沉默发声</span>
+        </div>
+      </div>
+      <button id="autoFillDevBtn" type="button" class="autofill-pill-btn" onclick="window.oneClickAutoFillAndAnswer()">⚡ 极速秒填全卷</button>
     </div>
   </header>
 
   <main class="page-shell">
     <section id="startView" class="view is-active" aria-labelledby="startTitle">
       <div class="hero-panel">
-        <p class="eyebrow">LEARNING STYLE ASSESSMENT</p>
-        <h1 id="startTitle">学习风格<br>测评</h1>
+        <div class="hero-header-tag">
+          <span class="pill-badge">✨ 非凡教育 · 官方科学诊断量表</span>
+          <p class="eyebrow">LEARNING STYLE ASSESSMENT</p>
+        </div>
+        <h1 id="startTitle">学习风格测评</h1>
         <p class="hero-lead">回顾真实学习场景，看清你通常怎样接收、整理和运用信息，并获得目标学科的具体建议。</p>
 
         <div class="fact-row" aria-label="测评概况">
-          <div><strong>8-10 分钟</strong><span>预计完成</span></div>
-          <div><strong>42 + 可选 4 题</strong><span>作答题量</span></div>
+          <div class="fact-card fact-card-time">
+            <div class="fact-icon">⏱️</div>
+            <div>
+              <strong>8-10 分钟</strong>
+              <span>预计完成时间</span>
+            </div>
+          </div>
+          <div class="fact-card fact-card-count">
+            <div class="fact-icon">📝</div>
+            <div>
+              <strong>42 + 可选 4 题</strong>
+              <span>作答题目总量</span>
+            </div>
+          </div>
         </div>
 
         <div class="notice-block">
-          <h2>作答前请知道</h2>
-          <p>测评没有标准答案。请按平时最常出现的真实情况作答，不需要选择“看起来更正确”的选项。</p>
-          <p>结果描述的是当前学习入口，不评价能力。</p>
+          <h2>💡 作答前请知道</h2>
+          <p>• <strong>没有标准答案</strong>：请按平时最常出现的真实情况作答，无需选择“看起来更正确”的选项。</p>
+          <p>• <strong>客观看待结果</strong>：结果描述的是当前学习入口与信息偏好，不评价学习能力的高低。</p>
         </div>
 
-        <button id="startButton" class="primary-button" type="button">开始测评</button>
+        <button id="startButton" class="primary-button hero-start-btn" type="button">开始测评 →</button>
         <button id="resumeButton" class="text-button" type="button" hidden>继续上次作答</button>
       </div>
     </section>

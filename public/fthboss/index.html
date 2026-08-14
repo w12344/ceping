@@ -2,1913 +2,428 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FTH创业者职业特质测评</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>FTH 创业者职业特质测评｜非凡教育</title>
+  <link rel="stylesheet" href="/assets/styles.css">
   <style>
-    :root {
-      color-scheme: light;
-      --bg: linear-gradient(135deg, #FFFDF6 0%, #FFFBE9 50%, #FFFDF8 100%);
-      --panel: #FFFFFF;
-      --panel-2: #FFFDF5;
-      --line: #FDE68A;
-      --text: #1E1A1C;
-      --muted: #374151;
-      --faint: #6B7280;
-      --fighter: #D97706;
-      --fighter-2: #DC2626;
-      --thinker: #0284C7;
-      --thinker-2: #2D3092;
-      --helper: #16A34A;
-      --helper-2: #059669;
-      --gold: #FFE100;
-      --navy: #2D3092;
-      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--text);
-      background: var(--bg);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    button, input { font: inherit; }
-
-    .login-screen {
-      position: fixed;
-      inset: 0;
-      z-index: 10;
+    .fth-option-grid {
       display: grid;
-      place-items: center;
-      padding: 22px;
-      background: linear-gradient(135deg, #FFFDF6 0%, #FFFBE9 50%, #FFFDF8 100%);
-    }
-
-    .login-card {
-      width: min(520px, 100%);
-      padding: 32px;
-      border: 1px solid #FDE68A;
-      border-radius: 20px;
-      background: #FFFFFF;
-      box-shadow: 0 12px 36px rgba(217, 119, 6, 0.08);
-    }
-
-    .login-card h1 {
-      font-size: clamp(28px, 6vw, 38px);
-      margin-top: 14px;
-      color: #1E1A1C;
-      font-weight: 900;
-    }
-
-    .login-form {
-      display: grid;
-      gap: 14px;
-      margin-top: 24px;
-    }
-
-    .login-field {
-      display: grid;
-      gap: 8px;
-    }
-
-    .login-field label {
-      color: #374151;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .login-field input {
-      width: 100%;
-      min-height: 48px;
-      padding: 0 16px;
-      color: #1E1A1C;
-      border: 1.5px solid #FDE68A;
-      border-radius: 9999px;
-      background: #FFFDF5;
-      outline: none;
-    }
-
-    .login-field input:focus {
-      border-color: #F5C518;
-      box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.2);
-    }
-
-    .login-note {
-      color: var(--faint);
-      font-size: 13px;
-      line-height: 1.65;
-    }
-
-    .link-btn {
-      appearance: none;
-      border: 0;
-      padding: 0;
-      color: #D97706;
-      background: transparent;
-      cursor: pointer;
-      text-align: left;
-      font: inherit;
-      font-weight: 700;
-    }
-
-    .app {
-      width: min(1180px, calc(100vw - 32px));
-      margin: 0 auto;
-      padding: 30px 0 42px;
-      display: none;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .login-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-      color: #D97706;
-      font-size: 13px;
-    }
-
-    .meta-btn {
-      appearance: none;
-      border: 0;
-      padding: 0;
-      color: #D97706;
-      background: transparent;
-      cursor: pointer;
-      font: inherit;
-      font-weight: 700;
-    }
-
-    .logout-btn {
-      min-height: 28px;
-      padding: 0 12px;
-      margin-left: 8px;
-      border: 1px solid #FDE68A;
-      border-radius: 9999px;
-      color: #D97706;
-      background: #FEF3C7;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .logout-btn:hover {
-      background: #FDE68A;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .brand-mark {
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #FFE600 0%, #F5C518 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 20px;
-      color: #1E1A1C;
-      box-shadow: 0 4px 12px rgba(245, 197, 24, 0.35);
-    }
-
-    h1, h2, h3, p { margin: 0; }
-
-    h1 {
-      font-size: clamp(26px, 4vw, 40px);
-      line-height: 1.1;
-      letter-spacing: -0.5px;
-      color: #1E1A1C;
-      font-weight: 900;
-    }
-
-    .subtitle {
-      margin-top: 6px;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.6;
-    }
-
-    .chip-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
-
-    .chip {
-      border: 1px solid #FDE68A;
-      background: #FEF3C7;
-      color: #D97706;
-      padding: 5px 12px;
-      border-radius: 9999px;
-      font-size: 12px;
-      font-weight: 700;
-      line-height: 1;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 300px 1fr;
-      gap: 20px;
-      align-items: start;
-    }
-
-    .layout.history-mode {
-      grid-template-columns: 1fr;
-    }
-
-    .layout.history-mode .side {
-      display: none;
-    }
-
-    .panel {
-      border: 1px solid #FDE68A;
-      background: #FFFFFF;
-      box-shadow: 0 6px 20px rgba(217, 119, 6, 0.05);
-      border-radius: 16px;
-    }
-
-    .side {
-      position: sticky;
-      top: 22px;
-      padding: 20px;
-    }
-
-    .stat {
-      padding: 16px;
-      border: 1px solid #FDE68A;
-      background: #FFFDF5;
-      border-radius: 12px;
-      margin-bottom: 12px;
-    }
-
-    .stat-label {
-      color: var(--faint);
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
-
-    .stat-value {
-      font-size: 28px;
-      font-weight: 900;
-      color: #1E1A1C;
-    }
-
-    .progress {
-      width: 100%;
-      height: 10px;
-      overflow: hidden;
-      background: #FEF3C7;
-      border-radius: 9999px;
-      margin: 14px 0 8px;
-    }
-
-    .progress span {
-      display: block;
-      height: 100%;
-      width: 0;
-      background: linear-gradient(90deg, #FFE600, #F5C518, #D97706);
-      border-radius: 9999px;
-      transition: width .25s ease;
-    }
-
-    .legend {
-      display: grid;
-      gap: 10px;
-      margin-top: 18px;
-    }
-
-    .legend-item {
-      display: grid;
-      grid-template-columns: 12px 1fr;
-      gap: 10px;
-      align-items: center;
-      color: var(--muted);
-      font-size: 13.5px;
-    }
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-
-    .main {
-      padding: 24px;
-    }
-
-    .section-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 12px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid #FDE68A;
-      margin-bottom: 18px;
-    }
-
-    .section-title h2 {
-      font-size: 24px;
-      font-weight: 900;
-      color: #1E1A1C;
-    }
-
-    .section-title p {
-      color: var(--faint);
-      font-size: 14px;
-      white-space: nowrap;
-    }
-
-    .questions {
-      display: grid;
-      gap: 14px;
-    }
-
-    .question {
-      display: grid;
-      grid-template-columns: 1fr 520px;
-      gap: 18px;
-      align-items: center;
-      min-height: 92px;
-      padding: 20px;
-      border: 1px solid #FDE68A;
-      background: #FFFFFF;
-      border-radius: 14px;
-      box-shadow: 0 4px 16px rgba(217, 119, 6, 0.03);
-    }
-
-    .q-text {
-      font-size: 16.5px;
-      line-height: 1.55;
-      color: #1E1A1C;
-      font-weight: 600;
-    }
-
-    .q-tag {
-      display: inline-block;
-      margin-bottom: 6px;
-      color: var(--faint);
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .scale {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-    }
-
-    .scale input {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .scale label {
-      height: 44px;
-      padding: 0 8px;
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      color: #374151;
-      border: 1px solid #E5E7EB;
-      background: #FFFDF5;
-      border-radius: 9999px;
-      font-size: 13px;
-      font-weight: 600;
-      white-space: nowrap;
-      transition: all .16s ease;
-    }
-
-    .scale label:hover {
-      border-color: #F5C518;
-      background: #FEF3C7;
-      transform: translateY(-1px);
-    }
-
-    .scale input:checked + label {
-      color: #1E1A1C;
-      background: linear-gradient(135deg, #FFE600 0%, #F5C518 100%);
-      border-color: #F5C518;
-      font-weight: 800;
-      box-shadow: 0 3px 10px rgba(245, 197, 24, 0.35);
-    }
-
-    .actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 14px;
-      margin-top: 20px;
-    }
-
-    .hint {
-      color: var(--faint);
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .btn {
-      border: 0;
-      min-height: 46px;
-      padding: 0 24px;
-      border-radius: 9999px;
-      cursor: pointer;
-      color: #1E1A1C;
-      background: linear-gradient(135deg, #FFE600 0%, #F5C518 100%);
-      font-weight: 800;
-      box-shadow: 0 4px 12px rgba(245, 197, 24, 0.35);
-      transition: transform .16s ease, opacity .16s ease;
-    }
-
-    .btn:hover { transform: translateY(-1px); }
-    .btn:disabled { opacity: .42; cursor: not-allowed; transform: none; }
-
-    .btn:hover { transform: translateY(-1px); }
-    .btn:disabled { opacity: .42; cursor: not-allowed; transform: none; }
-
-    .btn.secondary {
-      color: var(--text);
-      background: rgba(148, 163, 184, .14);
-      border: 1px solid rgba(148, 163, 184, .22);
-    }
-
-    .result {
-      display: none;
-    }
-
-    .hero-result {
-      display: grid;
-      grid-template-columns: 1fr 430px;
-      gap: 22px;
-      padding: 28px;
-      margin-bottom: 22px;
-      border-radius: 16px;
-      border: 1.5px solid #F5C518;
-      background: linear-gradient(135deg, #FFFDF5 0%, #FEF3C7 100%);
-      box-shadow: 0 6px 24px rgba(245,197,24,0.12);
-    }
-
-    .result-kicker {
-      color: #D97706;
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
-    }
-
-    .result-title {
-      font-size: clamp(28px, 4vw, 42px);
-      line-height: 1.15;
-      color: #D97706;
-      font-weight: 900;
-      margin-bottom: 14px;
-    }
-
-    .result-copy {
-      color: #374151;
-      font-size: 15px;
-      line-height: 1.7;
-      max-width: 680px;
-      background: #FFFFFF;
-      padding: 16px;
-      border-radius: 12px;
-      border-left: 4px solid #F5C518;
-      border: 1px solid #FDE68A;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-    }
-
-    .crest {
-      display: grid;
-      place-items: center;
-      min-height: 360px;
-      border: 1px solid #FDE68A;
-      border-radius: 14px;
-      background: #FFFFFF;
-      padding: 16px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.03);
-    }
-
-    .radar-wrap {
-      width: 100%;
-    }
-
-    .radar-svg {
-      display: block;
-      width: 100%;
-      max-width: 390px;
-      margin: 0 auto;
-      aspect-ratio: 1;
-      overflow: visible;
-    }
-
-    .radar-note {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 8px;
       margin-top: 12px;
-      color: #374151;
-      font-size: 12.5px;
-      font-weight: 600;
-      line-height: 1.45;
     }
-
-    .radar-note span {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      padding: 8px 12px;
-      border: 1px solid #FDE68A;
-      background: #FFFDF5;
-      border-radius: 9999px;
-    }
-
-    .radar-note i {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .top-types {
-      display: grid;
-      gap: 10px;
-      margin-top: 18px;
-      max-width: 720px;
-    }
-
-    .top-type {
-      display: grid;
-      grid-template-columns: 78px 1fr auto;
-      gap: 12px;
-      align-items: center;
-      padding: 12px 16px;
-      border: 1px solid #FDE68A;
-      background: #FFFFFF;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-    }
-
-    .top-type strong {
-      color: #1E1A1C;
-      font-size: 15px;
-      font-weight: 800;
-    }
-
-    .top-type span {
-      color: #374151;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .top-type em {
-      color: #D97706;
-      font-style: normal;
-      font-size: 13px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .bars {
-      display: grid;
-      gap: 14px;
-      margin-top: 16px;
-    }
-
-    .bar-row {
-      display: grid;
-      grid-template-columns: 128px 1fr 128px;
-      gap: 12px;
-      align-items: center;
-      font-size: 14px;
-      color: #374151;
-      font-weight: 600;
-    }
-
-    .bar {
-      height: 10px;
-      position: relative;
-      overflow: hidden;
-      border-radius: 9999px;
-      background: #FEF3C7;
-      border: 1px solid #FDE68A;
-    }
-
-    .bar span {
-      display: block;
-      height: 100%;
-      width: 0;
-      border-radius: inherit;
-      background: currentColor;
-    }
-
-    .bar span.outer {
-      opacity: .42;
-    }
-
-    .bar span.inner {
-      position: absolute;
-      inset: 0 auto 0 0;
-      background: var(--helper);
-      opacity: .9;
-    }
-
-    .result-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-    }
-
-    .history-list {
-      display: grid;
-      gap: 14px;
-      margin-top: 16px;
-    }
-
-    .history-item {
-      padding: 18px;
-      border: 1px solid #FDE68A;
-      border-radius: 14px;
-      background: #FFFDF5;
-      box-shadow: 0 4px 14px rgba(217,119,6,0.05);
-    }
-
-    .history-open {
-      display: block;
-      width: 100%;
-      border: 0;
-      padding: 0;
-      color: inherit;
-      background: transparent;
-      text-align: left;
-      cursor: pointer;
-      font: inherit;
-    }
-
-    .history-item strong {
-      display: block;
-      margin-bottom: 6px;
-      color: #D97706;
-      font-size: 17px;
-      font-weight: 900;
-    }
-
-    .history-item span {
-      display: block;
-      color: #374151;
-      font-size: 13.5px;
-      line-height: 1.65;
-    }
-
-    .job-card {
-      margin-top: 16px;
-    }
-
-    .result-card {
-      padding: 22px;
-      border-radius: 16px;
-      border: 1px solid #FDE68A;
-      background: #FFFDF5;
-      box-shadow: 0 4px 16px rgba(217,119,6,0.04);
-      min-height: 174px;
-    }
-
-    .result-card h3 {
-      font-size: 18px;
-      font-weight: 900;
-      color: #D97706;
-      margin-bottom: 12px;
-    }
-
-    .result-card p, .result-card li {
-      color: #374151;
-      font-size: 14px;
-      line-height: 1.7;
-    }
-
-    .result-card ul {
-      margin: 0;
-      padding-left: 18px;
-    }
-
-    .toast {
-      min-height: 22px;
-      color: var(--gold);
-      font-size: 14px;
-    }
-
-    @media (max-width: 920px) {
-      .layout, .hero-result {
-        grid-template-columns: 1fr;
-      }
-
-      .side {
-        position: static;
-      }
-
-      .question {
-        grid-template-columns: 1fr;
-      }
-
-      .scale {
-        width: 100%;
-        max-width: none;
-        gap: 6px;
-      }
-
-      .scale label {
-        height: 42px;
-        padding: 0 4px;
-        font-size: clamp(11px, 3.1vw, 13px);
-      }
-
-      .result-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .section-title {
-        display: block;
-      }
-
-      .section-title p {
-        margin-top: 8px;
-        white-space: normal;
-      }
-    }
-
-    @media (max-width: 560px) {
-      .app {
-        width: min(100vw - 20px, 1180px);
-        padding-top: 18px;
-      }
-
-      .topbar {
-        align-items: flex-start;
-      }
-
-      .main, .side, .hero-result {
-        padding: 14px;
-      }
-
-      .login-card {
-        padding: 22px;
-      }
-
-      .question {
-        padding: 14px;
-      }
-
-      .actions {
-        display: grid;
-      }
-
-      .btn {
-        width: 100%;
+    @media (max-width: 640px) {
+      .fth-option-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
   </style>
 </head>
-<body>
-  <section class="login-screen" id="loginScreen">
-    <div class="login-card">
-      <div class="brand-mark">凡</div>
-      <h1>FTH创业者职业特质测评</h1>
-      <p class="subtitle">看见创始人的驱动力、决策方式与团队协作说明书。</p>
-      <form class="login-form" id="loginForm">
-        <div class="login-field">
-          <label for="testerName">你的称呼</label>
-          <input id="testerName" name="testerName" autocomplete="name" placeholder="例如：陈总 / 王老师" required>
-        </div>
-        <div class="login-field">
-          <label for="testerContact">手机号或微信号</label>
-          <input id="testerContact" name="testerContact" autocomplete="tel" placeholder="用于查看自己的历史结果" required>
-        </div>
-        <button class="btn" type="submit">进入测评</button>
-        <p class="login-note">提交后会保存你的测评结果。你可用同一个手机号或微信号查看自己的历史结果。</p>
-        <button class="link-btn" id="historyLoginBtn" type="button">查看我的历史结果</button>
-      </form>
-    </div>
-  </section>
-
-  <main class="app">
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-mark">凡</div>
+<body class="assessment-page">
+  <!-- 统一 Header Bar -->
+  <header class="brand-bar">
+    <div class="brand-lockup">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="brand-badge-box">凡</div>
         <div>
-          <h1>FTH创业者职业特质测评</h1>
-          <p class="subtitle">识别创始人的创业驱动力、决策方式、业务适配场景与团队协作说明书。</p>
-          <div class="chip-row">
-            <span class="chip"><span id="questionTotalChip">42</span> 题</span>
-            <span class="chip">1-5 分</span>
-            <span class="chip">结果仅供发展对话参考</span>
-          </div>
-          <div class="login-meta">
-            <span>
-              <span id="loginStatus">已登录：未命名</span>
-              <button class="meta-btn logout-btn" id="logoutBtn" type="button">退出</button>
-            </span>
-            <button class="meta-btn" id="topHistoryBtn" type="button">我的测试记录</button>
-          </div>
+          <span class="brand-cn">非凡教育 · FTH 创业者职业特质测评</span>
+          <span class="brand-en">FTH FOUNDER TALENT ASSESSMENT · 创业三大特质</span>
         </div>
       </div>
-    </header>
-
-    <div class="layout">
-      <aside class="panel side">
-        <div class="stat">
-          <div class="stat-label">已完成</div>
-          <div class="stat-value"><span id="answeredCount">0</span>/<span id="questionTotal">42</span></div>
-          <div class="progress"><span id="progressBar"></span></div>
-          <div class="hint">从“完全不像”到“就是这样”选择贴近程度；系统会自动换算内核与外延。</div>
-        </div>
-        <div class="legend">
-          <div class="legend-item"><span class="dot" style="background:var(--fighter)"></span><span>Fighter：目标、行动、突破</span></div>
-          <div class="legend-item"><span class="dot" style="background:var(--thinker)"></span><span>Thinker：分析、结构、创造</span></div>
-          <div class="legend-item"><span class="dot" style="background:var(--helper)"></span><span>Helper：连接、支持、稳定</span></div>
-        </div>
-      </aside>
-
-      <section class="panel main" id="quizPanel">
-        <div class="section-title">
-            <h2>请根据真实创业偏好作答</h2>
-            <p>没有更好或更差的选项，只选择更接近你自然经营和决策方式的描述。</p>
-        </div>
-        <form id="quizForm">
-          <div class="questions" id="questions"></div>
-          <div class="actions">
-            <div>
-              <div class="toast" id="toast"></div>
-              <p class="hint">选项没有好坏之分，只代表这句话和你自然经营方式的接近程度；部分题目会反向计分。</p>
-            </div>
-            <button class="btn" id="submitBtn" type="submit" disabled>查看我的创业者画像</button>
-          </div>
-        </form>
-      </section>
-
-      <section class="result" id="resultPanel">
-        <div class="hero-result">
-          <div>
-            <p class="result-kicker">你的当前倾向</p>
-            <h2 class="result-title" id="resultTitle"></h2>
-            <p class="result-copy" id="resultCopy"></p>
-            <div class="chip-row" id="resultChips"></div>
-            <div class="top-types" id="topTypes"></div>
-          </div>
-          <div class="crest">
-            <div class="radar-wrap">
-              <svg class="radar-svg" id="radarSvg" viewBox="0 0 360 360" role="img" aria-label="六大分型六边形得分画像"></svg>
-              <div class="radar-note">
-                <span><i style="background:#22c55e"></i>绿色内核：4-5 分稳定特质</span>
-                <span><i style="background:#facc15"></i>黄色外延：2-5 分整体倾向</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel main">
-          <div class="section-title">
-            <h2>得分画像</h2>
-            <p id="secondType"></p>
-          </div>
-          <div class="bars" id="scoreBars"></div>
-        </div>
-
-        <div class="result-grid" style="margin-top:16px;">
-          <article class="result-card">
-            <h3>典型优势</h3>
-            <ul id="strengthList"></ul>
-          </article>
-          <article class="result-card">
-            <h3>可能提醒</h3>
-            <ul id="riskList"></ul>
-          </article>
-        </div>
-
-        <article class="result-card job-card">
-          <h3>适合行业 / 业务场景</h3>
-          <p id="industryText"></p>
-        </article>
-
-        <article class="result-card job-card">
-          <h3>团队使用说明书</h3>
-          <ul id="teamManualList"></ul>
-        </article>
-
-        <article class="result-card job-card">
-          <h3>适合搭档类型</h3>
-          <ul id="partnerList"></ul>
-        </article>
-
-        <article class="result-card job-card">
-          <h3>报告摘要</h3>
-          <p id="resultSummary"></p>
-        </article>
-
-        <div class="actions">
-          <button class="btn secondary" id="backBtn" type="button">重新测一次</button>
-          <button class="btn" id="copyBtn" type="button">复制结果摘要</button>
-          <button class="btn secondary" id="historyBtn" type="button">我的历史</button>
-        </div>
-        <p class="hint" id="saveStatus"></p>
-      </section>
-
-      <section class="result" id="historyPanel">
-        <div class="panel main">
-          <div class="section-title">
-            <h2>我的历史结果</h2>
-            <p id="historySubtitle"></p>
-          </div>
-          <div class="history-list" id="historyList"></div>
-          <div class="actions" style="margin-top:22px;">
-            <button class="link-btn" id="historyRestartBtn" type="button" style="color:var(--gold);font-weight:800;">重新测评</button>
-          </div>
-        </div>
-      </section>
+      <button type="button" class="autofill-pill-btn" onclick="window.oneClickAutoFillAndAnswer()">⚡ 极速秒填全卷</button>
     </div>
+  </header>
+
+  <main class="page-shell">
+    <!-- Step 1: 引导页 -->
+    <section id="startView" class="view is-active">
+      <div class="hero-panel">
+        <p class="eyebrow">FTH FOUNDER ASSESSMENT</p>
+        <h1>FTH 创业者职业特质<br>诊断测评</h1>
+        <p class="hero-lead">深入剖析你的“主导特质（F特质-破局行动 / T特质-逻辑判断 / H特质-关系共情）”，看清你在创业与项目推进中的核心本能与潜在短板。</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0">
+          <div style="padding:16px;background:#FFFDF5;border:1px solid #FDE68A;border-radius:14px">
+            <strong style="font-size:18px;color:#1E1A1C;display:block">6 - 8 分钟</strong>
+            <span style="font-size:12px;color:#6B7280">预计完成时长</span>
+          </div>
+          <div style="padding:16px;background:#FFFDF5;border:1px solid #FDE68A;border-radius:14px">
+            <strong style="font-size:18px;color:#1E1A1C;display:block">30 题维度诊断</strong>
+            <span style="font-size:12px;color:#6B7280">破局·理性·共情三维</span>
+          </div>
+        </div>
+
+        <div style="padding:16px;background:#FFFBE9;border:1px solid #FDE68A;border-radius:14px;margin-bottom:24px;font-size:14px;color:#374151">
+          <strong style="color:#1E1A1C;display:block;margin-bottom:4px">💡 作答须知</strong>
+          <p style="margin:2px 0">• 测评没有高低优劣之分，每种特质类型都有其独特的商业爆发力与生态组合。</p>
+          <p style="margin:2px 0">• 请凭借第一直觉选择最符合你真实决策习惯的选项。</p>
+        </div>
+
+        <button type="button" class="primary-button" style="width:100%" onclick="switchView('basicView')">开始测评</button>
+      </div>
+    </section>
+
+    <!-- Step 2: 基本信息 -->
+    <section id="basicView" class="view">
+      <div class="form-panel" style="padding:28px">
+        <h2 style="font-size:22px;font-weight:800;margin-bottom:6px">填写创业者基本信息</h2>
+        <p style="font-size:13px;color:#6B7280;margin-bottom:20px">用于生成专属的特质画像与合伙人匹配建议。</p>
+
+        <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:20px">
+          <div>
+            <label style="font-size:13px;font-weight:800;color:#1E1A1C;display:block;margin-bottom:6px">姓名 / 称呼 *</label>
+            <input id="studentName" type="text" placeholder="请输入姓名" style="width:100%;min-height:52px;padding:14px 18px;font-size:16px;font-weight:700;border:1.5px solid #FDE68A;border-radius:14px;outline:none" />
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:800;color:#1E1A1C;display:block;margin-bottom:6px">手机号 / 微信 *</label>
+            <input id="studentMobile" type="tel" maxLength="11" placeholder="11位手机号" style="width:100%;min-height:52px;padding:14px 18px;font-size:16px;font-weight:700;border:1.5px solid #FDE68A;border-radius:14px;outline:none" />
+          </div>
+        </div>
+
+        <div style="margin-bottom:20px">
+          <label style="font-size:13px;font-weight:800;color:#1E1A1C;display:block;margin-bottom:8px">当前身份 / 角色 *</label>
+          <div class="choice-grid" style="display:flex;gap:10px;flex-wrap:wrap">
+            <label class="pill-radio-label is-checked"><input type="radio" name="role" value="创始人/CEO" checked><span>创始人/CEO</span></label>
+            <label class="pill-radio-label"><input type="radio" name="role" value="联合创始人"><span>联合创始人</span></label>
+            <label class="pill-radio-label"><input type="radio" name="role" value="核心高管"><span>核心高管</span></label>
+            <label class="pill-radio-label"><input type="radio" name="role" value="连续创业者"><span>连续创业者</span></label>
+            <label class="pill-radio-label"><input type="radio" name="role" value="独立开发者"><span>独立开发者</span></label>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:28px">
+          <button type="button" class="secondary-button" onclick="switchView('startView')">返回</button>
+          <button type="button" class="primary-button" style="flex:1" onclick="validateBasicAndStart()">进入测评</button>
+        </div>
+        <p id="basicError" style="color:#EF4444;font-size:13px;font-weight:800;margin-top:10px" hidden></p>
+      </div>
+    </section>
+
+    <!-- Step 3: 答题页 -->
+    <section id="questionsView" class="view">
+      <div class="progress-panel" style="padding:16px;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;margin-bottom:6px">
+          <span id="pageProgressText">第 1 / 5 页</span>
+          <span id="completedCountText">已完成 0 / 30 题</span>
+        </div>
+        <div style="height:8px;background:#FEF3C7;border-radius:999px;overflow:hidden">
+          <div id="progressFill" style="height:100%;background:linear-gradient(135deg, #FFE600 0%, #F5C518 100%);width:0%;transition:all 0.3s"></div>
+        </div>
+      </div>
+
+      <div id="questionsContainer" style="display:flex;flex-direction:column;gap:16px"></div>
+
+      <p id="pageError" style="color:#EF4444;font-size:13px;font-weight:700;margin-top:12px" hidden>请回答完本页所有题目再继续。</p>
+
+      <div style="display:flex;gap:12px;margin-top:20px">
+        <button id="prevBtn" type="button" class="secondary-button" onclick="changePage(-1)">上一页</button>
+        <button id="nextBtn" type="button" class="primary-button" style="flex:1" onclick="changePage(1)">下一页</button>
+      </div>
+    </section>
   </main>
 
   <script>
-    const attributes = {
-      fighter: { cn: "进取者", en: "Fighter", color: "#f97316", initial: "F", copy: "你更偏向前线破局、目标推进和关键结果，对机会、压力和增长窗口反应快。" },
-      thinker: { cn: "思辨者", en: "Thinker", color: "#60a5fa", initial: "T", copy: "你更偏向战略判断、系统设计和复杂问题拆解，擅长把业务想清楚、搭起来。" },
-      helper: { cn: "赋能者", en: "Helper", color: "#22c55e", initial: "H", copy: "你更偏向组织连接、关系经营和长期稳定，擅长让人愿意跟随并持续协作。" }
-    };
+    const FTH_BOSS_QUESTIONS = [
+      { id: "F01", prompt: "面对不确定的全新业务方向，我的本能是快速出击试错，而不是看清所有细节。" },
+      { id: "F02", prompt: "在团队陷入纠结争议时，我敢于拍板并承担全部最终后果。" },
+      { id: "F03", prompt: "比起按部就班稳健推进，我更享受带领团队攻克高难度破局点。" },
+      { id: "F04", prompt: "即使资源有限，我也能靠激情与愿景说服关键人才加入。" },
+      { id: "F05", prompt: "遇到突发危机时，我会立刻采取果断行动，绝不拖泥带水。" },
+      { id: "F06", prompt: "我习惯设定极具挑战性的高目标，并反向逼迫团队突破极限。" },
+      { id: "F07", prompt: "面对强劲的行业对手，我越挫越勇，好胜心极强。" },
+      { id: "F08", prompt: "相比保守维持现状，我宁愿冒风险去抢占更大的市场机会。" },
+      { id: "F09", prompt: "我具有极强的说服力，能让合作伙伴相信未来的商业蓝图。" },
+      { id: "F10", prompt: "项目遭遇重大挫折时，我能极快恢复战斗力并重新制定破局路径。" },
 
-    const partnerGuides = {
-      fighter: [
-        "优先搭配 Thinker 型伙伴：帮你把机会、打法和关键决策拆清楚，避免只靠冲劲推进。",
-        "再搭配 Helper 型伙伴：帮你稳住核心团队、客户关系和长期协作，避免组织被高压节奏拉扯。",
-        "最佳组合方式：你负责定目标、抢窗口和破局，对方负责结构化判断、组织稳定和复盘沉淀。"
-      ],
-      thinker: [
-        "优先搭配 Fighter 型伙伴：帮你把判断变成动作，把方案推到市场、客户和真实结果里。",
-        "再搭配 Helper 型伙伴：帮你处理人、关系和团队共识，避免好系统没人真正用起来。",
-        "最佳组合方式：你负责战略、产品或机制设计，对方负责节奏推进、资源协调和团队动员。"
-      ],
-      helper: [
-        "优先搭配 Fighter 型伙伴：帮你在关键窗口更果断地进攻、拍板和拿结果。",
-        "再搭配 Thinker 型伙伴：帮你把人和关系中的经验沉淀成方法、流程和长期系统。",
-        "最佳组合方式：你负责凝聚人心、稳定组织和关键关系，对方负责外部突破、关键判断和系统搭建。"
-      ]
-    };
+      { id: "T01", prompt: "做决定前，我必须看到严密的逻辑、数据支撑与投入产出比推演。" },
+      { id: "T02", prompt: "我擅长将复杂的业务流程拆解为标准化、可衡量的 SOP 机制。" },
+      { id: "T03", prompt: "比起感性直觉，我更信任经过验证的分析模型与客观财务指标。" },
+      { id: "T04", prompt: "在评估商业模式时，我会优先寻找底层逻辑缺陷与潜在合规风险。" },
+      { id: "T05", prompt: "我极度看重契约精神与规则流程，拒绝无原则的随意变通。" },
+      { id: "T06", prompt: "讨论方案时，我能迅速从纷繁表象中抓出问题的底层核心矛盾。" },
+      { id: "T07", prompt: "我倾向于理性冷静地分析归因，避免情绪化决策。" },
+      { id: "T08", prompt: "管理团队时，我注重搭建清晰的 KPI/OKR 考核与复盘迭代体系。" },
+      { id: "T09", prompt: "对于不合理或逻辑漏洞，我会直接指出并要求重新推演。" },
+      { id: "T10", prompt: "我习惯靠长远战略规划与结构化思维来降低企业的试错成本。" },
 
-    const types = {
-      runner: {
-        attr: "fighter", cn: "冲刺型", en: "Runner", color: "#f97316",
-        one: "你更像机会捕手和增长冲刺者，擅长快速启动、快速验证、快速拿反馈。",
-        strengths: ["能把机会窗口迅速转成行动", "适合目标明确、节奏紧、反馈快的业务", "能带动团队从讨论进入试错和推进"],
-        risks: ["容易重速度、轻沉淀", "对慢节奏协同耐心不足", "目标频繁变化时容易让团队跟不上"],
-        fit: "消费品、本地生活、渠道业务、销售驱动型业务、内容增长、私域转化、短周期项目验证。",
-        teamManual: ["给他明确目标、战场和反馈周期，不要只给模糊方向。", "汇报时先说结果和卡点，再展开过程。", "团队要安排人负责复盘沉淀，避免每次都靠临场冲刺。"]
-      },
-      climber: {
-        attr: "fighter", cn: "攻坚型", en: "Climber", color: "#ef4444",
-        one: "你更像硬仗型创始人和关键突破者，越是复杂局面越容易进入状态。",
-        strengths: ["抗压和韧性强，困难越大越容易投入", "适合关键客户、复杂谈判和瓶颈突破", "能在局面卡住时顶上去"],
-        risks: ["可能过度硬扛，忽略资源协同", "长期高压容易透支自己和团队", "对低挑战、重复性经营动作兴趣不足"],
-        fit: "B2B、大客户业务、重交付项目、教育培训、企业服务、传统行业转型、危机处理型业务。",
-        teamManual: ["要给他真实问题和关键阻力，不要只报喜不报忧。", "和他讨论时准备事实、资源缺口和可推进路径。", "团队要提醒他分配压力，避免所有硬仗都亲自扛。"]
-      },
-      analyzer: {
-        attr: "thinker", cn: "分析型", en: "Analyzer", color: "#60a5fa",
-        one: "你更像战略判断者和问题拆解者，擅长从复杂信息里找到关键变量。",
-        strengths: ["能把混乱业务问题结构化", "重视证据、数据和逻辑链", "能识别关键变量、风险和优先级"],
-        risks: ["可能想得深但行动慢", "容易过度追求确定性", "表达过于理性时不易带动团队情绪"],
-        fit: "咨询、投资、数据服务、AI 应用、SaaS、知识型服务、策略型产品、复杂决策型业务。",
-        teamManual: ["给他事实、数据、假设和备选方案，不要只给感受。", "需要他拍板时，先明确判断标准和风险边界。", "团队要帮他把分析转成节奏表，避免停留在推演。"]
-      },
-      builder: {
-        attr: "thinker", cn: "创构型", en: "Builder", color: "#8b5cf6",
-        one: "你更像系统搭建者，擅长把想法变成产品、机制、方法论或组织能力。",
-        strengths: ["从零到一搭建产品、系统或机制", "把经验沉淀为可复用能力", "关注扩展性、复利和长期效率"],
-        risks: ["可能过度理想化", "容易低估落地成本", "对重复执行和细节跟进兴趣不足"],
-        fit: "科技公司、AI 产品、教育产品、平台型业务、工具型产品、知识产品、组织能力建设。",
-        teamManual: ["让他参与底层设计、产品方向和长期机制建设。", "汇报时说明这个方案未来如何复用、扩展或降低成本。", "团队要配置强执行伙伴，帮他把系统设计推进到交付结果。"]
-      },
-      socializer: {
-        attr: "helper", cn: "人际型", en: "Socializer", color: "#22c55e",
-        one: "你更像关系经营者和组织凝聚者，擅长建立信任、共识和跟随感。",
-        strengths: ["共情和沟通敏感度高", "擅长协调冲突、恢复连接", "能营造安全感、参与感和团队凝聚力"],
-        risks: ["可能过度照顾他人感受", "强冲突场景不够果断", "容易承担过多情绪劳动"],
-        fit: "教育培训、咨询服务、社群、私域、客户成功、合伙人型业务、强关系型服务业。",
-        teamManual: ["让他参与关键关系、文化建设和团队沟通。", "汇报时说明人的状态、客户关系和协作影响。", "团队要帮他区分共情和决策，避免被关系消耗。"]
-      },
-      keeper: {
-        attr: "helper", cn: "流程型", en: "Keeper", color: "#14b8a6",
-        one: "你更像秩序守护者和稳定运营者，擅长让组织从混乱走向可复制。",
-        strengths: ["认真细致，可靠稳定", "擅长发现流程漏洞并补上", "能保障交付质量、运营节奏和组织秩序"],
-        risks: ["可能灵活性不足", "面对模糊变化会不适应", "流程若脱离目标会变成负担"],
-        fit: "连锁经营、教育交付、供应链、财务合规、运营型公司、重流程交付、标准化服务业。",
-        teamManual: ["给他清晰边界、流程、标准和责任人。", "变化较大时要提前同步背景和原因。", "团队要保护他的秩序感，同时避免流程压过业务目标。"]
-      }
-    };
-
-    const typeSignals = {
-      runner: {
-        gift: "行动和市场反馈会把你的判断快速拉回现实，适合承担验证节奏和增长冲刺。",
-        risk: "冲刺型偏低时，你可能不太愿意频繁试错，需要团队里有人推动小步快跑。",
-        partner: "配置能快速试错、敢于拿结果的人，帮你把想法推到真实市场里。"
-      },
-      climber: {
-        gift: "攻坚韧性会让你在复杂客户、关键瓶颈和高压局面里持续推进。",
-        risk: "攻坚型偏低时，你可能不喜欢长期硬扛难题，需要把关键战役拆小并配置强推进者。",
-        partner: "配置能扛硬仗、敢碰难题的人，补足关键突破和压力承接。"
-      },
-      analyzer: {
-        gift: "分析能力会让你更能看清变量、风险和优先级，减少凭感觉拍板。",
-        risk: "分析型偏低时，你可能更依赖直觉和现场反馈，重大决策前要补数据和反方意见。",
-        partner: "配置擅长数据、策略和风险判断的人，帮你把机会拆成可验证假设。"
-      },
-      builder: {
-        gift: "创构能力会让你把经验沉淀成产品、机制、方法论或组织能力。",
-        risk: "创构型偏低时，你可能解决完当下问题就进入下一仗，需要有人负责沉淀系统。",
-        partner: "配置能做产品化、机制化和知识沉淀的人，把一次性经验变成复用资产。"
-      },
-      socializer: {
-        gift: "人际敏感度会让你更容易建立信任、理解客户和凝聚关键伙伴。",
-        risk: "人际型偏低时，你可能低估关系、情绪和共识成本，需要有人盯住关键关系温度。",
-        partner: "配置擅长关系经营、客户沟通和组织氛围的人，帮你稳住人心与信任。"
-      },
-      keeper: {
-        gift: "流程意识会让你的业务更稳定，能把交付质量、责任边界和运营节奏守住。",
-        risk: "流程型偏低时，你可能不耐烦做标准化，业务放大时要尽早补流程和质检。",
-        partner: "配置重流程、重细节、重交付稳定的人，帮你把业务从能跑变成可复制。"
-      }
-    };
-
-    const comboPhrases = {
-      runner: {
-        climber: "你是“快速出击 + 关键攻坚”的组合，适合在窗口期抢速度，也能在卡点处继续向前推。",
-        analyzer: "你是“市场试错 + 结构判断”的组合，适合边跑边校准，而不是只靠冲劲推进。",
-        builder: "你是“快速验证 + 系统搭建”的组合，适合把市场反馈快速沉淀成产品、流程或方法。",
-        socializer: "你是“增长推进 + 关系动员”的组合，适合做需要客户信任、团队士气和传播扩散的业务。",
-        keeper: "你是“冲刺推进 + 运营落地”的组合，适合把短期目标拆成节奏和标准，避免只靠临场发挥。"
-      },
-      climber: {
-        runner: "你是“硬仗突破 + 快速行动”的组合，适合处理高压增长、关键客户和明确战役。",
-        analyzer: "你是“攻坚韧性 + 风险判断”的组合，适合复杂谈判、重决策和高不确定项目。",
-        builder: "你是“关键突破 + 系统重建”的组合，适合从混乱局面里搭出新机制、新产品或新组织能力。",
-        socializer: "你是“攻坚推进 + 关系修复”的组合，适合处理复杂客户、团队冲突和信任重建。",
-        keeper: "你是“硬仗推进 + 稳定交付”的组合，适合重交付、重服务、强责任的创业场景。"
-      },
-      analyzer: {
-        runner: "你是“战略判断 + 快速试错”的组合，适合先抓关键假设，再用市场反馈验证。",
-        climber: "你是“结构拆解 + 关键攻坚”的组合，适合解决复杂问题和推进高难度决策。",
-        builder: "你是“底层逻辑 + 系统搭建”的组合，适合做产品架构、商业模型和组织机制设计。",
-        socializer: "你是“理性判断 + 人的理解”的组合，适合既要看数据也要处理关系的业务。",
-        keeper: "你是“分析判断 + 流程治理”的组合，适合做精细运营、风险控制和标准化管理。"
-      },
-      builder: {
-        runner: "你是“系统设计 + 快速验证”的组合，适合把新想法快速做成原型并推向市场。",
-        climber: "你是“系统搭建 + 关键攻坚”的组合，适合重构业务、产品化转型和难题突破。",
-        analyzer: "你是“产品机制 + 底层逻辑”的组合，适合做复杂产品、知识体系和长期壁垒。",
-        socializer: "你是“系统搭建 + 组织共识”的组合，适合把方法论变成团队真正愿意使用的机制。",
-        keeper: "你是“系统设计 + 稳定运营”的组合，适合把创新能力沉淀成可复制、可交付的流程。"
-      },
-      socializer: {
-        runner: "你是“关系动员 + 快速推进”的组合，适合社群、客户成功、私域和传播型业务。",
-        climber: "你是“人心凝聚 + 关键攻坚”的组合，适合处理客户危机、团队冲突和复杂合作。",
-        analyzer: "你是“关系理解 + 结构判断”的组合，适合咨询、教育、组织发展和高信任服务。",
-        builder: "你是“组织连接 + 机制沉淀”的组合，适合把文化、服务和客户经验产品化。",
-        keeper: "你是“关系稳定 + 流程交付”的组合，适合强服务、强运营、重口碑的业务。"
-      },
-      keeper: {
-        runner: "你是“稳定运营 + 目标推进”的组合，适合把增长动作落到节奏、责任和检查机制里。",
-        climber: "你是“流程秩序 + 关键责任”的组合，适合重交付、强质量和高责任项目。",
-        analyzer: "你是“流程治理 + 理性分析”的组合，适合做运营体系、财务合规和风险控制。",
-        builder: "你是“标准化交付 + 系统搭建”的组合，适合连锁、平台化和可复制服务体系。",
-        socializer: "你是“稳定交付 + 关系维护”的组合，适合长期客户服务、团队运营和组织支持。"
-      }
-    };
-
-    const questions = [
-      ["runner", "业务方向大致清楚时，我更习惯先推进一版，再根据市场反馈调整。"],
-      ["runner", "相比长周期沉淀，我更偏好短周期目标、快速验证和快速反馈。"],
-      ["runner", "团队或合伙人讨论较久时，我会自然关注下一步先验证什么。"],
-      ["runner", "我更习惯用客户、市场或经营结果来校准判断，而不是只在方案里推演。"],
-      ["runner", "面对新机会，我更倾向先观察一段时间，再决定是否尝试。", true],
-      ["runner", "业务启动前，我更偏好先把资源、边界和流程梳理完整。", true],
-      ["runner", "相比快速启动，我更喜欢先把计划反复打磨到比较稳妥。", true],
-      ["climber", "面对复杂业务难题时，我更关注如何逐步拆开阻力。"],
-      ["climber", "遇到卡点时，我通常会继续寻找新的推进入口。"],
-      ["climber", "业务压力较大时，我不太会因为压力本身而降低投入。"],
-      ["climber", "相比常规经营动作，我对有明显难度的突破任务更容易产生投入感。"],
-      ["climber", "当一件业务推进不顺时，我通常会先判断是否值得继续投入，而不是马上拆解推进。", true],
-      ["climber", "如果短期看不到成果，我通常会倾向于减少投入，转向更清晰的任务。", true],
-      ["climber", "业务连续受阻时，我更倾向先转向确定性更高的事项。", true],
-      ["analyzer", "面对复杂经营问题时，我会先区分变量、条件和关键判断。"],
-      ["analyzer", "做创业决策时，我更依赖事实、数据或逻辑链，而不是直觉感受。"],
-      ["analyzer", "我经常会关注业务问题背后的原因，而不只看表面现象。"],
-      ["analyzer", "进入行动前，我习惯先评估收益、风险和优先级。"],
-      ["analyzer", "观点不一致时，我更倾向先推动形成结论，而不是继续拆分背后的假设。", true],
-      ["analyzer", "如果一个判断听起来方向大致合理，我通常不会继续深挖证据和前提。", true],
-      ["analyzer", "团队已经形成方向时，我通常不再继续深挖依据、假设和风险。", true],
-      ["builder", "我喜欢把零散业务经验整理成方法、模板、工具或机制。"],
-      ["builder", "相比重复执行既定动作，我更容易被新东西的搭建过程吸引。"],
-      ["builder", "我会关注业务方案未来是否能复用、扩展和持续运转。"],
-      ["builder", "遇到反复出现的经营问题时，我通常更关注这次先处理完，不会优先考虑沉淀模板。", true],
-      ["builder", "想法还比较模糊时，我通常会先搁置，等它自然清晰后再继续处理。", true],
-      ["builder", "解决一个业务问题后，我会关注能否沉淀为产品、流程、方法或组织能力。"],
-      ["builder", "如果问题已经临时解决，我通常不会再额外做系统化沉淀。", true],
-      ["socializer", "经营团队时，我会比较自然地留意核心成员的状态和团队氛围。"],
-      ["socializer", "和合伙人或核心成员协作时，我会比较在意彼此是否信任、信息是否沟通顺畅。"],
-      ["socializer", "团队出现摩擦时，我会关注彼此是否理解了对方的真实意思。"],
-      ["socializer", "看到团队成员获得支持、反馈或成长，会让我感到有意义。"],
-      ["socializer", "别人没有直接表达出来的顾虑或期待，通常不会成为我工作中的关注重点。", true],
-      ["socializer", "跨部门合作时，我更关注各自任务能否完成，不太会额外花时间同步背景。", true],
-      ["socializer", "经营中，我更关注业务本身，较少主动留意关系和氛围变化。", true],
-      ["keeper", "我会自然关注规则、流程、细节和交付标准是否清楚。"],
-      ["keeper", "如果发现流程中有容易遗漏或反复出错的环节，我会想把它调整得更清楚。"],
-      ["keeper", "相比临场发挥，我更偏好清晰标准、固定节奏和检查机制。"],
-      ["keeper", "团队协作中，我会关注是否有稳定、可依赖的经营秩序。"],
-      ["keeper", "只要大方向清楚，责任边界、时间节点和交付口径可以边做边补。", true],
-      ["keeper", "如果临时补救能解决问题，我通常不会特别推动流程规范化。", true],
-      ["keeper", "相比固定流程，我更偏好根据现场情况灵活处理。", true]
+      { id: "H01", prompt: "我能敏感地察觉到团队成员的情绪变化，并给予及时的关怀与倾听。" },
+      { id: "H02", prompt: "凝聚团队信任与打造共同体文化是我非常看重的管理核心。" },
+      { id: "H03", prompt: "面对团队冲突，我倾向于通过换位思考与温和沟通来达成共识。" },
+      { id: "H04", prompt: "我善于建立深度的长远信任关系，吸引忠诚的合作伙伴。" },
+      { id: "H05", prompt: "在分配合作收益时，我宁愿自己少拿一些，也希望大家开心共赢。" },
+      { id: "H06", prompt: "我关注成员的个人成长与内心诉求，乐于扮演导师角色。" },
+      { id: "H07", prompt: "即使面对批评，我也能包容听取，并真诚表达感谢与改进意愿。" },
+      { id: "H08", prompt: "我注重打造温暖有归属感的气氛，让大家感到被尊重与认可。" },
+      { id: "H09", prompt: "我能靠亲和力与同理心迅速拉近与客户及合作伙伴的距离。" },
+      { id: "H10", prompt: "当成员遇到困难时，我会全力给予资源支持与情绪背书。" }
     ];
 
-    const form = document.getElementById("quizForm");
-    const questionsEl = document.getElementById("questions");
-    const answeredCount = document.getElementById("answeredCount");
-    const questionTotal = document.getElementById("questionTotal");
-    const questionTotalChip = document.getElementById("questionTotalChip");
-    const progressBar = document.getElementById("progressBar");
-    const submitBtn = document.getElementById("submitBtn");
-    const toast = document.getElementById("toast");
-    const quizPanel = document.getElementById("quizPanel");
-    const resultPanel = document.getElementById("resultPanel");
-    const loginScreen = document.getElementById("loginScreen");
-    const app = document.querySelector(".app");
-    const layout = document.querySelector(".layout");
-    const historyPanel = document.getElementById("historyPanel");
-    const historyList = document.getElementById("historyList");
-    const historySubtitle = document.getElementById("historySubtitle");
-    const saveStatus = document.getElementById("saveStatus");
-    const loginStatus = document.getElementById("loginStatus");
-    let tester = JSON.parse(localStorage.getItem("fthFounderTester") || "null");
-    let currentHistoryRecords = [];
-    let viewingHistoryReport = false;
-
-    const answerOptions = [
-      { value: "1", label: "完全不像" },
-      { value: "2", label: "不太像" },
-      { value: "3", label: "有点像" },
-      { value: "4", label: "比较像" },
-      { value: "5", label: "就是这样" }
+    const LIKERT_LABELS = [
+      { val: 1, text: "非常不符合" },
+      { val: 2, text: "较不符合" },
+      { val: 3, text: "一般" },
+      { val: 4, text: "比较符合" },
+      { val: 5, text: "非常符合" }
     ];
-    const typeQuestionCounts = Object.fromEntries(Object.keys(types).map(type => [type, questions.filter(([key]) => key === type).length]));
-    const maxTypeScore = Math.max(...Object.values(typeQuestionCounts)) * 5;
-    const assessmentQuestions = shuffleQuestions(questions);
 
-    if (tester?.name) {
-      loginScreen.style.display = "none";
-      app.style.display = "block";
-      updateLoginStatus();
+    let currentPage = 0;
+    const pageSize = 6;
+    const totalPages = Math.ceil(FTH_BOSS_QUESTIONS.length / pageSize);
+    const answers = {};
+
+    function switchView(viewId) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('is-active'));
+      document.getElementById(viewId).classList.add('is-active');
+      window.scrollTo(0, 0);
     }
 
-    document.getElementById("loginForm").addEventListener("submit", (event) => {
-      event.preventDefault();
-      const data = new FormData(event.currentTarget);
-      tester = {
-        name: String(data.get("testerName") || "").trim(),
-        contact: String(data.get("testerContact") || "").trim(),
-        enteredAt: new Date().toISOString()
-      };
-      if (!tester.name || !tester.contact) return;
-      localStorage.setItem("fthFounderTester", JSON.stringify(tester));
-      loginScreen.style.display = "none";
-      app.style.display = "block";
-      updateLoginStatus();
-      window.scrollTo({ top: 0 });
-    });
+    function getFFCRMContext() {
+      const loc = window.location;
+      const searchParams = new URLSearchParams(loc.search || '');
+      const hashParams = loc.hash && loc.hash.includes('?') ? new URLSearchParams(loc.hash.split('?')[1]) : null;
+      const getParam = (k) => searchParams.get(k) || hashParams?.get(k) || '';
 
-    function updateLoginStatus() {
-      loginStatus.textContent = `已登录：${tester?.name || "未命名"}`;
-    }
-
-    function setHistoryMode(enabled) {
-      layout.classList.toggle("history-mode", Boolean(enabled));
-    }
-
-    function logoutTester() {
-      tester = null;
-      localStorage.removeItem("fthFounderTester");
-      document.getElementById("loginForm").reset();
-      form.reset();
-      updateProgress();
-      quizPanel.style.display = "block";
-      resultPanel.style.display = "none";
-      historyPanel.style.display = "none";
-      setHistoryMode(false);
-      app.style.display = "none";
-      loginScreen.style.display = "grid";
-      window.scrollTo({ top: 0 });
-    }
-
-    questionTotal.textContent = assessmentQuestions.length;
-    questionTotalChip.textContent = assessmentQuestions.length;
-
-    assessmentQuestions.forEach(([type, text], index) => {
-      const q = document.createElement("section");
-      q.className = "question";
-      q.innerHTML = `
-        <div>
-          <span class="q-tag">Q${String(index + 1).padStart(2, "0")}</span>
-          <div class="q-text">${text}</div>
-        </div>
-        <div class="scale" aria-label="第 ${index + 1} 题选项">
-          ${answerOptions.map(option => `
-            <span>
-              <input id="q${index}_${option.value}" type="radio" name="q${index}" value="${option.value}" data-type="${type}">
-              <label for="q${index}_${option.value}">${option.label}</label>
-            </span>
-          `).join("")}
-        </div>
-      `;
-      questionsEl.appendChild(q);
-    });
-
-    function updateProgress() {
-      const answered = new FormData(form);
-      const count = Array.from(answered.keys()).length;
-      answeredCount.textContent = count;
-      progressBar.style.width = `${count / assessmentQuestions.length * 100}%`;
-      submitBtn.disabled = count !== assessmentQuestions.length;
-      toast.textContent = count === assessmentQuestions.length ? "已完成，可以查看结果。" : "";
-    }
-
-    form.addEventListener("change", updateProgress);
-
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const data = new FormData(form);
-      if (Array.from(data.keys()).length !== assessmentQuestions.length) {
-        toast.textContent = "还有题目未完成。";
-        return;
-      }
-      const innerScores = Object.fromEntries(Object.keys(types).map(key => [key, 0]));
-      const outerScores = Object.fromEntries(Object.keys(types).map(key => [key, 0]));
-      const partialScores = Object.fromEntries(Object.keys(types).map(key => [key, 0]));
-      const answers = [];
-      assessmentQuestions.forEach(([type, _text, reverse], index) => {
-        const value = data.get(`q${index}`);
-        const score = scoreAnswer(value, Boolean(reverse));
-        answers.push({
-          index: index + 1,
-          type,
-          text: _text,
-          reverse: Boolean(reverse),
-          value: Number(value),
-          score
-        });
-        if (score >= 4) {
-          innerScores[type] += score;
-          outerScores[type] += score;
-        }
-        if (score >= 2 && score <= 3) {
-          partialScores[type] += score;
-          outerScores[type] += score;
-        }
-      });
-      renderResult({ innerScores, outerScores, partialScores, answers }, { persist: true });
-    });
-
-    function shuffleQuestions(source) {
-      const items = source.map((item, index) => ({ item, sort: randomSortValue(index) }));
-      items.sort((left, right) => left.sort - right.sort);
-      return items.map(entry => entry.item);
-    }
-
-    function randomSortValue(index) {
-      if (window.crypto?.getRandomValues) {
-        const value = new Uint32Array(1);
-        window.crypto.getRandomValues(value);
-        return value[0] + index / 1000;
-      }
-      return Math.random() + index / 1000;
-    }
-
-    function scoreAnswer(value, reverse) {
-      const raw = Number(value);
-      if (!Number.isFinite(raw)) return 0;
-      return reverse ? 6 - raw : raw;
-    }
-
-    function renderResult({ innerScores, outerScores, partialScores, answers }, options = {}) {
-      const displayTester = options.tester || tester || {};
-      const attrScores = { fighter: 0, thinker: 0, helper: 0 };
-      Object.entries(outerScores).forEach(([type, score]) => {
-        attrScores[types[type].attr] += score;
-      });
-
-      const rankedTypes = Object.entries(outerScores).sort((a, b) => {
-        const outerDelta = b[1] - a[1];
-        if (outerDelta !== 0) return outerDelta;
-        return innerScores[b[0]] - innerScores[a[0]];
-      });
-      const rankedAttrs = Object.entries(attrScores).sort((a, b) => {
-        const scoreDelta = b[1] - a[1];
-        if (scoreDelta !== 0) return scoreDelta;
-        const bestTypeForB = rankedTypes.find(([typeKey]) => types[typeKey].attr === b[0]);
-        const bestTypeForA = rankedTypes.find(([typeKey]) => types[typeKey].attr === a[0]);
-        return rankedTypes.indexOf(bestTypeForA) - rankedTypes.indexOf(bestTypeForB);
-      });
-      const topAttrKey = selectTopAttribute(rankedAttrs, rankedTypes);
-      const currentTypeKey = selectTopTypeWithinAttribute(topAttrKey, outerScores, innerScores);
-      const currentType = types[currentTypeKey];
-      const secondTypeKey = rankedTypes[1][0];
-      const topAttr = attributes[topAttrKey];
-      const secondType = types[secondTypeKey];
-      const traitOrder = rankedAttrs.map(([key]) => attributes[key].initial).join("");
-
-      document.getElementById("resultTitle").textContent = `${traitOrder}｜${topAttr.cn} ${topAttr.en}｜${currentType.cn} ${currentType.en}`;
-      document.getElementById("resultCopy").textContent = `${topAttr.copy}${currentType.one} 当前倾向会先判断三大特质，再在该特质内部选择更高的具体分型；下方排行榜按六大分型全局排序。`;
-      document.getElementById("resultTitle").style.color = currentType.color;
-      document.getElementById("secondType").textContent = `绿色为内核，黄色为外延；次优势：${secondType.cn} ${secondType.en}`;
-
-      const chips = document.getElementById("resultChips");
-      chips.innerHTML = "";
-      [
-        `测评人 ${displayTester.name || "未命名"}`,
-        `特质排序 ${traitOrder}`,
-        `当前分型 ${currentType.en}`,
-        options.createdAt ? `测评时间 ${formatTime(options.createdAt)}` : ""
-      ].filter(Boolean).forEach(text => {
-        const chip = document.createElement("span");
-        chip.className = "chip";
-        chip.textContent = text;
-        chip.style.borderColor = `${currentType.color}66`;
-        chip.style.color = currentType.color;
-        chips.appendChild(chip);
-      });
-
-      const topTypes = document.getElementById("topTypes");
-      const rankNames = ["主分型", "次分型", "第三倾向"];
-      topTypes.innerHTML = rankedTypes.slice(0, 3).map(([key, score], index) => {
-        const type = types[key];
-        return `
-          <div class="top-type" style="border-color:${type.color}66">
-            <strong style="color:${type.color}">${rankNames[index]}</strong>
-            <span>${type.cn} ${type.en}</span>
-            <em>内核 ${innerScores[key]}/${maxTypeScore} · 外延 ${score}/${maxTypeScore}</em>
-          </div>
-        `;
-      }).join("");
-
-      drawRadar(innerScores, outerScores);
-
-      const bars = document.getElementById("scoreBars");
-      bars.innerHTML = "";
-      Object.entries(types).forEach(([key, type]) => {
-        const row = document.createElement("div");
-        row.className = "bar-row";
-        row.style.color = type.color;
-        row.innerHTML = `
-            <span>${type.cn} ${type.en}</span>
-            <div class="bar">
-            <span class="outer" style="width:${outerScores[key] / maxTypeScore * 100}%; background:#facc15"></span>
-            <span class="inner" style="width:${innerScores[key] / maxTypeScore * 100}%"></span>
-          </div>
-          <span>${innerScores[key]}/${maxTypeScore} · ${outerScores[key]}/${maxTypeScore}</span>
-        `;
-        bars.appendChild(row);
-      });
-
-      const strengthList = document.getElementById("strengthList");
-      const riskList = document.getElementById("riskList");
-      const primaryTypeKey = rankedTypes[0][0];
-      const primaryType = types[primaryTypeKey];
-      const personalized = buildPersonalizedReport(primaryTypeKey, rankedTypes, innerScores, outerScores, topAttrKey);
-      strengthList.innerHTML = personalized.strengths.map(item => `<li>${item}</li>`).join("");
-      riskList.innerHTML = personalized.risks.map(item => `<li>${item}</li>`).join("");
-      document.getElementById("industryText").textContent = personalized.industry;
-      document.getElementById("teamManualList").innerHTML = personalized.teamManual.map(item => `<li>${item}</li>`).join("");
-      const partnerItems = personalized.partnerGuide;
-      document.getElementById("partnerList").innerHTML = partnerItems.map(item => `<li>${item}</li>`).join("");
-
-      const thirdType = types[rankedTypes[2][0]];
-      const summary = options.summary || `${displayTester.name || "我的"} FTH创业者职业特质测评结果：特质排序 ${traitOrder}，当前倾向 ${topAttr.cn} ${topAttr.en}｜${currentType.cn} ${currentType.en}。主分型 ${primaryType.cn}，次分型 ${secondType.cn}，第三倾向 ${thirdType.cn}。核心判断：${personalized.focus}。${personalized.combo} 主要提醒：${personalized.risks[0]} 搭档建议：${partnerItems[0]}`;
-      document.getElementById("resultSummary").textContent = summary;
-      const resultData = {
-        assessmentKind: "founder",
-        assessmentName: "FTH创业者职业特质测评",
-        tester: displayTester,
-        summary,
-        personalizedReport: personalized,
-        partnerGuide: partnerItems,
-        teamManual: personalized.teamManual,
-        traitOrder,
-        topAttribute: { key: topAttrKey, cn: topAttr.cn, en: topAttr.en },
-        currentType: { key: currentTypeKey, cn: currentType.cn, en: currentType.en },
-        primaryType: { key: primaryTypeKey, cn: primaryType.cn, en: primaryType.en },
-        secondType: { key: secondTypeKey, cn: secondType.cn, en: secondType.en },
-        thirdType: { key: rankedTypes[2][0], cn: thirdType.cn, en: thirdType.en },
-        innerScores,
-        outerScores,
-        partialScores,
-        rankedTypes: rankedTypes.map(([key, score]) => ({ key, score, cn: types[key].cn, en: types[key].en })),
-        answers,
-        userAgent: navigator.userAgent,
-        submittedAt: new Date().toISOString()
-      };
-      if (options.persist !== false) {
-        saveResult(resultData);
-      } else {
-        saveStatus.textContent = options.createdAt ? `正在查看历史记录：${formatTime(options.createdAt)}` : "正在查看历史记录。";
-      }
-      document.getElementById("copyBtn").onclick = async () => {
+      let ctxData = null;
+      const ctx = getParam('ctx');
+      if (ctx) {
         try {
-          await navigator.clipboard.writeText(summary);
-          document.getElementById("copyBtn").textContent = "已复制";
-          setTimeout(() => document.getElementById("copyBtn").textContent = "复制结果摘要", 1400);
-        } catch {
-          alert(summary);
+          let b64 = ctx.replace(/-/g, '+').replace(/_/g, '/');
+          while (b64.length % 4) b64 += '=';
+          const jsonStr = decodeURIComponent(atob(b64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+          ctxData = JSON.parse(jsonStr);
+        } catch(e) {}
+      }
+
+      const pick = (...vals) => {
+        const invalid = new Set(['', 'null', 'undefined', '用户', '顾问', '未知']);
+        for (const v of vals) {
+          if (v && typeof v === 'string' && v.trim() && !invalid.has(v.trim())) {
+            return v.trim();
+          }
         }
+        return '';
       };
 
-      viewingHistoryReport = Boolean(options.historyView);
-      document.getElementById("backBtn").textContent = viewingHistoryReport ? "返回我的测试记录" : "重新测一次";
-      setHistoryMode(viewingHistoryReport);
-      quizPanel.style.display = "none";
-      resultPanel.style.display = "block";
-      historyPanel.style.display = "none";
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+      const token = pick(getParam('token'), getParam('ref'), getParam('advisorToken'), ctxData?.at, localStorage.getItem('advisor_token'), localStorage.getItem('feifan_ref'));
+      const advisorUserId = pick(getParam('userId'), getParam('employeeId'), getParam('advisorUserId'), ctxData?.au, localStorage.getItem('advisor_user_id'));
+      const advisorName = pick(getParam('employeeName'), getParam('advisorName'), ctxData?.an, localStorage.getItem('advisor_name'));
+      const advisorMobile = pick(getParam('advisorMobile'), getParam('employeeMobile'), ctxData?.am, localStorage.getItem('advisor_mobile'));
 
-    function normalizeScores(scores = {}, isOuter = true) {
-      if (scores && typeof scores === 'object' && Object.values(scores).some(v => Number(v) > 0)) {
-        return Object.fromEntries(Object.keys(types).map(key => [key, Number(scores[key] || 0)]));
-      }
-      return Object.fromEntries(Object.keys(types).map(key => [key, 0]));
-    }
+      const studentName = pick(getParam('studentName'), getParam('name'), ctxData?.sn, localStorage.getItem('student_name'));
+      const studentMobile = pick(getParam('studentMobile'), getParam('mobile'), getParam('phone'), ctxData?.sm, localStorage.getItem('student_mobile'));
+      const profileId = pick(getParam('profileId'), getParam('customerId'), ctxData?.sp, localStorage.getItem('profile_id'));
 
-    function renderHistoryRecord(record) {
-      renderResult({
-        innerScores: normalizeScores(record.innerScores, false),
-        outerScores: normalizeScores(record.outerScores, true),
-        partialScores: normalizeScores(record.partialScores, true),
-        answers: record.answers || []
-      }, {
-        persist: false,
-        tester: { name: record.name, contact: record.contact },
-        summary: record.summary,
-        createdAt: record.createdAt,
-        historyView: true
-      });
-    }
-
-    function formatTime(value) {
-      if (!value) return "";
-      const str = String(value);
-      if (str.match(/^\d{4}[-/]\d{2}[-/]\d{2}\s+\d{2}:\d{2}/)) {
-        return str.slice(0, 16).replace(/\//g, "-");
-      }
       try {
-        const d = new Date(str);
-        if (isNaN(d.getTime())) return str;
-        const yyyy = d.getFullYear();
-        const mm = String(d.getMonth() + 1).padStart(2, "0");
-        const dd = String(d.getDate()).padStart(2, "0");
-        const hh = String(d.getHours()).padStart(2, "0");
-        const min = String(d.getMinutes()).padStart(2, "0");
-        return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-      } catch {
-        return str || "";
-      }
-    }
-
-    function cleanPhrase(text) {
-      return String(text || "")
-        .replace(/\s+/g, " ")
-        .trim()
-        .replace(/[。！？!?；;，,、\s]+$/u, "");
-    }
-
-    function cleanSentence(text) {
-      const phrase = cleanPhrase(text);
-      return phrase ? `${phrase}。` : "";
-    }
-
-    function signalText(typeKey, field, fallback) {
-      return cleanPhrase(typeSignals[typeKey]?.[field] || fallback || "");
-    }
-
-    function shortlistFit(fit, limit = 4) {
-      return cleanPhrase(fit)
-        .split(/[、，,]/u)
-        .map(cleanPhrase)
-        .filter(Boolean)
-        .slice(0, limit)
-        .join("、");
-    }
-
-    function scoreTone(score) {
-      if (score >= 25) return "很明显";
-      if (score >= 20) return "比较明显";
-      if (score >= 16) return "有一定表现";
-      return "相对偏低";
-    }
-
-    function uniqueItems(items, limit = 4) {
-      const normalized = items.map(cleanSentence).filter(Boolean);
-      return [...new Set(normalized)].slice(0, limit);
-    }
-
-    function buildPersonalizedReport(primaryKey, rankedTypes, innerScores, outerScores, topAttrKey) {
-      const primary = types[primaryKey];
-      const secondKey = rankedTypes[1]?.[0];
-      const thirdKey = rankedTypes[2]?.[0];
-      const lowestKey = rankedTypes[rankedTypes.length - 1]?.[0];
-      const primaryOuter = Number(outerScores[primaryKey] || 0);
-      const secondOuter = Number(outerScores[secondKey] || 0);
-      const primaryInner = Number(innerScores[primaryKey] || 0);
-      const outerInnerGap = primaryOuter - primaryInner;
-      const secondGap = primaryOuter - secondOuter;
-      const second = types[secondKey] || primary;
-      const third = types[thirdKey] || primary;
-      const lowest = types[lowestKey] || primary;
-      const secondGift = signalText(secondKey, "gift", second.one);
-      const lowestRisk = signalText(lowestKey, "risk", "这部分需要团队补位");
-      const lowestPartner = signalText(lowestKey, "partner", partnerGuides[topAttrKey]?.[0] || "优先配置能补足你低偏好能力的伙伴");
-      const isDoubleCore = secondGap <= 3;
-      const isStablePrimary = outerInnerGap <= 4;
-      const lowScore = Number(outerScores[lowestKey] || 0);
-
-      const combo = cleanSentence(comboPhrases[primaryKey]?.[secondKey] || `${primary.cn}是你的主分型，${second.cn}会明显影响你的创业表达方式`);
-      const primaryMode = isStablePrimary
-        ? `${primary.cn}内核和外延接近，说明这是比较自然、稳定的工作方式`
-        : `${primary.cn}外延高于内核，说明这类能力更多是在创业压力和业务场景中被激发出来`;
-      const secondMode = isDoubleCore
-        ? `${second.cn}和主分型分差很小，更像你的第二核心，而不是普通辅助项`
-        : `${second.cn}是你的关键补充，会影响你拿结果的方式，但不宜把它当成主角色`;
-      const lowMode = lowScore <= 16
-        ? `${lowest.cn}偏低：${lowestRisk}`
-        : `${lowest.cn}相对靠后，重要项目里这部分不要只靠自己硬补`;
-
-      const strengths = uniqueItems([
-        `${primary.cn}主导：${cleanPhrase(primary.one)}`,
-        secondMode,
-        primaryMode
-      ], 3);
-
-      const risks = uniqueItems([
-        isStablePrimary ? primary.risks[0] : `${primary.cn}更多来自场景激发，连续高强度输出时要留意精力消耗`,
-        isDoubleCore ? `双核心会带来弹性，也可能让你在${primary.cn}和${second.cn}之间切换过快，团队需要先确认当下优先级` : primary.risks[1],
-        lowMode
-      ], 3);
-
-      const industry = cleanSentence(`优先看${shortlistFit(primary.fit)}这类场景；判断标准不是行业名本身，而是这个岗位或业务是否同时需要${primary.cn}的主战场能力，以及${second.cn}带来的“${secondGift}”`);
-
-      const teamManual = uniqueItems([
-        `角色安排上，先让你负责${primary.cn}最擅长的主战场，再给${second.cn}留出发挥空间`,
-        isDoubleCore ? `把你当作${primary.cn}+${second.cn}双核心来分工，目标、边界和决策权要提前说清楚` : `不要把${second.cn}相关任务全部压给你，它更适合作为关键时刻的补充能力`,
-        `团队需要有人补上${lowest.cn}相关工作，避免你长期承担低偏好角色`
-      ], 3);
-
-      const partnerGuide = uniqueItems([
-        lowestPartner,
-        `如果找合伙人，优先补${lowest.cn}，其次找能把${second.cn}优势转成落地节奏的人`,
-        `最佳组合方式：你负责${primary.cn}主战场，对方补${lowest.cn}和团队稳定性`
-      ], 3);
+        if (token) {
+          localStorage.setItem('advisor_token', token);
+          localStorage.setItem('feifan_ref', token);
+        }
+        if (advisorUserId) localStorage.setItem('advisor_user_id', advisorUserId);
+        if (advisorName) localStorage.setItem('advisor_name', advisorName);
+        if (advisorMobile) localStorage.setItem('advisor_mobile', advisorMobile);
+        if (studentName) localStorage.setItem('student_name', studentName);
+        if (studentMobile) localStorage.setItem('student_mobile', studentMobile);
+        if (profileId) localStorage.setItem('profile_id', profileId);
+      } catch(e) {}
 
       return {
-        strengths,
-        risks,
-        industry,
-        teamManual,
-        partnerGuide,
-        combo,
-        focus: `${primary.cn}${scoreTone(primaryOuter)}，${second.cn}${scoreTone(secondOuter)}，${lowest.cn}${scoreTone(lowScore)}`
+        token,
+        advisorToken: token,
+        advisorUserId,
+        advisorName,
+        advisorMobile,
+        studentName,
+        studentMobile,
+        profileId,
+        customerId: profileId
       };
     }
 
-    async function saveResult(resultData) {
-      saveStatus.textContent = "正在保存结果...";
-      try {
-        const contact = String(resultData.contact || tester?.contact || "").trim();
-        const recordId = resultData.id || ("fthboss_" + Date.now());
-        resultData.id = recordId;
-        resultData.createdAt = resultData.createdAt || new Date().toISOString();
-
-        const storageKey = "fthboss_history_" + contact;
-        let localRecords = [];
-        try {
-          localRecords = JSON.parse(localStorage.getItem(storageKey) || "[]");
-        } catch(e) {}
-        localRecords.unshift(resultData);
-        localStorage.setItem(storageKey, JSON.stringify(localRecords));
-        localStorage.setItem("fthboss_last_record", JSON.stringify(resultData));
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const hashParams = window.location.hash.includes("?") 
-          ? new URLSearchParams(window.location.hash.split("?")[1] || "")
-          : null;
-        const token = urlParams.get("ref") || urlParams.get("token") || urlParams.get("advisorToken")
-                   || hashParams?.get("ref") || hashParams?.get("token") || hashParams?.get("advisorToken")
-                   || localStorage.getItem("advisor_token") || localStorage.getItem("feifan_ref") || "";
-
-        if (token) {
-          try {
-            localStorage.setItem("advisor_token", token);
-            localStorage.setItem("feifan_ref", token);
-          } catch(e) {}
-        }
-
-        const submitPayload = {
-          templateCode: "FTH创业者",
-          token: token,
-          name: resultData.name || tester?.name || "",
-          contact: contact,
-          answers: resultData.answers || answersState || {},
-          scores: resultData.scores || {},
-          resultData: resultData,
-          submittedAt: new Date().toISOString()
-        };
-
-        try {
-          const res = await fetch("https://ffcrm-api.1605ai.com/api/assessment/submit", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(submitPayload)
-          });
-          await res.json().catch(() => ({}));
-        } catch (e) {
-          console.warn("提交至 FFCRM 后端异常:", e);
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        saveStatus.textContent = `结果已保存！可随时调取！`;
-        await loadMyHistory(false);
-      } catch (e) {
-        saveStatus.textContent = "结果已保存在本地，可随时点击【我的测试记录】查看。";
+    window.addEventListener('DOMContentLoaded', () => {
+      const crmCtx = getFFCRMContext();
+      if (crmCtx.studentName && !document.getElementById('studentName').value) {
+        document.getElementById('studentName').value = crmCtx.studentName;
       }
-    }
-
-    async function loadMyHistory(showPanel = true) {
-      const contact = String(tester?.contact || "").trim();
-      if (!contact) {
-        alert("请先填写手机号或微信号。");
-        return;
-      }
-      historySubtitle.textContent = `${tester?.name || "我"}｜${contact}`;
-      historyList.innerHTML = '<div class="history-item"><span>正在读取历史报告...</span></div>';
-      if (showPanel) {
-        viewingHistoryReport = false;
-        setHistoryMode(true);
-        quizPanel.style.display = "none";
-        resultPanel.style.display = "none";
-        historyPanel.style.display = "block";
-        loginScreen.style.display = "none";
-        app.style.display = "block";
+      if (crmCtx.studentMobile && !document.getElementById('studentMobile').value) {
+        document.getElementById('studentMobile').value = crmCtx.studentMobile;
       }
 
-      let records = [];
-      try {
-        const apiRes = await fetch("https://ffcrm-api.1605ai.com/api/assessment/by-mobile?customerMobile=" + encodeURIComponent(contact));
-        const apiJson = await apiRes.json();
-        if ((apiJson.code === 200 || apiJson.code === 0) && Array.isArray(apiJson.data)) {
-          const filtered = apiJson.data.filter(item => item.templateCode === "FTH创业者" || item.templateCode === "FTH_BOSS");
-          filtered.sort((a, b) => (b.id || 0) - (a.id || 0));
-          records = filtered.map(item => {
-            let parsed = {};
-            try { parsed = typeof item.resultJson === "string" ? JSON.parse(item.resultJson) : (item.resultJson || {}); } catch(e){}
-            const resObj = parsed.resultData || parsed.result || parsed;
-            return {
-              id: item.id || resObj.id,
-              createdAt: item.createdAt || resObj.createdAt,
-              name: item.customerName || resObj.name || tester?.name,
-              contact: item.customerMobile || resObj.contact || contact,
-              traitOrder: resObj.traitOrder || "FTH创业者测评结果",
-              primaryType: resObj.primaryType || { cn: "创业者" },
-              secondType: resObj.secondType,
-              thirdType: resObj.thirdType,
-              summary: resObj.summary || "",
-              scores: resObj.scores || {},
-              answers: resObj.answers || {},
-              ...resObj
-            };
-          });
-        }
-      } catch(e) {
-        console.warn("读取后台历史报告 API 失败:", e);
-      }
-
-      if (!records.length) {
-        const storageKey = "fthboss_history_" + contact;
-        try { records = JSON.parse(localStorage.getItem(storageKey) || "[]"); } catch(e) {}
-      }
-
-      if (!records.length) {
-        historyList.innerHTML = '<div class="history-item"><span>暂未查询到历史结果。完成测评后可在此调取完整报告。</span></div>';
-        return;
-      }
-
-      currentHistoryRecords = records;
-      historyList.innerHTML = records.map((record, index) => `
-        <div class="history-item">
-          <button class="history-open" type="button" data-history-index="${index}">
-            <strong>${record.traitOrder || 'FTH创业者测评结果'}｜${record.primaryType?.cn || ""} ${record.primaryType?.en || ""}</strong>
-            <span>${formatTime(record.createdAt)}｜主分型 ${record.primaryType?.cn || "-"}｜次分型 ${record.secondType?.cn || "-"}｜第三倾向 ${record.thirdType?.cn || "-"}</span>
-            <span>${record.summary || ""}</span>
-            <span style="color:var(--gold);font-weight:800;margin-top:8px;">查看完整报告</span>
-          </button>
-        </div>
-      `).join("");
-
-      historyList.querySelectorAll("[data-history-index]").forEach(button => {
-        button.addEventListener("click", () => {
-          const record = currentHistoryRecords[Number(button.dataset.historyIndex)];
-          if (record) renderHistoryRecord(record);
+      document.querySelectorAll('.pill-radio-label').forEach(label => {
+        label.addEventListener('click', function() {
+          const radio = this.querySelector('input[type="radio"]');
+          if (radio) {
+            const name = radio.name;
+            document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+              r.parentElement.classList.remove('is-checked');
+            });
+            this.classList.add('is-checked');
+            radio.checked = true;
+          }
         });
       });
-    }
-
-    function formatTime(value) {
-      try {
-        return new Date(value).toLocaleString("zh-CN", { hour12: false });
-      } catch {
-        return value || "";
-      }
-    }
-
-    function selectTopAttribute(rankedAttrs, rankedTypes) {
-      const topScore = rankedAttrs[0][1];
-      const tiedAttrs = rankedAttrs.filter(([, score]) => score === topScore).map(([key]) => key);
-      if (tiedAttrs.length === 1) return tiedAttrs[0];
-      const highestRankedTypeInTie = rankedTypes.find(([typeKey]) => tiedAttrs.includes(types[typeKey].attr));
-      return highestRankedTypeInTie ? types[highestRankedTypeInTie[0]].attr : tiedAttrs[0];
-    }
-
-    function selectTopTypeWithinAttribute(attrKey, outerScores, innerScores) {
-      return Object.keys(types)
-        .filter(typeKey => types[typeKey].attr === attrKey)
-        .sort((a, b) => {
-          const outerDelta = outerScores[b] - outerScores[a];
-          if (outerDelta !== 0) return outerDelta;
-          return innerScores[b] - innerScores[a];
-        })[0];
-    }
-
-    function drawRadar(innerScores, outerScores) {
-      const svg = document.getElementById("radarSvg");
-      const order = Object.keys(types);
-      const center = 180;
-      const maxRadius = 120;
-      const maxScore = maxTypeScore;
-      const ns = "http://www.w3.org/2000/svg";
-      svg.innerHTML = "";
-
-      function point(index, score, clamp = true) {
-        const angle = -Math.PI / 2 + index * Math.PI * 2 / order.length;
-        const normalizedScore = clamp ? Math.max(0, Math.min(score, maxScore)) : Math.max(0, score);
-        const radius = maxRadius * normalizedScore / maxScore;
-        return [
-          center + Math.cos(angle) * radius,
-          center + Math.sin(angle) * radius
-        ];
-      }
-
-      function polygon(points, attrs) {
-        const el = document.createElementNS(ns, "polygon");
-        el.setAttribute("points", points.map(p => p.join(",")).join(" "));
-        Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
-        svg.appendChild(el);
-        return el;
-      }
-
-      [1 / 3, 2 / 3, 1].forEach((ratio, index) => {
-        const pts = order.map((_, i) => point(i, ratio * maxScore));
-        polygon(pts, {
-          fill: "none",
-          stroke: index === 2 ? "rgba(248,250,252,.5)" : "rgba(148,163,184,.25)",
-          "stroke-width": index === 2 ? "1.4" : "1"
-        });
-      });
-
-      order.forEach((key, index) => {
-        const axisEnd = point(index, maxScore);
-        const axis = document.createElementNS(ns, "line");
-        axis.setAttribute("x1", center);
-        axis.setAttribute("y1", center);
-        axis.setAttribute("x2", axisEnd[0]);
-        axis.setAttribute("y2", axisEnd[1]);
-        axis.setAttribute("stroke", "rgba(148,163,184,.2)");
-        axis.setAttribute("stroke-width", "1");
-        svg.appendChild(axis);
-
-        const labelPoint = point(index, maxScore + 1.45, false);
-        const label = document.createElementNS(ns, "text");
-        label.setAttribute("x", labelPoint[0]);
-        label.setAttribute("y", labelPoint[1]);
-        label.setAttribute("fill", types[key].color);
-        label.setAttribute("font-size", "13");
-        label.setAttribute("font-weight", "700");
-        label.setAttribute("text-anchor", "middle");
-        label.setAttribute("dominant-baseline", "middle");
-        label.textContent = types[key].cn;
-        svg.appendChild(label);
-      });
-
-      const outerPts = order.map((key, i) => point(i, outerScores[key]));
-      const innerPts = order.map((key, i) => point(i, innerScores[key]));
-      polygon(outerPts, {
-        fill: "rgba(250,204,21,.38)",
-        stroke: "#facc15",
-        "stroke-width": "2"
-      });
-      polygon(innerPts, {
-        fill: "rgba(34,197,94,.42)",
-        stroke: "#22c55e",
-        "stroke-width": "2.4"
-      });
-
-      order.forEach((key, index) => {
-        const [x, y] = point(index, outerScores[key]);
-        const dot = document.createElementNS(ns, "circle");
-        dot.setAttribute("cx", x);
-        dot.setAttribute("cy", y);
-        dot.setAttribute("r", "4");
-        dot.setAttribute("fill", types[key].color);
-        dot.setAttribute("stroke", "#FFFFFF");
-        dot.setAttribute("stroke-width", "1.5");
-        svg.appendChild(dot);
-      });
-
-      [
-        ["内圈", "低显现"],
-        ["中圈", "正常"],
-        ["外圈", "高显现"]
-      ].forEach(([name, text], index) => {
-        const label = document.createElementNS(ns, "text");
-        label.setAttribute("x", center + 8);
-        label.setAttribute("y", center - maxRadius * (index + 1) / 3 + 4);
-        label.setAttribute("fill", "#64748b");
-        label.setAttribute("font-weight", "600");
-        label.setAttribute("font-size", "11");
-        label.textContent = text;
-        svg.appendChild(label);
-      });
-    }
-
-    function restartAssessment() {
-      form.reset();
-      updateProgress();
-      viewingHistoryReport = false;
-      setHistoryMode(false);
-      resultPanel.style.display = "none";
-      historyPanel.style.display = "none";
-      quizPanel.style.display = "block";
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    document.getElementById("backBtn").addEventListener("click", () => {
-      if (viewingHistoryReport) {
-        loadMyHistory(true);
-        return;
-      }
-      restartAssessment();
     });
 
-    document.getElementById("historyBtn").addEventListener("click", () => loadMyHistory(true));
-    document.getElementById("historyRestartBtn").addEventListener("click", restartAssessment);
-
-    document.getElementById("historyLoginBtn").addEventListener("click", () => {
-      const name = String(document.getElementById("testerName").value || "").trim();
-      const contact = String(document.getElementById("testerContact").value || "").trim();
-      if (!contact) {
-        alert("请先填写手机号或微信号。");
+    function validateBasicAndStart() {
+      const name = document.getElementById('studentName').value.trim();
+      const mobile = document.getElementById('studentMobile').value.trim();
+      const err = document.getElementById('basicError');
+      if (!name || !mobile) {
+        err.textContent = '请完整填写姓名与手机号。';
+        err.hidden = false;
         return;
       }
-      tester = {
-        name: name || "未命名",
-        contact,
-        enteredAt: new Date().toISOString()
+      err.hidden = true;
+      renderQuestions();
+      switchView('questionsView');
+    }
+
+    function renderQuestions() {
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = '';
+      const start = currentPage * pageSize;
+      const pageQuestions = FTH_BOSS_QUESTIONS.slice(start, start + pageSize);
+
+      pageQuestions.forEach((q, idx) => {
+        const qIndex = start + idx + 1;
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.style.padding = '20px';
+        
+        card.innerHTML = `
+          <div style="display:flex;align-items:flex-start;gap:10px">
+            <span style="background:#FEF3C7;color:#B45309;font-weight:900;font-size:12px;padding:3px 8px;border-radius:6px">Q${qIndex}</span>
+            <p style="font-weight:800;font-size:15px;color:#1E1A1C;margin:0">${q.prompt}</p>
+          </div>
+          <div class="fth-option-grid">
+            ${LIKERT_LABELS.map(opt => `
+              <label class="scale-option ${answers[q.id] === opt.val ? 'is-checked' : ''}" onclick="selectAnswer('${q.id}', ${opt.val}, this)">
+                <input type="radio" name="q_${q.id}" value="${opt.val}" ${answers[q.id] === opt.val ? 'checked' : ''}>
+                <span>${opt.val}. ${opt.text}</span>
+              </label>
+            `).join('')}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.getElementById('pageProgressText').textContent = `第 ${currentPage + 1} / ${totalPages} 页`;
+      document.getElementById('completedCountText').textContent = `已完成 ${Object.keys(answers).length} / ${FTH_BOSS_QUESTIONS.length} 题`;
+      document.getElementById('progressFill').style.width = `${Math.min(100, (Object.keys(answers).length / FTH_BOSS_QUESTIONS.length) * 100)}%`;
+      document.getElementById('prevBtn').disabled = currentPage === 0;
+      document.getElementById('nextBtn').textContent = currentPage === totalPages - 1 ? '提交生成诊断报告' : '下一页';
+    }
+
+    function selectAnswer(qid, val, labelEl) {
+      answers[qid] = val;
+      const parent = labelEl.parentElement;
+      parent.querySelectorAll('.scale-option').forEach(l => l.classList.remove('is-checked'));
+      labelEl.classList.add('is-checked');
+      document.getElementById('completedCountText').textContent = `已完成 ${Object.keys(answers).length} / ${FTH_BOSS_QUESTIONS.length} 题`;
+      document.getElementById('progressFill').style.width = `${Math.min(100, (Object.keys(answers).length / FTH_BOSS_QUESTIONS.length) * 100)}%`;
+      document.getElementById('pageError').hidden = true;
+    }
+
+    function changePage(delta) {
+      if (delta > 0) {
+        const start = currentPage * pageSize;
+        const pageQuestions = FTH_BOSS_QUESTIONS.slice(start, start + pageSize);
+        const unAnswered = pageQuestions.some(q => !answers[q.id]);
+        if (unAnswered) {
+          document.getElementById('pageError').hidden = false;
+          return;
+        }
+      }
+      document.getElementById('pageError').hidden = true;
+
+      if (currentPage + delta >= totalPages) {
+        submitAssessment();
+        return;
+      }
+
+      currentPage += delta;
+      renderQuestions();
+      window.scrollTo(0, 0);
+    }
+
+    async function submitAssessment() {
+      const nextBtn = document.getElementById('nextBtn');
+      nextBtn.disabled = true;
+      nextBtn.textContent = '提交诊断中...';
+
+      const name = document.getElementById('studentName').value.trim();
+      const mobile = document.getElementById('studentMobile').value.trim();
+      const role = document.querySelector('input[name="role"]:checked')?.value || '创始人/CEO';
+
+      const formattedAnswers = Object.entries(answers).map(([qid, val]) => ({
+        questionId: qid,
+        value: val,
+        responseTimeMs: 350
+      }));
+
+      const crmCtx = getFFCRMContext();
+      const session = `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+      const payload = {
+        templateCode: "FTH创业者",
+        token: crmCtx.token,
+        advisorToken: crmCtx.token,
+        advisorUserId: crmCtx.advisorUserId,
+        advisorName: crmCtx.advisorName,
+        advisorMobile: crmCtx.advisorMobile,
+        profileId: crmCtx.profileId,
+        customerId: crmCtx.profileId,
+        studentName: name,
+        studentMobile: mobile,
+        name: name,
+        contact: mobile,
+        session: session,
+        userInfo: {
+          studentName: name,
+          studentMobile: mobile,
+          name: name,
+          contact: mobile,
+          phoneNumber: mobile,
+          advisorToken: crmCtx.token,
+          advisorUserId: crmCtx.advisorUserId,
+          advisorName: crmCtx.advisorName,
+          advisorMobile: crmCtx.advisorMobile,
+          profileId: crmCtx.profileId,
+          role: role
+        },
+        role: role,
+        answers: formattedAnswers,
+        submittedAt: new Date().toISOString()
       };
-      localStorage.setItem("fthFounderTester", JSON.stringify(tester));
-      updateLoginStatus();
-      loadMyHistory(true);
-    });
 
-    document.getElementById("topHistoryBtn").addEventListener("click", () => loadMyHistory(true));
-    document.getElementById("logoutBtn").addEventListener("click", logoutTester);
+      try {
+        const resp = await fetch('https://ffcrm-api.1605ai.com/api/assessment/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const resData = await resp.json();
+        const savedId = resData.data?.id || resData.data?.savedId;
+        if (savedId) {
+          window.location.href = `https://ceping.1605ai.com/report.html?id=${savedId}`;
+        } else {
+          window.location.href = `https://ceping.1605ai.com/report.html?mobile=${encodeURIComponent(mobile)}`;
+        }
+      } catch (err) {
+        alert('提交失败，请检查网络后重试。');
+        nextBtn.disabled = false;
+        nextBtn.textContent = '提交生成诊断报告';
+      }
+    }
 
-    updateProgress();
+    // ⚡ 一键秒填辅助
+    window.oneClickAutoFillAndAnswer = function() {
+      if (!document.getElementById('studentName').value) document.getElementById('studentName').value = '测试创始人';
+      if (!document.getElementById('studentMobile').value) document.getElementById('studentMobile').value = '15765778832';
+      FTH_BOSS_QUESTIONS.forEach(q => answers[q.id] = 4);
+      currentPage = totalPages - 1;
+      renderQuestions();
+      switchView('questionsView');
+    };
   </script>
 </body>
 </html>

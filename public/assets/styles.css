@@ -1,19 +1,20 @@
 :root {
   --bg: linear-gradient(135deg, #FFFDF6 0%, #FAF5E8 50%, #FFFDF8 100%);
   --paper: #FFFFFF;
-  --ink: #1F2937;
+  --ink: #1E1A1C;
   --muted: #6B7280;
   --line: #FDE68A;
   --teal: #D97706;
   --teal-dark: #B45309;
   --teal-soft: #FEF3C7;
   --green: #10B981;
-  --gold: #F5C518;
+  --gold: #FFE100;
+  --amber: #F5C518;
   --coral: #EF4444;
   --danger: #DC2626;
-  --shadow: 0 4px 16px rgba(217, 119, 6, 0.06);
+  --shadow: 0 12px 36px rgba(245, 197, 24, 0.12), 0 2px 8px rgba(0, 0, 0, 0.03);
   color-scheme: light;
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
 * {
@@ -32,26 +33,16 @@ body {
   background: var(--bg);
   font-size: 16px;
   line-height: 1.65;
-  letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
 }
 
 body.assessment-page {
   --bg: linear-gradient(135deg, #FFFDF6 0%, #FAF5E8 50%, #FFFDF8 100%);
-  --ink: #1F2937;
+  --ink: #1E1A1C;
   --muted: #6B7280;
   --line: #FDE68A;
   --card: #FFFFFF;
-  --teal: #D97706;
-  --gold: #F5C518;
-  --coral: #EF4444;
-  --green: #10B981;
-  --soft: #FEF3C7;
-  --paper: var(--card);
-  --teal-dark: #B45309;
-  --teal-soft: var(--soft);
-  --shadow: 0 4px 16px rgba(217, 119, 6, 0.06);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --shadow: 0 12px 36px rgba(245, 197, 24, 0.12), 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 button,
@@ -61,30 +52,49 @@ textarea {
   font: inherit;
 }
 
-button,
-label,
-select {
-  -webkit-tap-highlight-color: transparent;
-}
-
-button {
-  border: 0;
-}
-
 .brand-bar {
-  border-bottom: 1px solid rgb(221 211 193 / 80%);
-  background: rgb(255 254 249 / 88%);
-  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(253, 230, 138, 0.7);
+  background: rgba(255, 253, 246, 0.92);
+  backdrop-filter: blur(16px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .brand-lockup {
-  width: min(100% - 40px, 760px);
-  min-height: 78px;
+  width: min(100% - 32px, 780px);
+  min-height: 64px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+}
+
+.brand-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brand-text {
+  min-width: 0;
+}
+
+.brand-badge-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #FFE600 0%, #F5C518 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 18px;
+  color: #1E1A1C;
+  box-shadow: 0 4px 12px rgba(245, 197, 24, 0.35);
+  flex-shrink: 0;
 }
 
 .brand-en,
@@ -94,18 +104,45 @@ button {
 }
 
 .brand-en {
-  color: var(--teal-dark);
-  font-size: 12px;
+  color: #B45309;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .brand-cn {
   font-size: 14px;
+  color: #1E1A1C;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.autofill-pill-btn {
+  background: linear-gradient(135deg, #FFE600 0%, #F5C518 100%);
+  color: #1E1A1C;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(245, 197, 24, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.autofill-pill-btn:hover {
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 6px 16px rgba(245, 197, 24, 0.5);
 }
 
 .page-shell {
-  width: min(100% - 32px, 760px);
+  width: min(100% - 32px, 780px);
   margin: 0 auto;
-  padding: 32px 0 max(48px, env(safe-area-inset-bottom));
+  padding: 24px 0 max(48px, env(safe-area-inset-bottom));
 }
 
 .view:not(.is-active) {
@@ -117,36 +154,141 @@ button {
 .question-card,
 .progress-panel {
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 20px;
   background: var(--paper);
   box-shadow: var(--shadow);
+  transition: all 0.25s ease;
 }
 
-.assessment-page .hero-panel,
-.assessment-page .form-panel,
-.assessment-page .question-card,
-.assessment-page .progress-panel {
-  border-radius: 14px;
-  background: var(--card);
+.hero-panel:hover,
+.form-panel:hover,
+.question-card:hover {
+  border-color: #F5C518;
 }
 
 .hero-panel {
-  padding: clamp(28px, 7vw, 56px);
+  padding: clamp(24px, 5vw, 36px);
+  border-radius: 24px;
+  border: 1px solid rgba(253, 230, 138, 0.8);
+  box-shadow: 0 16px 40px rgba(217, 119, 6, 0.07);
 }
 
 .compact-hero {
   margin-top: min(12vh, 96px);
 }
 
-.eyebrow {
-  margin: 0 0 14px;
-  color: var(--teal);
+.hero-header-tag {
+  margin-bottom: 12px;
+}
+
+.pill-badge {
+  display: inline-block;
+  background: #FEF3C7;
+  color: #D97706;
   font-size: 12px;
   font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  margin-bottom: 8px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #D97706;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
 }
 
 .eyebrow.coral {
   color: var(--coral);
+}
+
+/* Pill Radio 胶囊选框样式 */
+.choice-grid label,
+.scale-option,
+.binary-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: #FFFDFB;
+  border: 1.5px solid #FDE68A;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  box-shadow: 0 2px 6px rgba(245, 197, 24, 0.04);
+}
+
+.choice-grid label:hover,
+.scale-option:hover,
+.binary-option:hover {
+  border-color: #F5C518;
+  background: #FFFBE9;
+  transform: translateY(-1px);
+}
+
+.choice-grid label input[type="radio"],
+.scale-option input[type="radio"],
+.binary-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.choice-grid label:has(input[type="radio"]:checked),
+.choice-grid label.is-checked,
+.scale-option:has(input[type="radio"]:checked),
+.scale-option.is-checked,
+.binary-option:has(input[type="radio"]:checked),
+.binary-option.is-checked {
+  background: linear-gradient(135deg, #FFE600 0%, #F5C518 100%) !important;
+  border-color: #F5C518 !important;
+  color: #1E1A1C !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 14px rgba(245, 197, 24, 0.38) !important;
+}
+
+/* 按钮基础样式 */
+.primary-button,
+.secondary-button {
+  min-height: 52px;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 16px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.primary-button {
+  color: #1E1A1C;
+  background: linear-gradient(135deg, #FFE600 0%, #F5C518 100%);
+  border: none;
+  box-shadow: 0 6px 20px rgba(245, 197, 24, 0.38);
+}
+
+.primary-button:hover {
+  background: linear-gradient(135deg, #FFD600 0%, #EAB308 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(245, 197, 24, 0.5);
+}
+
+.secondary-button {
+  border: 1.5px solid #FDE68A;
+  color: #374151;
+  background: #FFFDF8;
+}
+
+.secondary-button:hover {
+  border-color: #F5C518;
+  background: #FFFBE9;
+  color: #1E1A1C;
 }
 
 h1,
@@ -156,64 +298,104 @@ p {
 }
 
 h1 {
-  margin-bottom: 20px;
-  font-size: clamp(34px, 9vw, 58px);
-  line-height: 1.12;
-  letter-spacing: 0;
+  margin-bottom: 14px;
+  font-size: clamp(28px, 7vw, 42px);
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  color: #1E1A1C;
+  font-weight: 900;
 }
 
 .hero-lead {
-  margin-bottom: 28px;
-  color: var(--muted);
-  font-size: clamp(17px, 4vw, 20px);
+  margin-bottom: 24px;
+  color: #4B5563;
+  font-size: clamp(15px, 3.5vw, 17px);
+  line-height: 1.7;
 }
 
 .fact-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
-.fact-row > div {
-  min-height: 88px;
+.fact-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 16px;
-  border-top: 3px solid var(--teal);
-  background: var(--teal-soft);
+  border-radius: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.fact-row > div:nth-child(2) {
-  border-color: var(--green);
+.fact-card-time {
+  background: #FFFDF5;
+  border: 1px solid #FDE68A;
+  border-top: 3px solid #D97706;
 }
 
-.fact-row strong,
-.fact-row span {
+.fact-card-count {
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-top: 3px solid #10B981;
+}
+
+.fact-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.fact-card strong {
   display: block;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1E1A1C;
+  line-height: 1.3;
 }
 
-.fact-row strong {
-  font-size: 17px;
-}
-
-.fact-row span {
-  color: var(--muted);
-  font-size: 13px;
+.fact-card span {
+  display: block;
+  font-size: 12px;
+  color: #6B7280;
+  font-weight: 600;
+  margin-top: 2px;
 }
 
 .notice-block {
-  margin-bottom: 30px;
-  padding: 20px 0 4px 20px;
-  border-left: 4px solid var(--gold);
+  margin-bottom: 28px;
+  padding: 20px;
+  border: 1px solid #FDE68A;
+  border-radius: 16px;
+  background: #FFFBE9;
 }
 
 .notice-block h2 {
-  margin-bottom: 8px;
-  font-size: 18px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #D97706;
 }
 
 .notice-block p {
-  margin-bottom: 10px;
-  color: var(--muted);
+  margin-bottom: 8px;
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.notice-block p:last-child {
+  margin-bottom: 0;
+}
+
+.hero-start-btn {
+  width: 100%;
+  min-height: 52px;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 24px rgba(245, 197, 24, 0.4);
 }
 
 .primary-button,
@@ -310,14 +492,39 @@ h1 {
 }
 
 .assessment-page .identity-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .assessment-page .text-field,
 .assessment-page .text-field span {
   display: block;
+}
+
+.assessment-page .text-field input[type="text"],
+.assessment-page .text-field input[type="tel"],
+.assessment-page .text-field input[type="number"],
+.assessment-page select {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 18px;
+  font-size: 16px;
+  color: #1E1A1C;
+  font-weight: 700;
+  border: 1.5px solid #FDE68A;
+  border-radius: 14px;
+  background: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(245, 197, 24, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.assessment-page .text-field input:focus,
+.assessment-page select:focus {
+  border-color: #F5C518;
+  background: #FFFDF8;
+  box-shadow: 0 4px 16px rgba(245, 197, 24, 0.25);
+  outline: none;
 }
 
 .assessment-page .text-field .field-help {
@@ -330,8 +537,6 @@ h1 {
   font-weight: 750;
 }
 
-.assessment-page .text-field input {
-  width: 100%;
   min-height: 52px;
   padding: 0 14px;
   border: 1px solid var(--line);
@@ -566,15 +771,12 @@ select {
 
 .scale-option span,
 .binary-option span {
-  min-height: 48px;
-  padding: 11px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: white;
+  border: none !important;
+  background: transparent !important;
   cursor: pointer;
 }
 
@@ -591,10 +793,10 @@ select {
 
 .scale-option input:checked + span,
 .binary-option input:checked + span {
-  border-color: var(--teal);
-  color: var(--teal-dark);
-  background: var(--teal-soft);
-  box-shadow: inset 4px 0 var(--teal);
+  border: none !important;
+  color: inherit;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .binary-option span {
@@ -658,38 +860,41 @@ select {
 }
 
 body.report-page {
-  --bg: #fbf7ef;
-  --ink: #17202a;
-  --muted: #66727f;
-  --line: #ded3c2;
-  --card: #fffdf8;
-  --teal: #176b70;
-  --gold: #e9b44c;
-  --coral: #e76f51;
-  --green: #6f9b51;
-  --soft: #eef6f5;
+  --bg: #FFFDF6;
+  --ink: #1E1A1C;
+  --muted: #6B7280;
+  --line: #FDE68A;
+  --card: #FFFFFF;
+  --teal: #F5C518;
+  --gold: #FFE600;
+  --coral: #F59E0B;
+  --green: #10B981;
+  --soft: #FFFBE9;
   --paper: var(--card);
-  --teal-dark: var(--teal);
+  --teal-dark: #1E1A1C;
   --teal-soft: var(--soft);
-  --shadow: 0 18px 45px rgba(38, 32, 24, 0.08);
+  --shadow: 0 12px 36px rgba(245, 197, 24, 0.12);
   --report-label: 12px;
   --report-caption: 13px;
   --report-body: 15px;
   --report-subheading: 20px;
-  --report-title: clamp(29px, 5.2vw, 40px);
-  background: var(--bg);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --report-title: clamp(26px, 4.8vw, 36px);
+  background: linear-gradient(135deg, #FFFDF6 0%, #FFFBE9 50%, #FFFDF8 100%) !important;
+  color: #1E1A1C;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", sans-serif;
 }
 
 .compact-button {
   min-height: 42px;
-  padding: 8px 16px;
+  padding: 8px 18px;
+  border-radius: 12px;
+  font-weight: 800;
 }
 
 .report-shell {
-  width: min(100% - 32px, 1040px);
+  width: min(100% - 32px, 1000px);
   margin: 0 auto;
-  padding: 36px 0 72px;
+  padding: 24px 0 60px;
 }
 
 .report-state {
@@ -698,20 +903,20 @@ body.report-page {
   display: grid;
   place-items: center;
   align-content: center;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--paper);
+  border: 1.5px solid #FDE68A;
+  border-radius: 20px;
+  background: #FFFFFF;
   text-align: center;
-  box-shadow: var(--shadow);
+  box-shadow: 0 12px 36px rgba(245, 197, 24, 0.12);
 }
 
 .report-state p {
   margin: 14px 0 0;
-  color: var(--muted);
+  color: #6B7280;
 }
 
 .report-error h1 {
-  font-size: clamp(30px, 7vw, 46px);
+  font-size: clamp(28px, 6vw, 42px);
 }
 
 .report-error .primary-button {
@@ -719,38 +924,48 @@ body.report-page {
 }
 
 .report-document {
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--paper);
-  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow: visible;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
-.report-sheet {
-  border-bottom: 1px solid var(--line);
-  background: var(--paper);
-}
-
+.report-sheet,
 .report-section {
-  padding: clamp(32px, 7vw, 68px);
-  border-bottom: 1px solid var(--line);
-  background: var(--paper);
+  border: 1.5px solid #FDE68A !important;
+  border-radius: 20px !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 10px 30px rgba(245, 197, 24, 0.10) !important;
+  padding: clamp(24px, 5vw, 40px) !important;
+  transition: all 0.25s ease;
+}
+
+.report-sheet:hover,
+.report-section:hover {
+  box-shadow: 0 14px 38px rgba(245, 197, 24, 0.16) !important;
 }
 
 .report-overview {
-  padding: clamp(32px, 7vw, 68px);
-  border-bottom: 1px solid var(--line);
-  background: var(--paper);
+  border: 1.5px solid #FDE68A !important;
+  border-radius: 20px !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 12px 36px rgba(245, 197, 24, 0.12) !important;
+  padding: clamp(24px, 5vw, 40px) !important;
 }
 
 .report-boundary,
 .section-boundary,
 .pattern-connection {
-  margin: 28px 0 0;
+  margin: 24px 0 0;
   padding: 18px 20px;
-  border-left: 4px solid var(--gold);
-  color: var(--muted);
-  background: #fff9e8;
+  border: 1px solid #FDE68A !important;
+  border-left: none !important;
+  border-radius: 16px !important;
+  color: #374151;
+  background: #FFFDF5 !important;
   line-height: 1.7;
 }
 
@@ -921,31 +1136,31 @@ body.report-page {
 .overview-primary-result {
   margin-top: 24px;
   padding: 24px 28px;
-  border: 1px solid var(--line);
-  border-left: 6px solid var(--teal);
-  border-radius: 8px;
-  background: var(--teal-soft);
+  border: 1.5px solid #FDE68A;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #FFFDF5 0%, #FFFBE9 100%);
+  box-shadow: 0 6px 20px rgba(245, 197, 24, 0.08);
 }
 
 .overview-primary-result > span {
   display: block;
   margin-bottom: 8px;
-  color: var(--teal-dark);
+  color: #B45309;
   font-size: 14px;
   font-weight: 800;
 }
 
 .overview-primary-result strong {
   display: block;
-  color: var(--ink);
-  font-size: clamp(26px, 4vw, 38px);
+  color: #1E1A1C;
+  font-size: clamp(24px, 4vw, 36px);
   line-height: 1.25;
 }
 
 .overview-primary-result p {
   max-width: 760px;
   margin: 10px 0 0;
-  color: var(--muted);
+  color: #4B5563;
   font-size: var(--report-body);
   line-height: 1.7;
 }
@@ -988,11 +1203,11 @@ body.report-page {
 
 .index-track,
 .science-track {
-  height: 8px;
+  height: 10px;
   overflow: hidden;
   display: block;
-  border-radius: 4px;
-  background: #e9e1d4;
+  border-radius: 999px;
+  background: #FEF3C7;
 }
 
 .index-fill,
@@ -1000,6 +1215,7 @@ body.report-page {
   height: 100%;
   display: block;
   border-radius: inherit;
+  background: linear-gradient(135deg, #FFE600 0%, #F5C518 100%) !important;
 }
 
 .index-value,
@@ -1057,11 +1273,11 @@ body.report-page {
 
 .summary-block {
   min-height: 118px;
-  padding: 18px 20px;
-  border: 1px solid var(--line);
-  border-left-width: 5px;
-  border-radius: 6px;
-  background: white;
+  padding: 20px 24px;
+  border: 1.5px solid #FDE68A;
+  border-radius: 16px;
+  background: #FFFFFF;
+  box-shadow: 0 4px 16px rgba(245, 197, 24, 0.08);
 }
 
 .summary-block > span,
@@ -1069,7 +1285,7 @@ body.report-page {
 .support-role,
 .priority-label {
   display: block;
-  color: var(--muted);
+  color: #6B7280;
   font-size: 13px;
   font-weight: 700;
 }
@@ -1078,13 +1294,13 @@ body.report-page {
   display: block;
   margin-top: 4px;
   font-size: clamp(20px, 3vw, 24px);
-  font-weight: 780;
+  font-weight: 800;
   line-height: 1.38;
 }
 
 .summary-block p {
   margin: 7px 0 0;
-  color: var(--muted);
+  color: #4B5563;
   font-size: 14px;
 }
 
@@ -1095,11 +1311,11 @@ body.report-page {
 }
 
 .strategy-progress-block {
-  padding: 18px 20px;
-  border: 1px solid var(--line);
-  border-left: 5px solid var(--green);
-  border-radius: 6px;
-  background: #fff;
+  padding: 20px 24px;
+  border: 1.5px solid #FDE68A;
+  border-radius: 16px;
+  background: #FFFFFF;
+  box-shadow: 0 4px 16px rgba(245, 197, 24, 0.08);
 }
 
 .strategy-progress-block h3 {
@@ -3231,5 +3447,375 @@ body.report-embed [data-report-feedback] {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ====================================================
+   全量统一 report.html 极简高质感诊断报告设计系统
+   ==================================================== */
+body.report-page {
+  background: #FAF9F6 !important;
+  color: #111827 !important;
+  min-height: 100vh;
+}
+
+body.report-page .report-shell {
+  width: min(100% - 24px, 880px);
+  margin: 0 auto;
+  padding: 20px 0 60px;
+}
+
+/* 主 Section 卡片：纯白高保真，带轻阴影与柔和灰色微框 */
+body.report-page .report-sheet,
+body.report-page .report-overview,
+body.report-page .feedback-section {
+  border: 1px solid #E5E7EB !important;
+  border-radius: 20px !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
+  padding: clamp(20px, 4.5vw, 36px) !important;
+  margin-bottom: 24px !important;
+}
+
+/* 内部的 report-section 纯流式平铺 */
+body.report-page .report-sheet .report-section {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin-top: 20px !important;
+}
+
+/* 标题区域：在主卡片顶部，带有极简分隔线 */
+body.report-page .page-section-heading,
+body.report-page .overview-state-heading {
+  padding: 0 0 16px 0 !important;
+  border-bottom: 1px solid #F3F4F6 !important;
+  margin-bottom: 20px !important;
+}
+
+body.report-page .page-section-heading h2,
+body.report-page .overview-state-heading h2 {
+  font-size: clamp(22px, 4vw, 28px) !important;
+  font-weight: 800 !important;
+  color: #111827 !important;
+  margin: 6px 0 4px !important;
+}
+
+body.report-page .page-section-heading p,
+body.report-page .overview-state-heading p {
+  font-size: 14px !important;
+  color: #6B7280 !important;
+  margin: 0 !important;
+  line-height: 1.6 !important;
+}
+
+/* 学员基本信息卡片：高级灰柔和底色，非全黄外框 */
+body.report-page .report-meta {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+  gap: 12px !important;
+  background: #F9FAFB !important;
+  border: 1px solid #F3F4F6 !important;
+  border-radius: 16px !important;
+  padding: 16px 20px !important;
+  margin-top: 16px !important;
+}
+
+body.report-page .report-meta div {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+body.report-page .report-meta dt {
+  font-size: 12px !important;
+  color: #6B7280 !important;
+  font-weight: 600 !important;
+}
+
+body.report-page .report-meta dd {
+  font-size: 15px !important;
+  color: #111827 !important;
+  font-weight: 800 !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+/* 核心诊断入口卡片：温润琥珀色轻量高亮 */
+body.report-page .overview-primary-result {
+  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%) !important;
+  border: 1px solid #FDE68A !important;
+  border-radius: 16px !important;
+  padding: 22px 24px !important;
+  margin-top: 18px !important;
+}
+
+body.report-page .overview-primary-result > span {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: #B45309 !important;
+  margin-bottom: 6px !important;
+  display: block !important;
+}
+
+body.report-page .overview-primary-result strong {
+  font-size: clamp(22px, 4vw, 28px) !important;
+  font-weight: 800 !important;
+  color: #111827 !important;
+  line-height: 1.3 !important;
+}
+
+body.report-page .overview-primary-result p {
+  font-size: 14px !important;
+  line-height: 1.75 !important;
+  color: #4B5563 !important;
+  margin-top: 10px !important;
+}
+
+/* 针对性结论卡片（双色对比，清晰辨识）：本周先练什么（暖琥珀） vs 可以先这样做（薄荷翠绿） */
+body.report-page .summary-block {
+  border-radius: 16px !important;
+  padding: 18px 22px !important;
+  margin-top: 14px !important;
+}
+
+body.report-page .summary-block.accent-coral,
+body.report-page .summary-block.accent-gold {
+  background: #FFFBEB !important;
+  border: 1px solid #FDE68A !important;
+}
+
+body.report-page .summary-block.accent-coral > span,
+body.report-page .summary-block.accent-gold > span {
+  color: #B45309 !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+
+body.report-page .summary-block.accent-coral strong,
+body.report-page .summary-block.accent-gold strong {
+  color: #111827 !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+}
+
+body.report-page .summary-block.accent-gold:last-child {
+  background: #ECFDF5 !important;
+  border: 1px solid #A7F3D0 !important;
+}
+
+body.report-page .summary-block.accent-gold:last-child > span {
+  color: #047857 !important;
+}
+
+body.report-page .summary-block.accent-gold:last-child p {
+  color: #065F46 !important;
+  font-weight: 600 !important;
+  line-height: 1.7 !important;
+}
+
+/* 一句话认识你：高质感引用框 */
+body.report-page .statement {
+  max-width: 100%;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  line-height: 1.8 !important;
+  color: #1F2937 !important;
+  margin: 12px 0 0 0 !important;
+  background: #F9FAFB !important;
+  border: 1px solid #E5E7EB !important;
+  border-radius: 14px !important;
+  padding: 18px 22px !important;
+}
+
+/* 四种维度子卡片 / 机制卡片：纯白微卡，自带细腻 1px 灰线 */
+body.report-page .dimension-card,
+body.report-page .mechanism-detail-group,
+body.report-page .strength-card,
+body.report-page .science-card,
+body.report-page .risk-callout,
+body.report-page .priority-strategy,
+body.report-page .matched-task-card,
+body.report-page .strategy-progress-block {
+  background: #FFFFFF !important;
+  border: 1px solid #E5E7EB !important;
+  border-radius: 16px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+  padding: 20px 22px !important;
+  margin-top: 14px !important;
+}
+
+/* 彻底清除全页面所有卡片左侧的厚重竖线条 */
+body.report-page .statement,
+body.report-page .summary-block,
+body.report-page .overview-primary-result,
+body.report-page .strategy-progress-block,
+body.report-page .dimension-card,
+body.report-page .mechanism-detail-group,
+body.report-page .strength-card,
+body.report-page .science-card,
+body.report-page .risk-callout,
+body.report-page .priority-strategy,
+body.report-page .matched-task-card,
+body.report-page .report-note,
+body.report-page .judgment-section,
+body.report-page .accent-teal,
+body.report-page .accent-green,
+body.report-page .accent-gold,
+body.report-page .accent-coral,
+body.report-page .risk-callout .scene-example {
+  border-left: 1px solid #E5E7EB !important;
+}
+
+/* 章节序号数字 Badge：经典太阳黄胶囊 */
+body.report-page .section-order,
+body.report-page .report-kicker {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 14px;
+  background: linear-gradient(135deg, #FFE600 0%, #F5C518 100%);
+  color: #1E1A1C !important;
+  font-weight: 900;
+  font-size: 12px;
+  border-radius: 999px;
+  box-shadow: 0 3px 10px rgba(245, 197, 24, 0.25);
+  margin-bottom: 10px;
+  border: none !important;
+}
+
+/* ====================================================
+   📱 移动端与全尺寸屏幕自适应适配
+   ==================================================== */
+@media screen and (max-width: 768px) {
+  body.report-page .report-shell {
+    width: calc(100% - 16px) !important;
+    padding: 12px 0 40px !important;
+  }
+
+  body.report-page .report-sheet,
+  body.report-page .report-overview,
+  body.report-page .feedback-section {
+    padding: 16px 14px !important;
+    border-radius: 14px !important;
+    margin-bottom: 16px !important;
+  }
+
+  body.report-page .report-meta {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    padding: 12px 14px !important;
+  }
+
+  body.report-page .overview-data-grid,
+  body.report-page .dimension-detail-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  body.report-page .page-section-heading h2,
+  body.report-page .overview-state-heading h2 {
+    font-size: 20px !important;
+  }
+
+  body.report-page .statement {
+    padding: 14px 16px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* ====================================================
+   🖨️ A4 打印/保存 PDF 专属布局与优雅分页防截断
+   ==================================================== */
+@media print {
+  /* 隐藏顶部导航栏、按钮、反馈组件 */
+  body.report-page header,
+  body.report-page nav,
+  body.report-page button,
+  body.report-page .header-actions,
+  body.report-page .print-btn,
+  body.report-page #feedbackDrawer,
+  body.report-page .feedback-trigger {
+    display: none !important;
+  }
+
+  /* 打印基准：紧凑干净的 A4 白底 */
+  body.report-page {
+    background: #FFFFFF !important;
+    color: #111827 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 12px !important;
+  }
+
+  body.report-page .report-shell {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 主 Section 大卡片：允许跨页自然流转，严禁整张大卡片强行推下一页导致大量空白！ */
+  body.report-page .report-sheet,
+  body.report-page .report-overview,
+  body.report-page .feedback-section {
+    border: 1px solid #E5E7EB !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+    padding: 14px 18px !important;
+    margin-bottom: 14px !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  /* 精细防分页截断：仅针对原子级小卡片，防止小卡片内部文字被裁切 */
+  body.report-page .dimension-card,
+  body.report-page .mechanism-detail-group,
+  body.report-page .strength-card,
+  body.report-page .overview-primary-result,
+  body.report-page .summary-block,
+  body.report-page .statement,
+  body.report-page .report-meta {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    padding: 10px 14px !important;
+    margin-top: 8px !important;
+  }
+
+  /* 标题与描述：紧凑行距 */
+  body.report-page .page-section-heading,
+  body.report-page .overview-state-heading {
+    padding-bottom: 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  body.report-page .page-section-heading h2,
+  body.report-page .overview-state-heading h2 {
+    font-size: 18px !important;
+    margin: 4px 0 2px !important;
+  }
+
+  /* 数据对比与网格：保持双列对齐，规范尺寸 */
+  body.report-page .overview-data-grid,
+  body.report-page .dimension-detail-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  body.report-page canvas {
+    max-width: 100% !important;
+    max-height: 200px !important;
+  }
+
+  /* 保留背景与边框颜色 */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }

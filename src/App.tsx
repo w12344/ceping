@@ -2,19 +2,52 @@ import React, { useState, useEffect } from "react";
 import { Header } from "./components/Header";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { AssessmentPortal } from "./pages/AssessmentPortal";
+import { LearningStyleAssessment } from "./pages/LearningStyleAssessment";
+import { AssessmentReport } from "./pages/AssessmentReport";
 import { CustomUploadModal } from "./components/CustomUploadModal";
 import { fetchAssessmentList } from "./services/api";
 import { AssessmentRecord } from "./services/types";
 
 export function App() {
   const [token, setToken] = useState<string>(() => localStorage.getItem("adminToken") || "");
-  const [currentView, setCurrentView] = useState<"admin" | "portal">("admin");
   const [records, setRecords] = useState<AssessmentRecord[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isUploadOpen, setIsUploadOpen] = useState<boolean>(false);
 
+  // 路由状态管理: 'portal' | 'assessment' | 'report' | 'admin'
+  const [route, setRoute] = useState<"portal" | "assessment" | "report" | "admin">("portal");
+
+  // 监听 Hash 或 Path 变动
+  useEffect(() => {
+    const resolveRoute = () => {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      const search = window.location.search;
+
+      if (hash.includes("#/assessment") || hash.includes("#/xxfg") || path.includes("index.html")) {
+        setRoute("assessment");
+      } else if (hash.includes("#/report") || path.includes("report.html")) {
+        setRoute("report");
+      } else if (hash.includes("#/admin") || path.includes("admin.html")) {
+        setRoute("admin");
+      } else if (hash.includes("#/portal") || path.includes("portal.html")) {
+        setRoute("portal");
+      } else {
+        // 默认根据参数智能选择
+        if (search.includes("id=") || search.includes("session=")) {
+          setRoute("report");
+        } else {
+          setRoute("portal");
+        }
+      }
+    };
+
+    resolveRoute();
+    window.addEventListener("hashchange", resolveRoute);
+    return () => window.removeEventListener("hashchange", resolveRoute);
+  }, []);
+
   const loadData = async () => {
-    if (!token) return;
     setIsLoading(true);
     try {
       const data = await fetchAssessmentList(token);
@@ -27,11 +60,11 @@ export function App() {
   };
 
   useEffect(() => {
-    if (token) {
-      localStorage.setItem("adminToken", token);
+    if (route === "admin") {
+      if (token) localStorage.setItem("adminToken", token);
       loadData();
     }
-  }, [token]);
+  }, [token, route]);
 
   const handleSwitchToken = () => {
     const input = prompt("请输入后台访问密钥 Token:", token);
@@ -49,40 +82,44 @@ export function App() {
   const embedVal = getParam("embed");
   const pureVal = getParam("pure");
   const simpleVal = getParam("simple");
-  const hideHeaderVal = getParam("hideHeader");
-  const hideTabsVal = getParam("hideTabs");
 
   const isHideAll = hideVal === "1" || hideVal === "true" || embedVal === "1" || pureVal === "1" || simpleVal === "1";
-  const shouldHideHeader = isHideAll || hideHeaderVal === "1" || hideHeaderVal === "true";
-  const shouldHideTabs = isHideAll || hideTabsVal === "1" || hideTabsVal === "true";
+  const shouldHideHeader = isHideAll || route === "assessment" || route === "report";
 
   return (
     <div className="min-h-screen bg-[#FFFDF6]">
       {!shouldHideHeader && (
         <Header
           token={token}
-          currentView={currentView}
+          currentView={route === "admin" ? "admin" : "portal"}
           onOpenUpload={() => setIsUploadOpen(true)}
           onSwitchToken={handleSwitchToken}
-          onNavigatePortal={() => setCurrentView(currentView === "admin" ? "portal" : "admin")}
+          onNavigatePortal={() => {
+            const nextRoute = route === "admin" ? "portal" : "admin";
+            window.location.hash = `#/${nextRoute}`;
+            setRoute(nextRoute);
+          }}
         />
       )}
 
       <main>
-        {currentView === "admin" ? (
-          <AdminDashboard
-            records={records}
-            isLoading={isLoading}
-            onRefresh={loadData}
-          />
-        ) : (
+        {route === "assessment" && <LearningStyleAssessment />}
+        {route === "report" && <AssessmentReport />}
+        {route === "portal" && (
           <AssessmentPortal
             token={token}
-            hideTabs={shouldHideTabs}
+            hideTabs={isHideAll}
             onUpdateToken={(newToken) => {
               setToken(newToken);
               localStorage.setItem("adminToken", newToken);
             }}
+          />
+        )}
+        {route === "admin" && (
+          <AdminDashboard
+            records={records}
+            isLoading={isLoading}
+            onRefresh={loadData}
           />
         )}
       </main>

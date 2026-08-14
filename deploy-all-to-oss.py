@@ -57,14 +57,18 @@ def deploy_all():
                 if rel_path.name == "portal.html":
                     upload_file(f, "portal")
 
-    # 2. 部署 dist 里的 React 统一后台与主入口
+    # 2. 部署 dist 里的 React 生产静态资产 (上传静态 JS/CSS，但 index.html 上传为 app.html，不覆盖学习风格主入口 index.html)
     dist_dir = ROOT_DIR / "dist"
     if dist_dir.exists():
         print("\n[B] 部署 React 生产静态资产 (dist)...")
         for f in dist_dir.rglob("*"):
             if f.is_file() and not f.name.startswith("."):
                 rel_path = f.relative_to(dist_dir)
-                upload_file(f, str(rel_path))
+                if rel_path.name == "index.html":
+                    upload_file(f, "app.html")
+                    upload_file(f, "app")
+                else:
+                    upload_file(f, str(rel_path))
 
     print("\n==================================================")
     print("🎉 全量 React 平台与静态测评部署阿里云 OSS 成功！")

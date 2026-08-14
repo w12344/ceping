@@ -72,8 +72,9 @@ function reportIdFromLocation() {
   return new URLSearchParams(window.location.search).get("id");
 }
 
-const ASSESSMENT_SUBMIT_API = "https://ffcrm-api.1605ai.com/api/assessment/submit";
-const ASSESSMENT_BY_MOBILE_API = "https://ffcrm-api.1605ai.com/api/assessment/by-mobile";
+const BACKEND_BASE = "https://ffcrm-api.1605ai.com";
+const ASSESSMENT_SUBMIT_API = `${BACKEND_BASE}/api/assessment/submit`;
+const ASSESSMENT_RESULT_API = `${BACKEND_BASE}/api/assessment/result`;
 let currentAssessmentSubmitPayload = null;
 
 const RAW_TARGET_SUBJECTS = new Set(["语文", "数学", "英语", "日语"]);
@@ -284,37 +285,34 @@ function buildReportPayloadFromParsedRecord(parsed, item, mobile) {
   return buildReportPayloadFromAnswersData(parsed, item, mobile);
 }
 
-async function loadReportFromApi(mobile, sessionKey) {
-  const apiRes = await fetch(`${ASSESSMENT_BY_MOBILE_API}?customerMobile=${encodeURIComponent(mobile)}`);
-  const apiJson = await apiRes.json();
-  if (!(apiJson.code === 200 || apiJson.code === 0) || !Array.isArray(apiJson.data) || apiJson.data.length === 0) {
-    return null;
-  }
 
-  const filtered = apiJson.data
-    .filter((r) => r.templateCode === "学习风格" || r.templateCode === "LEARNING_STYLE")
-    .sort((a, b) => (b.id || 0) - (a.id || 0));
 
-  let candidates = filtered;
-  if (sessionKey && sessionKey !== "static") {
-    const matched = [];
-    for (const item of filtered) {
-      const parsed = parseResultJson(item.resultJson);
-      if (recordMatchesSession(parsed, item, sessionKey)) matched.push(item);
+async function loadReportFromApiById(id) {
+  if (!id) return null;
+  try {
+    const apiRes = await fetch(`${ASSESSMENT_RESULT_API}/${encodeURIComponent(id)}`);
+    const apiJson = await apiRes.json().catch(() => ({}));
+    if ((apiJson.code === 200 || apiJson.code === 0) && apiJson.data) {
+      const item = apiJson.data;
+      const parsed = item.resultJson ? parseResultJson(item.resultJson) : item;
+      const normAnswers = normalizeAnswersArray(parsed.answers || parsed.resultData?.answers || item.answers);
+      parsed.answers = normAnswers;
+      rememberAssessmentSubmitPayload(parsed, item, item.customerMobile || parsed.contact || parsed.studentMobile);
+      const payload = buildReportPayloadFromParsedRecord(parsed, item, item.customerMobile || parsed.contact || parsed.studentMobile);
+      if (payload?.report?.studentReport) return payload;
     }
-    if (matched.length) candidates = matched;
+  } catch (e) {
+    console.warn("API ID 查询异常，尝试本地缓存降级:", e);
   }
 
-  for (const item of candidates) {
-    if (!item?.resultJson) continue;
-    const parsed = parseResultJson(item.resultJson);
-    const normAnswers = normalizeAnswersArray(parsed.answers || parsed.resultData?.answers);
-    if (normAnswers.length === 0 && !parsed.report && !parsed.resultData?.studentReport && !parsed.result?.studentReport) continue;
-    parsed.answers = normAnswers;
-    rememberAssessmentSubmitPayload(parsed, item, mobile);
-    const payload = buildReportPayloadFromParsedRecord(parsed, item, mobile);
-    if (payload?.report?.studentReport) return payload;
-  }
+  try {
+    const localStr = localStorage.getItem("lsa_record_" + id) || localStorage.getItem("lsa_session_" + id);
+    if (localStr) {
+      const sessionData = JSON.parse(localStr);
+      rememberAssessmentSubmitPayloadFromSession(sessionData, sessionData.contact || "");
+      return resolveReportPayload(sessionData, sessionData.contact || "");
+    }
+  } catch (e) {}
 
   return null;
 }
@@ -1209,32 +1207,25 @@ export async function loadReport(reportId) {
     if (!mobile && reportId && /^1[3-9]\d{9}$/.test(reportId)) mobile = reportId;
     if (!mobile) mobile = localStorage.getItem("lsa_last_mobile") || "";
 
+    const queryId = params.get("id") || (reportId && !/^1[3-9]\d{9}$/.test(reportId) ? reportId : "");
+
     if (previewId) {
       payload = loadAdminPreviewPayload(previewId, mobile);
     }
 
-    if (!payload && mobile) {
+    if (!payload && queryId) {
       try {
-        payload = await loadReportFromApi(mobile, sessionKey);
+        payload = await loadReportFromApiById(queryId);
       } catch (e) {
-        console.warn("读取后台历史报告 API 异常:", e);
+        console.warn("读取唯一 ID 后台报告 API 异常:", e);
       }
     }
 
     if (!payload) {
-      const localSessionData = getLocalSessionData(reportId);
+      const localSessionData = getLocalSessionData(queryId || reportId);
       if (localSessionData) {
         rememberAssessmentSubmitPayloadFromSession(localSessionData, mobile);
         payload = resolveReportPayload(localSessionData, mobile);
-      }
-    }
-
-    if (!payload && mobile) {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      try {
-        payload = await loadReportFromApi(mobile, sessionKey);
-      } catch (e) {
-        console.warn("重试读取后台历史报告 API 异常:", e);
       }
     }
 

@@ -2,299 +2,427 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FTH 职业特质测评 · 1605权威版 | 非凡教育</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>FTH 1605 职业特质测评｜非凡教育</title>
+  <link rel="stylesheet" href="/assets/styles.css">
   <style>
-    :root {
-      --bg: linear-gradient(135deg, #FFFDF6 0%, #FAF5E8 50%, #FFFDF8 100%);
-      --panel: #FFFFFF;
-      --panel-2: #FFFDF5;
-      --line: #FDE68A;
-      --text: #1F2937;
-      --muted: #4B5563;
-      --gold: #F5C518;
-      --gold-dark: #D97706;
-      --shadow: 0 16px 40px rgba(217, 119, 6, 0.08);
-      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 32px 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .container {
-      width: min(1080px, 100%);
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-    }
-
-    .hero-card {
-      background: var(--panel);
-      border: 1.5px solid var(--line);
-      border-radius: 24px;
-      padding: 36px 28px;
-      box-shadow: var(--shadow);
-      text-align: center;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 6px 16px;
-      border-radius: 9999px;
-      background: #FEF3C7;
-      color: var(--gold-dark);
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-
-    h1 {
-      font-size: clamp(24px, 5vw, 36px);
-      font-weight: 800;
-      color: #111827;
-      margin-bottom: 12px;
-    }
-
-    .lead {
-      font-size: 15px;
-      color: var(--muted);
-      max-width: 680px;
-      margin: 0 auto 24px auto;
-      line-height: 1.6;
-    }
-
-    .btn-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 14px;
-    }
-
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 14px 28px;
-      border-radius: 9999px;
-      background: linear-gradient(135deg, #F5C518 0%, #E5B209 100%);
-      color: #78350F;
-      font-weight: 700;
-      font-size: 15px;
-      text-decoration: none;
-      box-shadow: 0 8px 20px rgba(245, 197, 24, 0.35);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 24px rgba(245, 197, 24, 0.45);
-    }
-
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 14px 28px;
-      border-radius: 9999px;
-      background: #FFFDF5;
-      border: 1.5px solid var(--line);
-      color: #B45309;
-      font-weight: 700;
-      font-size: 15px;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-
-    .btn-secondary:hover {
-      background: #FEF3C7;
-    }
-
-    .gallery-section {
-      background: var(--panel);
-      border: 1.5px solid var(--line);
-      border-radius: 24px;
-      padding: 28px;
-      box-shadow: var(--shadow);
-    }
-
-    .section-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #92400E;
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .grid {
+    .fth-option-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
     }
-
-    .slide-card {
-      border: 1px solid #FDE68A;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #FAF5E8;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .slide-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 20px rgba(217, 119, 6, 0.15);
-    }
-
-    .slide-card img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    .slide-info {
-      padding: 10px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #78350F;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    /* Modal / Lightbox */
-    .lightbox {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(17, 24, 39, 0.85);
-      z-index: 100;
-      place-items: center;
-      padding: 20px;
-    }
-
-    .lightbox.is-open { display: grid; }
-
-    .lightbox-content {
-      max-width: 90vw;
-      max-height: 90vh;
-      border-radius: 12px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    @media (max-width: 640px) {
+      .fth-option-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
   </style>
 </head>
-<body>
-
-  <div class="container">
-    <header class="hero-card">
-      <span class="badge">FTH 1605 权威版</span>
-      <h1>FTH 职业特质测评 · 1605 产物包</h1>
-      <p class="lead">包含 AI 研发人才三大特质 (Fighter / Thinker / Helper) 与六型匹配模型权威 PPT 讲义产物包、全套矢量分页面布局与源码文件。</p>
-      
-      <div class="btn-row">
-        <a class="btn-primary" href="output/FTH职业特质测评-1605.pptx" download>
-          📥 下载完整 PPTX 讲义产物包 (.pptx)
-        </a>
-        <a class="btn-secondary" href="output/ai-rd-talent-attributes-types.pptx" download>
-          📄 下载 AI 研发人才分型 PPT
-        </a>
-        <a class="btn-secondary" href="/fthtalent/index.html">
-          💬 在线进行 FTH 特质测评
-        </a>
+<body class="assessment-page">
+  <!-- 统一 Header Bar -->
+  <header class="brand-bar">
+    <div class="brand-lockup">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="brand-badge-box">凡</div>
+        <div>
+          <span class="brand-cn">非凡教育 · FTH 职业特质测评 (1605版)</span>
+          <span class="brand-en">FTH 1605 TALENT ASSESSMENT · AI研发三维特质</span>
+        </div>
       </div>
-    </header>
+      <button type="button" class="autofill-pill-btn" onclick="window.oneClickAutoFillAndAnswer()">⚡ 极速秒填全卷</button>
+    </div>
+  </header>
 
-    <section class="gallery-section">
-      <div class="section-title">
-        <span>🖼️ 讲义幻灯片全景图预览 (共 14 页)</span>
-        <small style="font-weight:400; font-size:13px; color:#B45309;">点击图片可放大查看</small>
-      </div>
+  <main class="page-shell">
+    <!-- Step 1: 引导页 -->
+    <section id="startView" class="view is-active">
+      <div class="hero-panel">
+        <p class="eyebrow">FTH 1605 ASSESSMENT</p>
+        <h1>FTH 职业特质<br>1605 权威版测评</h1>
+        <p class="hero-lead">针对 AI 研发、产品创新与高潜精英团队设计的职业特质测评，剖析破局攻坚（F特质）、理性模型（T特质）与共情协作（H特质）的三维本能。</p>
 
-      <div class="grid">
-        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-01.png')">
-          <img src="source/ai-rd-ppt/preview/slide-01.png" alt="Slide 01">
-          <div class="slide-info"><span>P01. 封面标题页</span><span>🔍 放大</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0">
+          <div style="padding:16px;background:#FFFDF5;border:1px solid #FDE68A;border-radius:14px">
+            <strong style="font-size:18px;color:#1E1A1C;display:block">6 - 8 分钟</strong>
+            <span style="font-size:12px;color:#6B7280">预计完成时长</span>
+          </div>
+          <div style="padding:16px;background:#FFFDF5;border:1px solid #FDE68A;border-radius:14px">
+            <strong style="font-size:18px;color:#1E1A1C;display:block">30 题权威模型</strong>
+            <span style="font-size:12px;color:#6B7280">1605 研发人才特质</span>
+          </div>
         </div>
-        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-02.png')">
-          <img src="source/ai-rd-ppt/preview/slide-02.png" alt="Slide 02">
-          <div class="slide-info"><span>P02. 评估背景与意义</span><span>🔍 放大</span></div>
+
+        <div style="padding:16px;background:#FFFBE9;border:1px solid #FDE68A;border-radius:14px;margin-bottom:24px;font-size:14px;color:#374151">
+          <strong style="color:#1E1A1C;display:block;margin-bottom:4px">💡 作答须知</strong>
+          <p style="margin:2px 0">• 请按平时处理工作难题与决策时的第一直觉进行选择。</p>
+          <p style="margin:2px 0">• 测评结果将帮助你找到最佳组织生态位与高质高效匹配建议。</p>
         </div>
-        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-03.png')">
-          <img src="source/ai-rd-ppt/preview/slide-03.png" alt="Slide 03">
-          <div class="slide-info"><span>P03. 三大核心维度模型</span><span>🔍 放大</span></div>
-        </div>
-        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-04.png')">
-          <img src="source/ai-rd-ppt/preview/slide-04.png" alt="Slide 04">
-          <div class="slide-info"><span>P04. Fighter 进取者解构</span><span>🔍 放大</span></div>
-        </div>
-        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-05.png')">
-          <img src="source/ai-rd-ppt/preview/slide-05.png" alt="Slide 05">
-          <div class="slide-info"><span>P05. Thinker 思辨者解构</span><span>🔍 放大</span></div>
-        </div>
-        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-06.png')">
-          <img src="source/ai-rd-ppt/preview/slide-06.png" alt="Slide 06">
-          <div class="slide-info"><span>P06. Helper 赋能者解构</span><span>🔍 放大</span></div>
-        </div>
-        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-07.png')">
-          <img src="source/ai-rd-ppt/preview/slide-07.png" alt="Slide 07">
-          <div class="slide-info"><span>P07. 六大匹配分型矩阵</span><span>🔍 放大</span></div>
-        </div>
-        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-08.png')">
-          <img src="source/ai-rd-ppt/preview/slide-08.png" alt="Slide 08">
-          <div class="slide-info"><span>P08. 团队角色互补策略</span><span>🔍 放大</span></div>
-        </div>
-        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-09.png')">
-          <img src="source/ai-rd-ppt/preview/slide-09.png" alt="Slide 09">
-          <div class="slide-info"><span>P09. 研发场景实战应用</span><span>🔍 放大</span></div>
-        </div>
-        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-10.png')">
-          <img src="source/ai-rd-ppt/preview/slide-10.png" alt="Slide 10">
-          <div class="slide-info"><span>P10. 领导力发展建议</span><span>🔍 放大</span></div>
-        </div>
-        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-11.png')">
-          <img src="source/ai-rd-ppt/preview/slide-11.png" alt="Slide 11">
-          <div class="slide-info"><span>P11. 职业成长路径推荐</span><span>🔍 放大</span></div>
-        </div>
-        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-12.png')">
-          <img src="source/ai-rd-ppt/preview/slide-12.png" alt="Slide 12">
-          <div class="slide-info"><span>P12. 团队协作沟通原则</span><span>🔍 放大</span></div>
-        </div>
-        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-13.png')">
-          <img src="source/ai-rd-ppt/preview/slide-13.png" alt="Slide 13">
-          <div class="slide-info"><span>P13. 测评维度换算逻辑</span><span>🔍 放大</span></div>
-        </div>
-        <div class="slide-card" onclick="openLightbox('source/ai-rd-ppt/preview/slide-14.png')">
-          <img src="source/ai-rd-ppt/preview/slide-14.png" alt="Slide 14">
-          <div class="slide-info"><span>P14. 结语与版权声明</span><span>🔍 放大</span></div>
-        </div>
+
+        <button type="button" class="primary-button" style="width:100%" onclick="switchView('basicView')">开始测评</button>
       </div>
     </section>
-  </div>
 
-  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
-    <img id="lightboxImg" class="lightbox-content" src="" alt="Enlarged slide">
-  </div>
+    <!-- Step 2: 基本信息 -->
+    <section id="basicView" class="view">
+      <div class="form-panel" style="padding:28px">
+        <h2 style="font-size:22px;font-weight:800;margin-bottom:6px">填写 1605 研发人才信息</h2>
+        <p style="font-size:13px;color:#6B7280;margin-bottom:20px">用于生成专属的 1605 人才特质矩阵报告。</p>
+
+        <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:20px">
+          <div>
+            <label style="font-size:13px;font-weight:800;color:#1E1A1C;display:block;margin-bottom:6px">姓名 / 称呼 *</label>
+            <input id="studentName" type="text" placeholder="请输入姓名" style="width:100%;min-height:52px;padding:14px 18px;font-size:16px;font-weight:700;border:1.5px solid #FDE68A;border-radius:14px;outline:none" />
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:800;color:#1E1A1C;display:block;margin-bottom:6px">手机号 / 微信 *</label>
+            <input id="studentMobile" type="tel" maxLength="11" placeholder="11位手机号" style="width:100%;min-height:52px;padding:14px 18px;font-size:16px;font-weight:700;border:1.5px solid #FDE68A;border-radius:14px;outline:none" />
+          </div>
+        </div>
+
+        <div style="margin-bottom:20px">
+          <label style="font-size:13px;font-weight:800;color:#1E1A1C;display:block;margin-bottom:8px">研发 / 岗位方向 *</label>
+          <div class="choice-grid" style="display:flex;gap:10px;flex-wrap:wrap">
+            <label class="pill-radio-label is-checked"><input type="radio" name="devDirection" value="AI算法/大模型" checked><span>AI算法/大模型</span></label>
+            <label class="pill-radio-label"><input type="radio" name="devDirection" value="全栈/架构"><span>全栈/架构</span></label>
+            <label class="pill-radio-label"><input type="radio" name="devDirection" value="产品/交互"><span>产品/交互</span></label>
+            <label class="pill-radio-label"><input type="radio" name="devDirection" value="数据/增长"><span>数据/增长</span></label>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:28px">
+          <button type="button" class="secondary-button" onclick="switchView('startView')">返回</button>
+          <button type="button" class="primary-button" style="flex:1" onclick="validateBasicAndStart()">进入测评</button>
+        </div>
+        <p id="basicError" style="color:#EF4444;font-size:13px;font-weight:800;margin-top:10px" hidden></p>
+      </div>
+    </section>
+
+    <!-- Step 3: 答题页 -->
+    <section id="questionsView" class="view">
+      <div class="progress-panel" style="padding:16px;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;margin-bottom:6px">
+          <span id="pageProgressText">第 1 / 5 页</span>
+          <span id="completedCountText">已完成 0 / 30 题</span>
+        </div>
+        <div style="height:8px;background:#FEF3C7;border-radius:999px;overflow:hidden">
+          <div id="progressFill" style="height:100%;background:linear-gradient(135deg, #FFE600 0%, #F5C518 100%);width:0%;transition:all 0.3s"></div>
+        </div>
+      </div>
+
+      <div id="questionsContainer" style="display:flex;flex-direction:column;gap:16px"></div>
+
+      <p id="pageError" style="color:#EF4444;font-size:13px;font-weight:700;margin-top:12px" hidden>请回答完本页所有题目再继续。</p>
+
+      <div style="display:flex;gap:12px;margin-top:20px">
+        <button id="prevBtn" type="button" class="secondary-button" onclick="changePage(-1)">上一页</button>
+        <button id="nextBtn" type="button" class="primary-button" style="flex:1" onclick="changePage(1)">下一页</button>
+      </div>
+    </section>
+  </main>
 
   <script>
-    function openLightbox(src) {
-      document.getElementById('lightboxImg').src = src;
-      document.getElementById('lightbox').classList.add('is-open');
+    const FTH_1605_QUESTIONS = [
+      { id: "A01", prompt: "面对全新未知的技术或业务领域，我能快速切入试错并拿到破局结果。" },
+      { id: "A02", prompt: "在系统出现严重宕机故障或紧急危机时，我能果断当机立断止损。" },
+      { id: "A03", prompt: "我喜欢挑战高难度的攻坚任务，即使前人没有现成答案。" },
+      { id: "A04", prompt: "面对极具挑战性的高指标，我能展现出强大的突破韧性与胜负欲。" },
+      { id: "A05", prompt: "我习惯推动团队快速迭代落地，避免陷入长期的空谈探讨。" },
+      { id: "A06", prompt: "我敢于质疑传统架构，探索效率更高的技术路线。" },
+      { id: "A07", prompt: "在没有完美方案时，我宁愿先推出原型（MVP）验证市场表现。" },
+      { id: "A08", prompt: "我具备强大的自我驱动力，不需要别人监督就能高效产出。" },
+      { id: "A09", prompt: "遇到技术壁垒时，我能保持越挫越勇的好胜心态。" },
+      { id: "A10", prompt: "我善于把宏大想法快速转化为可落地的第 1 步行动。" },
+
+      { id: "M01", prompt: "构建技术系统前，我必须先看清清晰的系统架构与数据模型。" },
+      { id: "M02", prompt: "我极度看重代码质量、范式规范与系统扩展性。" },
+      { id: "M03", prompt: "分析问题时，我习惯从数学推导、数据指标与客观事实出发。" },
+      { id: "M04", prompt: "我擅长将复杂业务解耦为高可用、可复用的模块化组件。" },
+      { id: "M05", prompt: "评估技术方案时，我会优先寻找死锁、单点故障与性能瓶颈。" },
+      { id: "M06", prompt: "我做事讲究方法论与复盘机制，绝不靠盲目拍脑袋决定。" },
+      { id: "M07", prompt: "我习惯用逻辑严密的手册与文档来规范团队协作路径。" },
+      { id: "M08", prompt: "面对Bug归因，我能冷静客观追溯根因，不迁怒情绪。" },
+      { id: "M09", prompt: "我注重长远的技术债治理与可维护性设计。" },
+      { id: "M10", prompt: "我善于把成功经验抽象整理为沉淀资产与自动化工具。" },
+
+      { id: "P01", prompt: "我能敏锐捕捉到团队伙伴的学习瓶颈与情绪起伏。" },
+      { id: "P02", prompt: "我非常看重开放共享的技术文化与平等互信的氛围。" },
+      { id: "P03", prompt: "当技术方案发生分歧时，我习惯倾听各方理由并促成共识。" },
+      { id: "P04", prompt: "我乐于做技术 Code Review，耐心地指导新人成长。" },
+      { id: "P05", prompt: "在跨部门协作时，我善于站在业务方视角理解真实需求。" },
+      { id: "P06", prompt: "我注重给予团队伙伴认可与鼓励，营造积极正面气场。" },
+      { id: "P07", prompt: "面对批评建议，我能虚心接受并感谢对方的坦诚。" },
+      { id: "P08", prompt: "我善于营造有安全感的技术讨论氛围，鼓励大家提出异议。" },
+      { id: "P09", prompt: "当成员遇到技术难题时，我愿意抽出时间帮他 pair programming。" },
+      { id: "P10", prompt: "比起个人表现，我更看重整个团队的高效协作与共赢。" }
+    ];
+
+    const LIKERT_LABELS = [
+      { val: 1, text: "非常不符合" },
+      { val: 2, text: "较不符合" },
+      { val: 3, text: "一般" },
+      { val: 4, text: "比较符合" },
+      { val: 5, text: "非常符合" }
+    ];
+
+    let currentPage = 0;
+    const pageSize = 6;
+    const totalPages = Math.ceil(FTH_1605_QUESTIONS.length / pageSize);
+    const answers = {};
+
+    function switchView(viewId) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('is-active'));
+      document.getElementById(viewId).classList.add('is-active');
+      window.scrollTo(0, 0);
     }
-    function closeLightbox() {
-      document.getElementById('lightbox').classList.remove('is-open');
+
+    function getFFCRMContext() {
+      const loc = window.location;
+      const searchParams = new URLSearchParams(loc.search || '');
+      const hashParams = loc.hash && loc.hash.includes('?') ? new URLSearchParams(loc.hash.split('?')[1]) : null;
+      const getParam = (k) => searchParams.get(k) || hashParams?.get(k) || '';
+
+      let ctxData = null;
+      const ctx = getParam('ctx');
+      if (ctx) {
+        try {
+          let b64 = ctx.replace(/-/g, '+').replace(/_/g, '/');
+          while (b64.length % 4) b64 += '=';
+          const jsonStr = decodeURIComponent(atob(b64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+          ctxData = JSON.parse(jsonStr);
+        } catch(e) {}
+      }
+
+      const pick = (...vals) => {
+        const invalid = new Set(['', 'null', 'undefined', '用户', '顾问', '未知']);
+        for (const v of vals) {
+          if (v && typeof v === 'string' && v.trim() && !invalid.has(v.trim())) {
+            return v.trim();
+          }
+        }
+        return '';
+      };
+
+      const token = pick(getParam('token'), getParam('ref'), getParam('advisorToken'), ctxData?.at, localStorage.getItem('advisor_token'), localStorage.getItem('feifan_ref'));
+      const advisorUserId = pick(getParam('userId'), getParam('employeeId'), getParam('advisorUserId'), ctxData?.au, localStorage.getItem('advisor_user_id'));
+      const advisorName = pick(getParam('employeeName'), getParam('advisorName'), ctxData?.an, localStorage.getItem('advisor_name'));
+      const advisorMobile = pick(getParam('advisorMobile'), getParam('employeeMobile'), ctxData?.am, localStorage.getItem('advisor_mobile'));
+
+      const studentName = pick(getParam('studentName'), getParam('name'), ctxData?.sn, localStorage.getItem('student_name'));
+      const studentMobile = pick(getParam('studentMobile'), getParam('mobile'), getParam('phone'), ctxData?.sm, localStorage.getItem('student_mobile'));
+      const profileId = pick(getParam('profileId'), getParam('customerId'), ctxData?.sp, localStorage.getItem('profile_id'));
+
+      try {
+        if (token) {
+          localStorage.setItem('advisor_token', token);
+          localStorage.setItem('feifan_ref', token);
+        }
+        if (advisorUserId) localStorage.setItem('advisor_user_id', advisorUserId);
+        if (advisorName) localStorage.setItem('advisor_name', advisorName);
+        if (advisorMobile) localStorage.setItem('advisor_mobile', advisorMobile);
+        if (studentName) localStorage.setItem('student_name', studentName);
+        if (studentMobile) localStorage.setItem('student_mobile', studentMobile);
+        if (profileId) localStorage.setItem('profile_id', profileId);
+      } catch(e) {}
+
+      return {
+        token,
+        advisorToken: token,
+        advisorUserId,
+        advisorName,
+        advisorMobile,
+        studentName,
+        studentMobile,
+        profileId,
+        customerId: profileId
+      };
     }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const crmCtx = getFFCRMContext();
+      if (crmCtx.studentName && !document.getElementById('studentName').value) {
+        document.getElementById('studentName').value = crmCtx.studentName;
+      }
+      if (crmCtx.studentMobile && !document.getElementById('studentMobile').value) {
+        document.getElementById('studentMobile').value = crmCtx.studentMobile;
+      }
+
+      document.querySelectorAll('.pill-radio-label').forEach(label => {
+        label.addEventListener('click', function() {
+          const radio = this.querySelector('input[type="radio"]');
+          if (radio) {
+            const name = radio.name;
+            document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+              r.parentElement.classList.remove('is-checked');
+            });
+            this.classList.add('is-checked');
+            radio.checked = true;
+          }
+        });
+      });
+    });
+
+    function validateBasicAndStart() {
+      const name = document.getElementById('studentName').value.trim();
+      const mobile = document.getElementById('studentMobile').value.trim();
+      const err = document.getElementById('basicError');
+      if (!name || !mobile) {
+        err.textContent = '请完整填写姓名与手机号。';
+        err.hidden = false;
+        return;
+      }
+      err.hidden = true;
+      renderQuestions();
+      switchView('questionsView');
+    }
+
+    function renderQuestions() {
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = '';
+      const start = currentPage * pageSize;
+      const pageQuestions = FTH_1605_QUESTIONS.slice(start, start + pageSize);
+
+      pageQuestions.forEach((q, idx) => {
+        const qIndex = start + idx + 1;
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.style.padding = '20px';
+        
+        card.innerHTML = `
+          <div style="display:flex;align-items:flex-start;gap:10px">
+            <span style="background:#FEF3C7;color:#B45309;font-weight:900;font-size:12px;padding:3px 8px;border-radius:6px">Q${qIndex}</span>
+            <p style="font-weight:800;font-size:15px;color:#1E1A1C;margin:0">${q.prompt}</p>
+          </div>
+          <div class="fth-option-grid">
+            ${LIKERT_LABELS.map(opt => `
+              <label class="scale-option ${answers[q.id] === opt.val ? 'is-checked' : ''}" onclick="selectAnswer('${q.id}', ${opt.val}, this)">
+                <input type="radio" name="q_${q.id}" value="${opt.val}" ${answers[q.id] === opt.val ? 'checked' : ''}>
+                <span>${opt.val}. ${opt.text}</span>
+              </label>
+            `).join('')}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.getElementById('pageProgressText').textContent = `第 ${currentPage + 1} / ${totalPages} 页`;
+      document.getElementById('completedCountText').textContent = `已完成 ${Object.keys(answers).length} / ${FTH_1605_QUESTIONS.length} 题`;
+      document.getElementById('progressFill').style.width = `${Math.min(100, (Object.keys(answers).length / FTH_1605_QUESTIONS.length) * 100)}%`;
+      document.getElementById('prevBtn').disabled = currentPage === 0;
+      document.getElementById('nextBtn').textContent = currentPage === totalPages - 1 ? '提交生成诊断报告' : '下一页';
+    }
+
+    function selectAnswer(qid, val, labelEl) {
+      answers[qid] = val;
+      const parent = labelEl.parentElement;
+      parent.querySelectorAll('.scale-option').forEach(l => l.classList.remove('is-checked'));
+      labelEl.classList.add('is-checked');
+      document.getElementById('completedCountText').textContent = `已完成 ${Object.keys(answers).length} / ${FTH_1605_QUESTIONS.length} 题`;
+      document.getElementById('progressFill').style.width = `${Math.min(100, (Object.keys(answers).length / FTH_1605_QUESTIONS.length) * 100)}%`;
+      document.getElementById('pageError').hidden = true;
+    }
+
+    function changePage(delta) {
+      if (delta > 0) {
+        const start = currentPage * pageSize;
+        const pageQuestions = FTH_1605_QUESTIONS.slice(start, start + pageSize);
+        const unAnswered = pageQuestions.some(q => !answers[q.id]);
+        if (unAnswered) {
+          document.getElementById('pageError').hidden = false;
+          return;
+        }
+      }
+      document.getElementById('pageError').hidden = true;
+
+      if (currentPage + delta >= totalPages) {
+        submitAssessment();
+        return;
+      }
+
+      currentPage += delta;
+      renderQuestions();
+      window.scrollTo(0, 0);
+    }
+
+    async function submitAssessment() {
+      const nextBtn = document.getElementById('nextBtn');
+      nextBtn.disabled = true;
+      nextBtn.textContent = '提交诊断中...';
+
+      const name = document.getElementById('studentName').value.trim();
+      const mobile = document.getElementById('studentMobile').value.trim();
+      const devDirection = document.querySelector('input[name="devDirection"]:checked')?.value || 'AI算法/大模型';
+
+      const formattedAnswers = Object.entries(answers).map(([qid, val]) => ({
+        questionId: qid,
+        value: val,
+        responseTimeMs: 350
+      }));
+
+      const crmCtx = getFFCRMContext();
+      const session = `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+      const payload = {
+        templateCode: "FTH 1605版",
+        token: crmCtx.token,
+        advisorToken: crmCtx.token,
+        advisorUserId: crmCtx.advisorUserId,
+        advisorName: crmCtx.advisorName,
+        advisorMobile: crmCtx.advisorMobile,
+        profileId: crmCtx.profileId,
+        customerId: crmCtx.profileId,
+        studentName: name,
+        studentMobile: mobile,
+        name: name,
+        contact: mobile,
+        session: session,
+        userInfo: {
+          studentName: name,
+          studentMobile: mobile,
+          name: name,
+          contact: mobile,
+          phoneNumber: mobile,
+          advisorToken: crmCtx.token,
+          advisorUserId: crmCtx.advisorUserId,
+          advisorName: crmCtx.advisorName,
+          advisorMobile: crmCtx.advisorMobile,
+          profileId: crmCtx.profileId,
+          devDirection: devDirection
+        },
+        devDirection: devDirection,
+        answers: formattedAnswers,
+        submittedAt: new Date().toISOString()
+      };
+
+      try {
+        const resp = await fetch('https://ffcrm-api.1605ai.com/api/assessment/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const resData = await resp.json();
+        const savedId = resData.data?.id || resData.data?.savedId;
+        if (savedId) {
+          window.location.href = `https://ceping.1605ai.com/report.html?id=${savedId}`;
+        } else {
+          window.location.href = `https://ceping.1605ai.com/report.html?mobile=${encodeURIComponent(mobile)}`;
+        }
+      } catch (err) {
+        alert('提交失败，请检查网络后重试。');
+        nextBtn.disabled = false;
+        nextBtn.textContent = '提交生成诊断报告';
+      }
+    }
+
+    // ⚡ 一键秒填辅助
+    window.oneClickAutoFillAndAnswer = function() {
+      if (!document.getElementById('studentName').value) document.getElementById('studentName').value = '测试研发人才';
+      if (!document.getElementById('studentMobile').value) document.getElementById('studentMobile').value = '15765778832';
+      FTH_1605_QUESTIONS.forEach(q => answers[q.id] = 4);
+      currentPage = totalPages - 1;
+      renderQuestions();
+      switchView('questionsView');
+    };
   </script>
 </body>
 </html>

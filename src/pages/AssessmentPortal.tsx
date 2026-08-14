@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Copy, ExternalLink, QrCode, Sparkles, Check } from "lucide-react";
-import { getCustomTemplates } from "../services/api";
+import { getCustomTemplates, getFFCRMContextFromUrl } from "../services/api";
 
 interface AssessmentPortalProps {
   token: string;
@@ -80,7 +80,58 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
   };
 
   const getShareUrl = (baseUrl: string) => {
-    return advisorTokenInput ? `${baseUrl}?token=${encodeURIComponent(advisorTokenInput)}` : baseUrl;
+    const loc = typeof window !== "undefined" ? window.location : { search: "", hash: "" };
+    const params = new URLSearchParams(loc.search || "");
+
+    if (loc.hash && loc.hash.includes("?")) {
+      const hashSearch = loc.hash.split("?")[1];
+      const hp = new URLSearchParams(hashSearch || "");
+      hp.forEach((val, key) => {
+        if (!params.has(key)) {
+          params.set(key, val);
+        }
+      });
+    }
+
+    const ctx = params.get("ctx");
+    if (ctx) {
+      const sep = baseUrl.includes("?") ? "&" : "?";
+      return `${baseUrl}${sep}ctx=${encodeURIComponent(ctx)}`;
+    }
+
+    const ignoreKeys = new Set(["embed", "feishu_sso", "hide", "pure", "tab", "v", "code", "state"]);
+    const queryObj = new URLSearchParams();
+
+    params.forEach((val, key) => {
+      if (!ignoreKeys.has(key) && val !== null && val !== undefined && val !== "") {
+        queryObj.set(key, val);
+      }
+    });
+
+    const ctxObj = getFFCRMContextFromUrl();
+    if (ctxObj) {
+      if (ctxObj.advisor.token && !queryObj.has("token")) {
+        queryObj.set("token", ctxObj.advisor.token);
+      }
+      if (ctxObj.advisor.name && !["用户", "顾问", "未知"].includes(ctxObj.advisor.name.trim()) && !queryObj.has("employeeName") && !queryObj.has("advisorName")) {
+        queryObj.set("employeeName", ctxObj.advisor.name);
+      }
+      if (ctxObj.student.name && !queryObj.has("studentName")) {
+        queryObj.set("studentName", ctxObj.student.name);
+      }
+      if (ctxObj.student.mobile && !queryObj.has("studentMobile") && !queryObj.has("phone")) {
+        queryObj.set("studentMobile", ctxObj.student.mobile);
+      }
+      if (ctxObj.student.profileId && !queryObj.has("profileId") && !queryObj.has("customerId")) {
+        queryObj.set("profileId", ctxObj.student.profileId);
+      }
+    }
+
+    const queryString = queryObj.toString();
+    if (!queryString) return baseUrl;
+
+    const sep = baseUrl.includes("?") ? "&" : "?";
+    return `${baseUrl}${sep}${queryString}`;
   };
 
   return (

@@ -497,18 +497,71 @@ function durationSeconds() {
   return Math.min(86_400, Math.max(0, Math.round((Date.now() - start) / 1000)));
 }
 
+function pickFirstValid(...candidates) {
+  const genericPlaceholders = new Set(["", "用户", "顾问", "未知", "null", "undefined"]);
+  for (const val of candidates) {
+    if (val && typeof val === "string") {
+      const trimmed = val.trim();
+      if (trimmed && !genericPlaceholders.has(trimmed)) {
+        return trimmed;
+      }
+    }
+  }
+  for (const val of candidates) {
+    if (val && typeof val === "string" && val.trim()) {
+      return val.trim();
+    }
+  }
+  return "";
+}
+
+function parseAssessmentContextFromUrl() {
+  const loc = typeof window !== "undefined" ? window.location : { search: "", hash: "" };
+  const params = new URLSearchParams(loc.search || "");
+  const hashParams = new URLSearchParams((loc.hash && loc.hash.includes("?") ? loc.hash.split("?")[1] : "") || "");
+  const ctx = params.get("ctx") || hashParams.get("ctx");
+  if (!ctx) return null;
+
+  try {
+    let base64 = ctx.replace(/-/g, "+").replace(/_/g, "/");
+    while (base64.length % 4) base64 += "=";
+    
+    const jsonStr = decodeURIComponent(
+      Array.prototype.map.call(atob(base64), c => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)).join("")
+    );
+    const data = JSON.parse(jsonStr);
+
+    return {
+      advisor: {
+        token:  data.at || "",
+        userId: data.au || "",
+        name:   data.an || "",
+        mobile: data.am || "",
+      },
+      student: {
+        name:      data.sn || "",
+        mobile:    data.sm || "",
+        profileId: data.sp || "",
+      }
+    };
+  } catch (e) {
+    console.warn("解析 ctx 加密串失败:", e);
+    return null;
+  }
+}
+
 async function finalSubmit() {
   if (state.submitting) return;
   state.submitting = true;
   setLoading(true, "正在生成测评报告...");
   try {
-    const urlParams = new URLSearchParams(window.location.search);
-    const hashParams = window.location.hash.includes("?") 
-      ? new URLSearchParams(window.location.hash.split("?")[1] || "")
-      : null;
-    const token = urlParams.get("ref") || urlParams.get("token") || urlParams.get("advisorToken")
-               || hashParams?.get("ref") || hashParams?.get("token") || hashParams?.get("advisorToken")
-               || localStorage.getItem("advisor_token") || localStorage.getItem("feifan_ref") || "";
+    const ctxData = parseAssessmentContextFromUrl();
+    const loc = typeof window !== "undefined" ? window.location : { search: "", hash: "" };
+    const searchParams = new URLSearchParams(loc.search || "");
+    const hashParamsObj = new URLSearchParams((loc.hash && loc.hash.includes("?") ? loc.hash.split("?")[1] : "") || "");
+    const getParam = (k) => searchParams.get(k) || hashParamsObj.get(k) || "";
+
+    const token = pickFirstValid(getParam("ref"), getParam("token"), getParam("advisorToken"), ctxData?.advisor.token, localStorage.getItem("advisor_token"), localStorage.getItem("feifan_ref"));
 
     if (token) {
       try {
@@ -517,8 +570,8 @@ async function finalSubmit() {
       } catch (e) {}
     }
 
-    const studentName = state.studentName || state.userInfo?.studentName || "";
-    const phoneNumber = state.phoneNumber || state.userInfo?.phoneNumber || "";
+    const studentName = pickFirstValid(getParam("studentName"), getParam("name"), getParam("customerName"), ctxData?.student.name, state.studentName, state.userInfo?.studentName, localStorage.getItem("student_name"));
+    const phoneNumber = pickFirstValid(getParam("studentMobile"), getParam("mobile"), getParam("phone"), getParam("customerMobile"), ctxData?.student.mobile, state.phoneNumber, state.userInfo?.phoneNumber, localStorage.getItem("student_mobile"));
 
     const userInfo = state.userInfo || {
       studentName,
@@ -533,32 +586,60 @@ async function finalSubmit() {
       userInfo.targetSubjectFullScore = fullScoreForTargetSubject(userInfo.targetSubject);
     }
 
-    const reportSession = String(Date.now());
+    const reportSession = state.sessionId || String(Date.now());
+
+    const advisorToken = token;
+    const advisorUserId = pickFirstValid(getParam("userId"), getParam("employeeId"), getParam("advisorUserId"), ctxData?.advisor.userId, localStorage.getItem("advisor_user_id"));
+    const advisorName = pickFirstValid(getParam("employeeName"), getParam("advisorName"), ctxData?.advisor.name, localStorage.getItem("advisor_name"));
+    const advisorMobile = pickFirstValid(getParam("advisorMobile"), getParam("employeeMobile"), ctxData?.advisor.mobile, localStorage.getItem("advisor_mobile"));
+    const profileId = pickFirstValid(getParam("profileId"), getParam("customerId"), ctxData?.student.profileId, localStorage.getItem("profile_id"));
 
     // 提交测评结果至 FFCRM 后端统一保存接口，并等待调用成功
+    let recordId = null;
     try {
-      const response = await fetch("https://ffcrm-api.1605ai.com/api/assessment/submit", {
+      const backendBase = "https://ffcrm-api.1605ai.com";
+      const response = await fetch(`${backendBase}/api/assessment/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           templateCode: "学习风格",
-          token: token,
+          token: advisorToken,
+          advisorToken: advisorToken,
+          advisorUserId: advisorUserId,
+          advisorName: advisorName,
+          advisorMobile: advisorMobile,
+          profileId: profileId,
+          customerId: profileId,
+          studentName: studentName,
+          studentMobile: phoneNumber,
           name: studentName,
           contact: phoneNumber,
           session: reportSession,
-          userInfo: userInfo,
+          userInfo: {
+            ...userInfo,
+            advisorToken,
+            advisorUserId,
+            advisorName,
+            advisorMobile,
+            profileId
+          },
           grade: userInfo.grade || state.grade,
           targetSubject: userInfo.targetSubject || state.targetSubject,
           learningFocus: userInfo.learningFocus || state.learningFocus,
           targetSubjectScore: userInfo.targetSubjectScore || state.targetSubjectScore,
           targetSubjectFullScore: userInfo.targetSubjectFullScore,
+          reportUrl: (typeof window !== "undefined" ? window.location.origin : "https://ceping.1605ai.com") + "/report.html",
           answers: state.answers,
           durationSeconds: durationSeconds(),
           submittedAt: new Date().toISOString()
         })
       });
       const resData = await response.json().catch(() => ({}));
-      if (!response.ok || (resData.code !== 0 && resData.code !== 200)) {
+      if (response.ok && (resData.code === 0 || resData.code === 200)) {
+        if (resData.data && (resData.data.id || resData.data.savedId)) {
+          recordId = resData.data.id || resData.data.savedId;
+        }
+      } else {
         console.warn("后端保存结果接口返回提示:", resData);
       }
     } catch (e) {
@@ -587,8 +668,12 @@ async function finalSubmit() {
     // 接口调用成功/完成后，等待 1 秒再跳转到 report 页面
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const tokenParam = token ? `&token=${encodeURIComponent(token)}` : "";
-    window.location.assign(`/report.html?mobile=${encodeURIComponent(phoneNumber)}&session=${encodeURIComponent(reportSession)}${tokenParam}`);
+    if (recordId) {
+      window.location.assign(`/report.html?id=${encodeURIComponent(recordId)}`);
+    } else {
+      persistDraft();
+      showView(elements.submitErrorView);
+    }
   } catch {
     persistDraft();
     showView(elements.submitErrorView);
@@ -695,6 +780,31 @@ function bindEvents() {
   });
 }
 
+function autoFillInputsFromUrlContext() {
+  const ctxData = parseAssessmentContextFromUrl();
+  const loc = typeof window !== "undefined" ? window.location : { search: "", hash: "" };
+  const searchParams = new URLSearchParams(loc.search || "");
+  const hashParamsObj = new URLSearchParams((loc.hash && loc.hash.includes("?") ? loc.hash.split("?")[1] : "") || "");
+  const getParam = (k) => searchParams.get(k) || hashParamsObj.get(k) || "";
+
+  const studentName = (ctxData && ctxData.student.name) || getParam("studentName") || getParam("name") || localStorage.getItem("student_name") || "";
+  const phoneNumber = (ctxData && ctxData.student.mobile) || getParam("studentMobile") || getParam("mobile") || getParam("phone") || localStorage.getItem("student_mobile") || "";
+
+  if (elements.basicForm) {
+    if (studentName && elements.basicForm.studentName && !elements.basicForm.studentName.value) {
+      elements.basicForm.studentName.value = studentName;
+      elements.basicForm.studentName.dispatchEvent(new Event("input", { bubbles: true }));
+      elements.basicForm.studentName.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    if (phoneNumber && elements.basicForm.phoneNumber && !elements.basicForm.phoneNumber.value) {
+      elements.basicForm.phoneNumber.value = phoneNumber;
+      elements.basicForm.phoneNumber.dispatchEvent(new Event("input", { bubbles: true }));
+      elements.basicForm.phoneNumber.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  }
+}
+
 function bootstrap() {
   elements = {
     startView: byId("startView"),
@@ -723,8 +833,72 @@ function bootstrap() {
     loadingText: byId("loadingText")
   };
   bindEvents();
+  autoFillInputsFromUrlContext();
   if (recoverDraft()) elements.resumeButton.hidden = false;
 }
+
+window.oneClickAutoFillAndAnswer = async function () {
+  console.log("⚡ [一键自动填表 & 自动答题] 启动中...");
+
+  if (!elements.basicView.classList.contains("is-active") && !elements.assessmentView.classList.contains("is-active")) {
+    showView(elements.basicView);
+  }
+
+  if (elements.basicView.classList.contains("is-active")) {
+    const form = elements.basicForm;
+    if (!form.studentName.value) form.studentName.value = "测试学员";
+    if (!form.phoneNumber.value) form.phoneNumber.value = "15765778832";
+
+    const setRadio = (name, val) => {
+      const radio = form.querySelector(`input[name="${name}"][value="${val}"]`) || form.querySelector(`input[name="${name}"]`);
+      if (radio) radio.checked = true;
+    };
+    setRadio("grade", "高三");
+    setRadio("specialtyDirection", "美术设计");
+    setRadio("scoreBand", "400至450");
+    setRadio("foreignLanguage", "英语");
+    setRadio("learningFocus", "practice");
+
+    updateTargetSubjects();
+    if (elements.targetSubject.options.length > 1) {
+      elements.targetSubject.selectedIndex = 1;
+      updateTargetSubjectScoreLimit();
+    }
+    if (!elements.targetSubjectScore.value) {
+      elements.targetSubjectScore.value = "110";
+    }
+
+    for (const input of form.querySelectorAll("input, select")) {
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    const submitBtn = elements.createSessionButton;
+    if (submitBtn) submitBtn.click();
+    await new Promise((r) => setTimeout(r, 200));
+  }
+
+  if (elements.assessmentView.classList.contains("is-active")) {
+    const pages = currentPages();
+    for (let p = 0; p < pages.length; p++) {
+      state.currentPage = p;
+      const pageItems = pages[p];
+      for (const item of pageItems) {
+        if (!state.answers.some((a) => a.questionId === item.id)) {
+          state.answers.push({
+            questionId: item.id,
+            value: 4,
+            responseTimeMs: 300,
+            answeredAt: new Date().toISOString()
+          });
+        }
+      }
+    }
+    state.currentPage = pages.length - 1;
+    renderPage();
+    console.log("✅ 全部 42 道题目已完成！点击【下一页】或【提交】直接生成报告！");
+  }
+};
 
 if (typeof document !== "undefined") {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bootstrap, { once: true });

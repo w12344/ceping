@@ -1176,6 +1176,45 @@
     const maxTypeScore = Math.max(...Object.values(typeQuestionCounts)) * 5;
     const assessmentQuestions = shuffleQuestions(questions);
 
+    function getFFCRMContextFromUrl() {
+      const loc = typeof window !== "undefined" ? window.location : { search: "", hash: "" };
+      const params = new URLSearchParams(loc.search || "");
+      const hashParams = new URLSearchParams((loc.hash && loc.hash.includes("?") ? loc.hash.split("?")[1] : "") || "");
+      const get = (key) => params.get(key) || hashParams.get(key) || "";
+
+      const advisorToken = get("token") || get("ref") || get("advisorToken") || localStorage.getItem("advisor_token") || localStorage.getItem("feifan_ref") || "";
+      const advisorUserId = get("userId") || get("employeeId") || localStorage.getItem("advisor_user_id") || "";
+      const advisorName = get("employeeName") || get("advisorName") || localStorage.getItem("advisor_name") || "";
+      const advisorMobile = get("advisorMobile") || get("employeeMobile") || localStorage.getItem("advisor_mobile") || "";
+
+      const studentName = get("studentName") || get("name") || get("customerName") || localStorage.getItem("student_name") || "";
+      const studentMobile = get("studentMobile") || get("mobile") || get("phone") || get("customerMobile") || localStorage.getItem("student_mobile") || "";
+      const profileId = get("profileId") || get("customerId") || localStorage.getItem("profile_id") || "";
+
+      try {
+        if (advisorToken) { localStorage.setItem("advisor_token", advisorToken); localStorage.setItem("feifan_ref", advisorToken); }
+        if (advisorUserId) localStorage.setItem("advisor_user_id", advisorUserId);
+        if (advisorName) localStorage.setItem("advisor_name", advisorName);
+        if (advisorMobile) localStorage.setItem("advisor_mobile", advisorMobile);
+        if (studentName) localStorage.setItem("student_name", studentName);
+        if (studentMobile) localStorage.setItem("student_mobile", studentMobile);
+        if (profileId) localStorage.setItem("profile_id", profileId);
+      } catch (e) {}
+
+      return {
+        advisor: { token: advisorToken, userId: advisorUserId, name: advisorName, mobile: advisorMobile },
+        student: { name: studentName, mobile: studentMobile, profileId: profileId }
+      };
+    }
+
+    const ffcrmContext = getFFCRMContextFromUrl();
+    if (ffcrmContext.student.name || ffcrmContext.student.mobile) {
+      const nameInput = document.querySelector('input[name="testerName"]');
+      const contactInput = document.querySelector('input[name="testerContact"]');
+      if (nameInput && ffcrmContext.student.name) nameInput.value = ffcrmContext.student.name;
+      if (contactInput && ffcrmContext.student.mobile) contactInput.value = ffcrmContext.student.mobile;
+    }
+
     if (tester?.name) {
       loginScreen.style.display = "none";
       app.style.display = "block";
@@ -1617,24 +1656,34 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const hashParams = window.location.hash.includes("?") 
-          ? new URLSearchParams(window.location.hash.split("?")[1] || "")
-          : null;
-        const token = urlParams.get("ref") || urlParams.get("token") || urlParams.get("advisorToken")
-                   || hashParams?.get("ref") || hashParams?.get("token") || hashParams?.get("advisorToken")
-                   || localStorage.getItem("advisor_token") || localStorage.getItem("feifan_ref") || "";
-
-        if (token) {
-          try {
-            localStorage.setItem("advisor_token", token);
-            localStorage.setItem("feifan_ref", token);
-          } catch(e) {}
-        }
+        const ctx = getFFCRMContextFromUrl();
+        const token = ctx.advisor.token;
 
         const submitPayload = {
           templateCode: "FTH创业者",
           token: token,
-          name: resultData.name || tester?.name || "",
-          contact: contact,
+          advisorToken: token,
+          advisorUserId: ctx.advisor.userId,
+          advisorName: ctx.advisor.name,
+          advisorMobile: ctx.advisor.mobile,
+
+          profileId: ctx.student.profileId,
+          customerId: ctx.student.profileId,
+          studentName: resultData.name || tester?.name || ctx.student.name || "",
+          studentMobile: contact || ctx.student.mobile || "",
+          name: resultData.name || tester?.name || ctx.student.name || "",
+          contact: contact || ctx.student.mobile || "",
+
+          userInfo: {
+            studentName: resultData.name || tester?.name || ctx.student.name,
+            phoneNumber: contact || ctx.student.mobile,
+            profileId: ctx.student.profileId,
+            advisorToken: token,
+            advisorUserId: ctx.advisor.userId,
+            advisorName: ctx.advisor.name,
+            advisorMobile: ctx.advisor.mobile
+          },
+
           answers: resultData.answers || answersState || {},
           scores: resultData.scores || {},
           resultData: resultData,
@@ -1680,10 +1729,11 @@
 
       let records = [];
       try {
-        const apiRes = await fetch("https://ffcrm-api.1605ai.com/api/assessment/by-mobile?customerMobile=" + encodeURIComponent(contact));
+        const apiRes = await fetch("https://ffcrm-api.1605ai.com/api/assessment/result/page?customerMobile=" + encodeURIComponent(contact) + "&pageSize=100");
         const apiJson = await apiRes.json();
-        if ((apiJson.code === 200 || apiJson.code === 0) && Array.isArray(apiJson.data)) {
-          const filtered = apiJson.data.filter(item => item.templateCode === "FTH创业者" || item.templateCode === "FTH_BOSS");
+        const recordsData = apiJson.data?.list || apiJson.data || [];
+        if ((apiJson.code === 200 || apiJson.code === 0) && Array.isArray(recordsData)) {
+          const filtered = recordsData.filter(item => item.templateCode === "FTH创业者" || item.templateCode === "FTH_BOSS");
           filtered.sort((a, b) => (b.id || 0) - (a.id || 0));
           records = filtered.map(item => {
             let parsed = {};

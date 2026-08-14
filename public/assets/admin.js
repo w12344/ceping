@@ -65,7 +65,10 @@ function mapApiRecordToItem(record) {
   const submittedAt = record.createdAt || resObj.createdAt || resObj.submittedAt || "";
   const durationSeconds = Number(resObj.durationSeconds || parsed.durationSeconds || 0) || 0;
   const reportData = parsed.report || resObj;
-  const employeeName = record.employeeName || "";
+  const advisorName = record.advisorName || record.employeeName || userInfo.advisorName || "";
+  const advisorUserId = record.advisorUserId || record.employeeId || userInfo.advisorUserId || "";
+  const advisorMobile = record.advisorMobile || userInfo.advisorMobile || "";
+  const profileId = record.profileId || record.customerId || userInfo.profileId || "";
 
   const base = {
     id: record.id,
@@ -75,12 +78,16 @@ function mapApiRecordToItem(record) {
     templateCode: record.templateCode,
     studentName,
     phoneNumber,
+    profileId,
+    advisorName,
+    advisorUserId,
+    advisorMobile,
     submittedAt,
     durationSeconds,
     reportData,
     _parsed: parsed,
-    employeeName,
-    employeeId: record.employeeId,
+    employeeName: advisorName,
+    employeeId: advisorUserId,
     ossKey: `assessment/${record.id}`,
     ossUrl: "",
     reportUrl: ""
@@ -200,7 +207,13 @@ async function fetchAllAssessments() {
 
   while (true) {
     const page = await fetchAssessmentPage(pageNumber);
-    const rows = Array.isArray(page.data) ? page.data : [];
+    const rows = Array.isArray(page)
+      ? page
+      : (Array.isArray(page.data)
+        ? page.data
+        : (Array.isArray(page.list)
+          ? page.list
+          : (Array.isArray(page.records) ? page.records : [])));
     allRecords.push(...rows);
 
     if (!page.hasNext || rows.length === 0) break;

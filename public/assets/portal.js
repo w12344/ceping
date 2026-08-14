@@ -139,7 +139,7 @@ const ASSESSMENTS = [
     tag: "心理动力",
     tagClass: "tag-xxdj",
     icon: "🚀",
-    url: "https://ceping.1605ai.com/xxdj/index.html",
+    url: "https://ceping.1605ai.com/motivation/index.html",
     desc: "评估 7 大核心驱动维度，定量诊断学员自我效能感与成就动机。"
   },
   {
@@ -279,15 +279,116 @@ function encryptUserInfo(user) {
   }
 }
 
+function getAdvisorNameFromRef(refStr) {
+  if (!refStr) return "";
+  try {
+    const raw = decodeURIComponent(escape(atob(refStr.replace(/-/g, "+").replace(/_/g, "/"))));
+    if (raw.includes("|")) {
+      return raw.split("|")[0];
+    }
+  } catch (e) {}
+  return "";
+}
+
+function parseAssessmentContextFromUrl() {
+  const loc = typeof window !== "undefined" ? window.location : { search: "", hash: "" };
+  const params = new URLSearchParams(loc.search || "");
+  const hashParams = new URLSearchParams((loc.hash && loc.hash.includes("?") ? loc.hash.split("?")[1] : "") || "");
+  const ctx = params.get("ctx") || hashParams.get("ctx");
+  if (!ctx) return null;
+
+  try {
+    let base64 = ctx.replace(/-/g, "+").replace(/_/g, "/");
+    while (base64.length % 4) base64 += "=";
+    
+    const jsonStr = decodeURIComponent(
+      Array.prototype.map.call(atob(base64), c => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)).join("")
+    );
+    const data = JSON.parse(jsonStr);
+
+    return {
+      advisor: {
+        token:  data.at || "",
+        userId: data.au || "",
+        name:   data.an || "",
+        mobile: data.am || "",
+      },
+      student: {
+        name:      data.sn || "",
+        mobile:    data.sm || "",
+        profileId: data.sp || "",
+      }
+    };
+  } catch (e) {
+    console.warn("解析 ctx 加密串失败:", e);
+    return null;
+  }
+}
+
 function getShareableUrl(baseUrl) {
-  if (!state.user) return baseUrl;
-  const refCode = encryptUserInfo(state.user);
-  if (!refCode) return baseUrl;
+  const loc = typeof window !== "undefined" ? window.location : { search: "", hash: "" };
+  const params = new URLSearchParams(loc.search || "");
+
+  // 支持从 URL Hash 提取 Query 参数
+  if (loc.hash && loc.hash.includes("?")) {
+    const hashSearch = loc.hash.split("?")[1];
+    const hp = new URLSearchParams(hashSearch || "");
+    hp.forEach((val, key) => {
+      if (!params.has(key)) {
+        params.set(key, val);
+      }
+    });
+  }
+
+  // 1. 如果 URL 中已包含极简加密串 ctx，优先且仅透传 ctx (零冗余明文参数，保持超短规范)
+  const ctx = params.get("ctx");
+  if (ctx) {
+    const sep = baseUrl.includes("?") ? "&" : "?";
+    return `${baseUrl}${sep}ctx=${encodeURIComponent(ctx)}`;
+  }
+
+  // 2. 无 ctx 时：收集并精简拼接明文/缓存参数
+  const ignoreKeys = new Set(["embed", "feishu_sso", "hide", "pure", "tab", "v", "code", "state"]);
+  const queryObj = new URLSearchParams();
+
+  params.forEach((val, key) => {
+    if (!ignoreKeys.has(key) && val !== null && val !== undefined && val !== "") {
+      queryObj.set(key, val);
+    }
+  });
+
+  const ctxObj = typeof getFFCRMContextFromUrl === "function" ? getFFCRMContextFromUrl() : null;
+  if (ctxObj) {
+    if (ctxObj.advisor.token && !queryObj.has("token")) {
+      queryObj.set("token", ctxObj.advisor.token);
+    }
+    if (ctxObj.advisor.name && !["用户", "顾问", "未知"].includes(ctxObj.advisor.name.trim()) && !queryObj.has("employeeName") && !queryObj.has("advisorName")) {
+      queryObj.set("employeeName", ctxObj.advisor.name);
+    }
+    if (ctxObj.student.name && !queryObj.has("studentName")) {
+      queryObj.set("studentName", ctxObj.student.name);
+    }
+    if (ctxObj.student.mobile && !queryObj.has("studentMobile") && !queryObj.has("phone")) {
+      queryObj.set("studentMobile", ctxObj.student.mobile);
+    }
+    if (ctxObj.student.profileId && !queryObj.has("profileId") && !queryObj.has("customerId")) {
+      queryObj.set("profileId", ctxObj.student.profileId);
+    }
+  }
+
+  const queryString = queryObj.toString();
+  if (!queryString) return baseUrl;
+
   const sep = baseUrl.includes("?") ? "&" : "?";
-  return `${baseUrl}${sep}ref=${refCode}`;
+  return `${baseUrl}${sep}${queryString}`;
 }
 
 async function init() {
+  // 优先持久化存储解析当前环境中的顾问与学员上下文
+  if (typeof getFFCRMContextFromUrl === "function") {
+    getFFCRMContextFromUrl();
+  }
+
   bindEvents();
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -405,7 +506,12 @@ function saveUserSession(userObj) {
 
 function cleanUrlCodeAndState() {
   if (window.history && window.history.replaceState) {
-    const cleanUrl = window.location.origin + window.location.pathname;
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.delete("code");
+    urlParams.delete("state");
+    urlParams.delete("feishu_sso");
+    const queryString = urlParams.toString();
+    const cleanUrl = window.location.origin + window.location.pathname + (queryString ? "?" + queryString : "");
     window.history.replaceState({}, document.title, cleanUrl);
   }
 }
@@ -873,13 +979,10 @@ function bindEvents() {
   if (elements.portalCardGrid) elements.portalCardGrid.addEventListener("click", handleActionClick);
 }
 
-// 仅复制极短测评链接
+// 仅复制纯测评 URL 链接 (不包含任何汉字)
 async function handleCopyLinkOnly(item) {
   const shareableUrl = getShareableUrl(item.url);
-  const userName = state.user ? state.user.name : "非凡教师";
-  const shareText = `【非凡教育·${item.name}】\n推荐分发人：${userName}\n测评入口：${shareableUrl}`;
-
-  await copyTextToClipboard(shareText, `已复制【${item.name}】精简测评链接！`);
+  await copyTextToClipboard(shareableUrl, `已复制【${item.name}】测评链接！`);
 }
 
 // 仅复制二维码图片（支持在离线幕后离屏绘制并复制）
@@ -1058,7 +1161,8 @@ async function generateDesignerPosterToClipboard(item) {
   else ctx.rect(180, 900, 440, 48);
   ctx.fill();
 
-  const userName = state.user ? state.user.name : "非凡教育";
+  const refVal = new URLSearchParams(shareableUrl.includes("?") ? shareableUrl.split("?")[1] : "").get("ref") || "";
+  const userName = (state.user ? state.user.name : "") || getAdvisorNameFromRef(refVal) || localStorage.getItem("advisor_name") || "非凡教育";
   ctx.fillStyle = "#D97706";
   ctx.font = "bold 20px sans-serif";
   ctx.fillText(`推荐分发人：${userName} · 扫码开启诊断`, 400, 931);
