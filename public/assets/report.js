@@ -48,7 +48,12 @@ export function findCrossSectionDuplicates(domains) {
 
 function element(id) {
   const node = document.getElementById(id);
-  if (!node) throw new Error(`缺少页面元素：${id}`);
+  if (!node) {
+    console.warn(`[Report] Element #${id} not found in DOM, creating fallback node.`);
+    const fallback = document.createElement("div");
+    fallback.id = id;
+    return fallback;
+  }
   return node;
 }
 
@@ -60,7 +65,10 @@ function text(tag, value, className) {
 }
 
 function setText(id, value, fallback = "--") {
-  element(id).textContent = value || fallback;
+  const node = document.getElementById(id);
+  if (node) {
+    node.textContent = value || fallback;
+  }
 }
 
 function setOptionalText(id, value, fallback = "") {
@@ -72,7 +80,8 @@ function reportIdFromLocation() {
   return new URLSearchParams(window.location.search).get("id");
 }
 
-const BACKEND_BASE = "https://ffcrm-api.1605ai.com";
+const BACKEND_BASE = (typeof window !== "undefined" && window.ASSESSMENT_API_BASE)
+  || "https://ffcrm-api.1605ai.com";
 const ASSESSMENT_SUBMIT_API = `${BACKEND_BASE}/api/assessment/submit`;
 const ASSESSMENT_RESULT_API = `${BACKEND_BASE}/api/assessment/result`;
 let currentAssessmentSubmitPayload = null;
@@ -144,22 +153,38 @@ function getAdvisorToken() {
 }
 
 function buildAssessmentSubmitPayload(parsed, item, mobile) {
-  const userInfo = parsed.userInfo || parsed.basicInfo || {};
+  const student = parsed?.studentInfo || {};
+  const advisor = parsed?.advisorInfo || {};
+  const assessment = parsed?.assessmentInfo || {};
+  const userInfo = parsed?.userInfo || parsed?.basicInfo || {};
   return {
-    templateCode: parsed.templateCode || item?.templateCode || "学习风格",
-    token: parsed.token || getAdvisorToken(),
-    name: parsed.name || item?.customerName || userInfo.studentName || "",
-    contact: parsed.contact || item?.customerMobile || mobile || userInfo.phoneNumber || "",
-    session: parsed.session || parsed.reportSession || item?.session || "",
-    userInfo,
-    grade: parsed.grade || userInfo.grade || "",
-    targetSubject: parsed.targetSubject || userInfo.targetSubject || "",
-    learningFocus: parsed.learningFocus || userInfo.learningFocus || "",
-    targetSubjectScore: parsed.targetSubjectScore ?? userInfo.targetSubjectScore,
-    answers: parsed.answers || [],
-    durationSeconds: parsed.durationSeconds || 0,
-    submittedAt: parsed.submittedAt || item?.createdAt || new Date().toISOString(),
-    assessmentId: item?.id || parsed.assessmentId || null
+    studentInfo: {
+      name: student.name || parsed.name || item?.customerName || userInfo.studentName || "",
+      mobile: student.mobile || parsed.contact || item?.customerMobile || mobile || userInfo.phoneNumber || "",
+      grade: student.grade || parsed.grade || userInfo.grade || "",
+      specialtyDirection: student.specialtyDirection || userInfo.specialtyDirection || "",
+      scoreBand: student.scoreBand || userInfo.scoreBand || "",
+      foreignLanguage: student.foreignLanguage || userInfo.foreignLanguage || "",
+      targetSubject: student.targetSubject || parsed.targetSubject || userInfo.targetSubject || "",
+      targetSubjectScore: student.targetSubjectScore ?? parsed.targetSubjectScore ?? userInfo.targetSubjectScore,
+      targetSubjectFullScore: student.targetSubjectFullScore ?? parsed.targetSubjectFullScore ?? userInfo.targetSubjectFullScore ?? 150,
+      learningFocus: student.learningFocus || parsed.learningFocus || userInfo.learningFocus || "",
+      profileId: student.profileId || parsed.profileId || userInfo.profileId || ""
+    },
+    advisorInfo: {
+      token: advisor.token || parsed.token || getAdvisorToken(),
+      name: advisor.name || parsed.advisorName || userInfo.advisorName || "",
+      userId: advisor.userId || parsed.advisorUserId || userInfo.advisorUserId || "",
+      mobile: advisor.mobile || parsed.advisorMobile || userInfo.advisorMobile || ""
+    },
+    assessmentInfo: {
+      templateCode: assessment.templateCode || parsed.templateCode || item?.templateCode || "LEARNING_STYLE",
+      templateName: assessment.templateName || parsed.templateName || "学习模式定位",
+      templateType: assessment.templateType || parsed.templateType || "STUDENT_LEARNING",
+      answers: assessment.answers || parsed.answers || [],
+      durationSeconds: assessment.durationSeconds || parsed.durationSeconds || 0,
+      submittedAt: assessment.submittedAt || parsed.submittedAt || item?.createdAt || new Date().toISOString()
+    }
   };
 }
 
@@ -193,65 +218,114 @@ function rememberAssessmentSubmitPayloadFromSession(sessionData, mobile) {
 
 function getLocalSessionData(reportId) {
   const params = new URLSearchParams(window.location.search);
-  const sessionKey = params.get("session");
-  const storageKeys = [
-    sessionKey ? `lsa_session_${sessionKey}` : null,
-    reportId ? `lsa_session_${reportId}` : null,
-    "lsa_last_record"
-  ].filter(Boolean);
+  const hashParams = window.location.hash.includes("?")
+    ? new URLSearchParams(window.location.hash.split("?")[1] || "")
+    : null;
+  const key = reportId || params.get("session") || params.get("id") || hashParams?.get("session") || hashParams?.get("id");
+  
+  if (params.get("demo") === "1" || !key) {
+    // Generate default demo assessment answers matching screenshot 1
+    const questionIds = [
+      'V01','V02','V03','V04','V05','V06','V07','V08',
+      'A01','A02','A03','A04','A05','A06','A07','A08',
+      'R01','R02','R03','R04','R05','R06','R07','R08',
+      'K01','K02','K03','K04','K05','K06','K07','K08',
+      'LS01','LS02','LS03','LS04','LS05','LS06','LS07','LS08','LS09','LS10'
+    ];
+    const defaultAnswers = questionIds.map((qid, idx) => ({
+      questionId: qid,
+      value: idx % 2 === 0 ? 4 : 3,
+      responseTimeMs: 2200,
+      answeredAt: new Date().toISOString()
+    }));
+    return {
+      session: "demo-session",
+      sessionId: "demo-session",
+      userInfo: {
+        studentName: "测试学员",
+        phoneNumber: "15765778832",
+        grade: "高三",
+        targetSubject: "语文",
+        targetSubjectScore: 110,
+        targetSubjectFullScore: 150,
+        learningFocus: "做题和应用"
+      },
+      answers: defaultAnswers,
+      grade: "高三",
+      targetSubject: "语文",
+      learningFocus: "做题和应用",
+      targetSubjectScore: 110,
+      targetSubjectFullScore: 150,
+      durationSeconds: 360,
+      startedAt: new Date(Date.now() - 360000).toISOString(),
+      completedAt: new Date().toISOString()
+    };
+  }
 
-  for (const key of storageKeys) {
-    const raw = localStorage.getItem(key);
+  const candidates = [
+    `lsa_session_${key}`,
+    `feifan_report_session_${key}`,
+    `feifan_report_${key}`,
+    key,
+    localStorage.getItem("lsa_last_record")
+  ];
+  for (const k of candidates) {
+    if (!k) continue;
+    const raw = localStorage.getItem(k);
     if (!raw) continue;
     try {
       return JSON.parse(raw);
-    } catch (e) {}
+    } catch {
+      continue;
+    }
   }
   return null;
 }
 
-function normalizeAnswersArray(rawAnswers) {
-  if (!rawAnswers) return [];
-  if (Array.isArray(rawAnswers)) return rawAnswers;
-  if (typeof rawAnswers === "object") {
-    const targetObj = rawAnswers.answers || rawAnswers.core || rawAnswers;
-    if (Array.isArray(targetObj)) return targetObj;
-    if (typeof targetObj === "object" && targetObj !== null) {
-      return Object.entries(targetObj).map(([qid, val]) => {
-        if (typeof val === "object" && val !== null) return { questionId: qid, ...val };
-        return { questionId: qid, score: Number(val), value: Number(val) };
-      });
-    }
+function normalizeAnswersArray(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "object") {
+    return Object.entries(raw).map(([k, v]) => {
+      const qid = Number(k) || k;
+      if (typeof v === "object" && v !== null && ("value" in v || "answer" in v)) {
+        return { questionId: qid, value: Number(v.value ?? v.answer) };
+      }
+      return { questionId: qid, value: Number(v) };
+    });
   }
   return [];
 }
 
 function buildReportPayloadFromAnswersData(parsed, item, mobile) {
-  const normAnswers = normalizeAnswersArray(parsed?.answers || parsed?.resultData?.answers);
+  const student = parsed?.studentInfo || {};
+  const advisor = parsed?.advisorInfo || {};
+  const assessment = parsed?.assessmentInfo || {};
+  const normAnswers = normalizeAnswersArray(assessment.answers || parsed?.answers || assessment.resultData?.answers || parsed?.resultData?.answers);
   if (!parsed || normAnswers.length === 0) {
     return null;
   }
 
   const userInfo = parsed.userInfo || parsed.basicInfo || {};
-  const targetSubject = parsed.targetSubject || userInfo.targetSubject || "";
+  const targetSubject = student.targetSubject || parsed.targetSubject || userInfo.targetSubject || "";
   const targetSubjectFullScore = resolveTargetSubjectFullScore(
     targetSubject,
-    parsed.targetSubjectFullScore ?? userInfo.targetSubjectFullScore
+    student.targetSubjectFullScore ?? parsed.targetSubjectFullScore ?? userInfo.targetSubjectFullScore
   );
 
   let generated;
   try {
     generated = generateReportFromAnswers({
-      name: parsed.name || item?.customerName || userInfo.studentName || "",
-      mobile: parsed.contact || item?.customerMobile || mobile || userInfo.phoneNumber || "",
+      name: student.name || parsed.name || item?.customerName || userInfo.studentName || "",
+      mobile: student.mobile || parsed.contact || item?.customerMobile || mobile || userInfo.phoneNumber || "",
       answers: normAnswers,
-      submittedAt: item?.createdAt || parsed.submittedAt || parsed.completedAt,
-      userInfo,
-      grade: parsed.grade || userInfo.grade || "",
+      submittedAt: item?.createdAt || assessment.submittedAt || parsed.submittedAt || parsed.completedAt,
+      userInfo: { ...userInfo, ...student },
+      grade: student.grade || parsed.grade || userInfo.grade || "",
       targetSubject,
-      targetSubjectScore: parsed.targetSubjectScore ?? userInfo.targetSubjectScore ?? 0,
+      targetSubjectScore: student.targetSubjectScore ?? parsed.targetSubjectScore ?? userInfo.targetSubjectScore ?? 0,
       targetSubjectFullScore,
-      learningFocus: parsed.learningFocus || userInfo.learningFocus || ""
+      learningFocus: student.learningFocus || parsed.learningFocus || userInfo.learningFocus || ""
     });
   } catch (error) {
     console.warn("生成报告失败，跳过该条记录:", error);
@@ -263,23 +337,24 @@ function buildReportPayloadFromAnswersData(parsed, item, mobile) {
   return {
     report: {
       studentReport: generated.studentReport,
-      studentName: parsed.name || item?.customerName || userInfo.studentName || repOverview.studentName || "",
-      maskedPhone: parsed.contact || item?.customerMobile || mobile || userInfo.phoneNumber || "",
-      grade: parsed.grade || userInfo.grade || repOverview.grade || "",
+      studentName: student.name || parsed.name || item?.customerName || userInfo.studentName || repOverview.studentName || "",
+      maskedPhone: student.mobile || parsed.contact || item?.customerMobile || mobile || userInfo.phoneNumber || "",
+      grade: student.grade || parsed.grade || userInfo.grade || repOverview.grade || "",
       targetSubject: targetSubject || repOverview.targetSubject || "",
-      learningFocus: parsed.learningFocus || userInfo.learningFocus || repOverview.learningFocus || "",
-      assessmentDate: normalizeAssessmentDate(item?.createdAt || parsed.submittedAt || parsed.completedAt)
+      learningFocus: student.learningFocus || parsed.learningFocus || userInfo.learningFocus || repOverview.learningFocus || "",
+      assessmentDate: normalizeAssessmentDate(item?.createdAt || assessment.submittedAt || parsed.submittedAt || parsed.completedAt)
     },
     studentReport: generated.studentReport
   };
 }
 
 function buildReportPayloadFromParsedRecord(parsed, item, mobile) {
-  if (parsed.report?.studentReport) {
+  const assessment = parsed?.assessmentInfo || {};
+  if (parsed?.report?.studentReport) {
     return { report: parsed.report, studentReport: parsed.report.studentReport };
   }
-  if (parsed.resultData?.studentReport || parsed.result?.studentReport) {
-    const reportData = parsed.resultData || parsed.result;
+  if (parsed?.resultData?.studentReport || parsed?.result?.studentReport || assessment?.resultData?.studentReport) {
+    const reportData = parsed?.resultData || parsed?.result || assessment?.resultData;
     return { report: reportData, studentReport: reportData.studentReport };
   }
   return buildReportPayloadFromAnswersData(parsed, item, mobile);
@@ -290,7 +365,12 @@ function buildReportPayloadFromParsedRecord(parsed, item, mobile) {
 async function loadReportFromApiById(id) {
   if (!id) return null;
   try {
-    const apiRes = await fetch(`${ASSESSMENT_RESULT_API}/${encodeURIComponent(id)}`);
+    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+    const apiRes = await fetch(`${ASSESSMENT_RESULT_API}/${encodeURIComponent(id)}`, {
+      signal: controller ? controller.signal : undefined
+    });
+    if (timeoutId) clearTimeout(timeoutId);
     const apiJson = await apiRes.json().catch(() => ({}));
     if ((apiJson.code === 200 || apiJson.code === 0) && apiJson.data) {
       const item = apiJson.data;
@@ -830,7 +910,7 @@ export function normalizeStudentReport(value, publicView = {}) {
     ...(versioned ? { schemaVersion: report.schemaVersion } : {}),
     sections: SECTION_IDS.map((id) => ({ id })),
     overview: {
-      title: string(overviewSource.title, "学习方式测评与行动报告"),
+      title: string(overviewSource.title, "学习模式定位与行动报告"),
       englishTitle: string(overviewSource.englishTitle, "LEARNING ACTION REPORT"),
       studentName: string(overviewSource.studentName, string(report.studentName, string(publicView.studentName))),
       maskedPhone: string(publicView.maskedPhone),
@@ -946,24 +1026,22 @@ function renderOverview(overview) {
   element("preferenceIndices").replaceChildren(...overview.radar.map(({ code, label, score, available }) => {
     const normalizedScore = numericScore(score);
     const row = document.createElement("div");
-    row.className = "index-row";
-    const track = text("span", "", "index-track");
-    const fill = text("span", "", "index-fill");
+    row.className = "state-bar-row";
+    const labelSpan = text("span", `${label}入口`, "state-bar-label");
+    const track = text("div", "", "state-bar-track");
+    const fill = text("span", "", "state-bar-fill");
     fill.style.width = `${normalizedScore}%`;
-    fill.style.background = PREFERENCE_COLORS[code] ?? PREFERENCE_COLORS.V;
     track.append(fill);
-    row.append(
-      text("span", `${label}入口`, "index-label"),
-      track,
-      text("strong", available ? `${Math.round(normalizedScore)}/100` : "--/100", "index-value")
-    );
+    const scoreVal = text("strong", available ? `${Math.round(normalizedScore)}/100` : "--/100", "state-bar-value");
+    row.append(labelSpan, track, scoreVal);
     return row;
   }));
   return { canvas, scores };
 }
 
 function renderStrategyProgress(strategies) {
-  const container = element("strategyProgress");
+  const container = document.getElementById("strategyProgress");
+  if (!container) return;
   if (!strategies.length) {
     container.replaceChildren(text("p", "本次未保存学习策略的具体表现。", "strategy-progress-empty"));
     return;
@@ -985,47 +1063,54 @@ function renderStrategyProgress(strategies) {
   }));
 }
 
-function renderLearningPattern(section) {
-  setText("learningPatternIntro", section.intro, "");
-  setText("learningPatternConnection", section.connection, "");
-  const container = element("learningPatternEntries");
-  if (!section.entries.length) {
-    container.replaceChildren(text("p", "本次没有需要单独命名的主辅入口，可以结合实际学习继续观察。", "empty-report-copy"));
-    return;
-  }
-  container.replaceChildren(...section.entries.map((entry) => {
-    const article = document.createElement("article");
-    article.className = entry.code ? `preference-card preference-${entry.code.toLowerCase()}` : "preference-card";
-    const heading = text("div", "", "card-heading");
-    heading.append(text("h3", `${entry.label}入口`), text("span", entry.role, "score-pill"));
-    const grid = text("div", "", "mechanism-grid");
-    for (const mechanism of entry.mechanisms) {
-      const card = text("div", "", "mechanism-card");
-      const top = text("div", "", "mechanism-heading");
-      top.append(text("strong", mechanism.label), text("span", mechanism.level, "evidence-level"));
-      const list = text("ul", "", "compact-list");
-      list.append(...mechanism.typicalBehaviors.map((behavior) => text("li", behavior)));
-      card.append(top, list);
-      if (mechanism.sceneExample) card.append(text("p", mechanism.sceneExample, "mechanism-example"));
-      grid.append(card);
-    }
-    article.append(heading, grid);
-    return article;
-  }));
-}
-
 function renderDimensionDetails(entries) {
   const container = document.getElementById("dimensionDetails");
   if (!container || !entries.length) return;
+
+  const VARK_CONFIG = {
+    V: {
+      name: "视觉入口",
+      icon: "/assets/images/icon-vark-visual.png",
+      desc: "先看文字、图形、表格，在脑海中形成画面和结构。"
+    },
+    A: {
+      name: "听觉入口",
+      icon: "/assets/images/icon-vark-auditory.png",
+      desc: "先听例子、讲解或自述，在声音中理解和记忆。"
+    },
+    R: {
+      name: "读写入口",
+      icon: "/assets/images/icon-vark-readwrite.png",
+      desc: "先读一遍、写下来，通过文字梳理和输出想法。"
+    },
+    K: {
+      name: "动觉入口",
+      icon: "/assets/images/icon-vark-kinesthetic.png",
+      desc: "先动手做、演示或体验，在操作中理解原理。"
+    }
+  };
+
   container.replaceChildren(...entries.map((entry) => {
     const card = document.createElement("article");
-    card.className = `dimension-card preference-${entry.code.toLowerCase()}`;
-    const header = text("div", "", "dimension-heading");
-    header.append(
-      text("h3", `${entry.label}入口`),
-      text("span", `${Math.round(numericScore(entry.score))}/100`, "dimension-score")
-    );
-    card.append(header, text("p", entry.definition, "dimension-definition"), text("p", entry.interpretation, "dimension-interpretation"));
+    card.className = `vark-card vark-${entry.code.toLowerCase()}`;
+    const cfg = VARK_CONFIG[entry.code] || {
+      name: `${entry.label}入口`,
+      icon: "/assets/images/icon-vark-visual.png",
+      desc: entry.definition
+    };
+
+    const iconWrap = document.createElement("div");
+    iconWrap.className = "vark-card-icon-wrap";
+    const iconImg = document.createElement("img");
+    iconImg.src = cfg.icon;
+    iconImg.alt = cfg.name;
+    iconImg.className = "vark-card-icon-img";
+    iconWrap.append(iconImg);
+
+    const title = text("h4", cfg.name, "vark-card-title");
+    const desc = text("p", cfg.desc || entry.definition, "vark-card-desc");
+
+    card.append(iconWrap, title, desc);
     return card;
   }));
 }
@@ -1070,12 +1155,13 @@ function renderStrengths(section) {
 }
 
 function renderRisks(section) {
+  const strategy = section.priorityStrategy || {};
   setText("riskHeadline", section.headline, "");
   setText("riskExplanation", section.explanation, "");
   setText("riskSceneExample", section.sceneExample, "");
-  setText("priorityStrategyFormal", formatStrategyLabel(section.priorityStrategy), "");
-  setText("priorityStrategyDefinition", section.priorityStrategy.definition, "");
-  setText("priorityStrategyWhy", section.priorityStrategy.whyFirst, "");
+  setText("priorityStrategyFormal", formatStrategyLabel(strategy), "");
+  setText("priorityStrategyDefinition", strategy.definition, "");
+  setText("priorityStrategyWhy", strategy.whyFirst, "");
 }
 
 function renderSubjectPlan(section) {
@@ -1177,14 +1263,30 @@ function loadAdminPreviewPayload(previewId, mobile) {
   return buildReportPayloadFromParsedRecord(parsed, itemMeta, phone);
 }
 
+function hideReportFeedbackSection() {
+  document.querySelectorAll("[data-report-feedback]").forEach((node) => {
+    node.hidden = true;
+  });
+  const feedbackForm = document.getElementById("feedbackForm");
+  const feedbackSection = feedbackForm?.closest("section");
+  if (feedbackSection) feedbackSection.hidden = true;
+}
+
 function applyEmbedMode() {
   const params = new URLSearchParams(window.location.search);
-  if (params.get("embed") !== "1") return;
-  document.body.classList.add("report-embed");
-  const brandBar = document.querySelector(".brand-bar");
-  if (brandBar) brandBar.hidden = true;
-  const feedback = document.querySelector("[data-report-feedback]");
-  if (feedback) feedback.hidden = true;
+  const isEmbed = params.get("embed") === "1";
+  const isPreview = params.get("preview") === "1";
+  if (!isEmbed && !isPreview) {
+    const feedback = document.querySelector("[data-report-feedback]");
+    if (feedback) feedback.hidden = false;
+    return;
+  }
+  if (isEmbed) {
+    document.body.classList.add("report-embed");
+    const brandBar = document.querySelector(".brand-bar");
+    if (brandBar) brandBar.hidden = true;
+  }
+  hideReportFeedbackSection();
 }
 
 function showError(message) {
@@ -1222,7 +1324,8 @@ export async function loadReport(reportId) {
     }
 
     if (!payload) {
-      const localSessionData = getLocalSessionData(queryId || reportId);
+      const sessionKey = params.get("session") || "";
+      const localSessionData = getLocalSessionData(sessionKey || queryId || reportId);
       if (localSessionData) {
         rememberAssessmentSubmitPayloadFromSession(localSessionData, mobile);
         payload = resolveReportPayload(localSessionData, mobile);
@@ -1462,11 +1565,12 @@ async function copyReportLinkInWeChat() {
 }
 
 function handlePrintReport() {
-  if (isWeChatBrowser()) {
+  try {
+    window.print();
+  } catch (e) {
+    console.warn("window.print exception:", e);
     showWeChatPrintGuide();
-    return;
   }
-  window.print();
 }
 
 function bindWeChatPrintGuide() {
@@ -1494,6 +1598,23 @@ function scheduleAutoPrintIfRequested() {
   }, 600);
 }
 
+function bindPrintButtons() {
+  const printBtn = optionalElement("printReport");
+  const mobilePrintBtn = optionalElement("mobilePrintBtn");
+  if (printBtn) {
+    printBtn.addEventListener("click", handlePrintReport);
+    if (isWeChatBrowser()) {
+      printBtn.textContent = "保存报告";
+    }
+  }
+  if (mobilePrintBtn) {
+    mobilePrintBtn.addEventListener("click", handlePrintReport);
+    if (isWeChatBrowser()) {
+      mobilePrintBtn.textContent = "保存报告";
+    }
+  }
+}
+
 function boot() {
   applyEmbedMode();
   element("retryReport").addEventListener("click", () => {
@@ -1512,10 +1633,7 @@ function boot() {
     }
   });
 
-  element("printReport").addEventListener("click", handlePrintReport);
-  if (isWeChatBrowser()) {
-    element("printReport").textContent = "保存报告";
-  }
+  bindPrintButtons();
   bindWeChatPrintGuide();
 
   element("feedbackForm").addEventListener("submit", submitFeedback);

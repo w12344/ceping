@@ -37,7 +37,7 @@ const COVER_SVGS = {
   <circle cx="360" cy="30" r="80" fill="rgba(255,255,255,0.06)"/>
   <circle cx="40" cy="180" r="100" fill="rgba(255,225,0,0.08)"/>
   <text x="24" y="46" fill="#FFE100" font-size="13" font-weight="bold" font-family="sans-serif">非凡教育 · 文化课诊断</text>
-  <text x="24" y="92" fill="#FFFFFF" font-size="24" font-weight="800" font-family="sans-serif">学习风格测评</text>
+  <text x="24" y="92" fill="#FFFFFF" font-size="24" font-weight="800" font-family="sans-serif">学习模式定位</text>
   <text x="24" y="126" fill="#E2E8F0" font-size="13" font-family="sans-serif">VAK 三维感官吸收通道 (视觉/听觉/动觉)</text>
   <rect x="24" y="146" width="124" height="26" rx="13" fill="rgba(255,255,255,0.2)"/>
   <text x="86" y="163" fill="#FFFFFF" font-size="11" font-weight="bold" text-anchor="middle" font-family="sans-serif">感官通道诊断</text>
@@ -57,7 +57,7 @@ const COVER_SVGS = {
   <circle cx="370" cy="170" r="90" fill="rgba(255,255,255,0.08)"/>
   <path d="M-20,40 Q100,160 250,20 T400,100" fill="none" stroke="rgba(255,225,0,0.15)" stroke-width="4"/>
   <text x="24" y="46" fill="#FFE100" font-size="13" font-weight="bold" font-family="sans-serif">非凡教育 · 心理动力</text>
-  <text x="24" y="92" fill="#FFFFFF" font-size="24" font-weight="800" font-family="sans-serif">学习动机测评</text>
+  <text x="24" y="92" fill="#FFFFFF" font-size="24" font-weight="800" font-family="sans-serif">动力系统探索</text>
   <text x="24" y="126" fill="#E2E8F0" font-size="13" font-family="sans-serif">7 大核心驱动维度 · 定量成就动机诊断</text>
   <rect x="24" y="146" width="124" height="26" rx="13" fill="rgba(255,255,255,0.2)"/>
   <text x="86" y="163" fill="#FFFFFF" font-size="11" font-weight="bold" text-anchor="middle" font-family="sans-serif">自我效能诊断</text>
@@ -126,7 +126,9 @@ const COVER_SVGS = {
 const ASSESSMENTS = [
   {
     key: "learningStyle",
-    name: "学习风格测评",
+    name: "学习模式定位",
+    templateCode: "LEARNING_STYLE",
+    templateType: "STUDENT_LEARNING",
     tag: "文化课诊断",
     tagClass: "tag-xxfg",
     icon: "🎓",
@@ -135,7 +137,9 @@ const ASSESSMENTS = [
   },
   {
     key: "motivation",
-    name: "学习动机测评",
+    name: "动力系统探索",
+    templateCode: "MOTIVATION",
+    templateType: "STUDENT_LEARNING",
     tag: "心理动力",
     tagClass: "tag-xxdj",
     icon: "🚀",
@@ -145,6 +149,8 @@ const ASSESSMENTS = [
   {
     key: "fthBoss",
     name: "FTH 创业者特质测评",
+    templateCode: "FTH_BOSS",
+    templateType: "CAREER_TALENT",
     tag: "创业者/高管",
     tagClass: "tag-fth",
     icon: "💼",
@@ -154,6 +160,8 @@ const ASSESSMENTS = [
   {
     key: "fthTalent",
     name: "FTH 微信版特质测评",
+    templateCode: "FTH_TALENT",
+    templateType: "CAREER_TALENT",
     tag: "团队人才盘点",
     tagClass: "tag-fth",
     icon: "📱",
@@ -163,6 +171,8 @@ const ASSESSMENTS = [
   {
     key: "fth1605",
     name: "FTH 1605版特质测评",
+    templateCode: "FTH_1605",
+    templateType: "CAREER_TALENT",
     tag: "AI/研发交付",
     tagClass: "tag-fth1605",
     icon: "💻",
@@ -171,9 +181,28 @@ const ASSESSMENTS = [
   }
 ];
 
+function getURLParam(key) {
+  if (typeof window === "undefined") return null;
+  const urlParams = new URLSearchParams(window.location.search);
+  const hashSearch = window.location.hash && window.location.hash.includes("?") ? window.location.hash.split("?")[1] : "";
+  const hashParams = new URLSearchParams(hashSearch);
+  return urlParams.get(key) || hashParams.get(key);
+}
+
+function getInitialTemplateType() {
+  const type = getURLParam("templateType") || getURLParam("type");
+  if (type) {
+    const upper = type.toUpperCase();
+    if (["STUDENT_LEARNING", "STUDENT", "LEARNING"].includes(upper)) return "STUDENT_LEARNING";
+    if (["CAREER_TALENT", "CAREER", "TALENT"].includes(upper)) return "CAREER_TALENT";
+  }
+  return "ALL";
+}
+
 let state = {
   user: null,
   loginMethod: "qr",
+  currentType: getInitialTemplateType(),
   currentTab: "all",
   searchQuery: "",
   showingQr: {} // 记录各卡片是否切换展示二维码
@@ -199,6 +228,7 @@ const elements = {
   userMobileBadge: document.getElementById("userMobileBadge"),
   logoutBtn: document.getElementById("logoutBtn"),
 
+  portalTypeFilter: document.getElementById("portalTypeFilter"),
   portalTabs: document.getElementById("portalTabs"),
   searchInput: document.getElementById("searchInput"),
   refreshBtn: document.getElementById("refreshBtn"),
@@ -722,9 +752,16 @@ function handleSSOLogin() {
 }
 
 function renderPortal() {
-  if (!state.user) return;
+  const shouldHideHeader = getURLParam("embed") === "1" || getURLParam("pure") === "1" || getURLParam("hideHeader") === "1";
+  const shouldHideTabs = getURLParam("embed") === "1" || getURLParam("pure") === "1" || getURLParam("hideTabs") === "1";
+
+  if (!state.user && !shouldHideHeader && !shouldHideTabs) return;
 
   let list = ASSESSMENTS;
+
+  if (state.currentType !== "ALL") {
+    list = list.filter(r => r.templateType === state.currentType);
+  }
 
   if (state.currentTab !== "all") {
     list = list.filter(r => r.key === state.currentTab);
@@ -919,6 +956,38 @@ function bindEvents() {
       localStorage.removeItem(AUTH_STORAGE_KEY);
       updateAuthUI();
       showToast("已安全退出登录");
+    });
+  }
+
+  if (elements.portalTypeFilter) {
+    elements.portalTypeFilter.querySelectorAll(".type-btn").forEach(b => {
+      const isAct = b.dataset.type === state.currentType;
+      b.style.background = isAct ? "#FFE100" : "#FFFDF5";
+      b.style.color = isAct ? "#1E1A1C" : "#D97706";
+    });
+
+    elements.portalTypeFilter.addEventListener("click", (e) => {
+      const btn = e.target.closest(".type-btn");
+      if (!btn) return;
+      elements.portalTypeFilter.querySelectorAll(".type-btn").forEach(b => {
+        b.style.background = "#FFFDF5";
+        b.style.color = "#D97706";
+      });
+      btn.style.background = "#FFE100";
+      btn.style.color = "#1E1A1C";
+
+      state.currentType = btn.dataset.type;
+      
+      const url = new URL(window.location.href);
+      if (state.currentType === "ALL") {
+        url.searchParams.delete("templateType");
+        url.searchParams.delete("type");
+      } else {
+        url.searchParams.set("templateType", state.currentType);
+      }
+      window.history.replaceState({}, "", url.toString());
+
+      renderPortal();
     });
   }
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>学习动机测评｜非凡教育</title>
+  <title>动力系统探索｜非凡教育</title>
   <link rel="stylesheet" href="/assets/styles.css">
   <style>
     .motivation-option-grid {
@@ -26,11 +26,10 @@
       <div style="display:flex;align-items:center;gap:12px">
         <div class="brand-badge-box">凡</div>
         <div>
-          <span class="brand-cn">非凡教育 · 学习动机与自主力测评</span>
+          <span class="brand-cn">非凡教育 · 动力系统探索</span>
           <span class="brand-en">MOTIVATION ASSESSMENT · 让自我赋能</span>
         </div>
       </div>
-      <button type="button" class="autofill-pill-btn" onclick="window.oneClickAutoFillAndAnswer()">⚡ 极速秒填全卷</button>
     </div>
   </header>
 
@@ -39,7 +38,7 @@
     <section id="startView" class="view is-active">
       <div class="hero-panel">
         <p class="eyebrow">LEARNING MOTIVATION ASSESSMENT</p>
-        <h1>学习动机与自主力<br>诊断测评</h1>
+        <h1>动力系统<span style="color:#FFE100">探索</span></h1>
         <p class="hero-lead">真正影响文化课提分的，是目标意义、自信心、学习方法、关系支持、执行启动，还是情绪压力？本测评为你深度剖析。</p>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0">
@@ -373,43 +372,30 @@
       const session = `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
       const payload = {
-        templateCode: "MOTIVATION",
-        templateName: "学习动机测评",
-        templateType: "STUDENT_LEARNING",
-        token: crmCtx.token,
-        advisorToken: crmCtx.token,
-        advisorUserId: crmCtx.advisorUserId,
-        advisorName: crmCtx.advisorName,
-        advisorMobile: crmCtx.advisorMobile,
-        profileId: crmCtx.profileId,
-        customerId: crmCtx.profileId,
-        studentName: name,
-        studentMobile: mobile,
-        name: name,
-        contact: mobile,
-        session: session,
-        userInfo: {
-          studentName: name,
-          studentMobile: mobile,
+        studentInfo: {
           name: name,
-          contact: mobile,
-          phoneNumber: mobile,
-          advisorToken: crmCtx.token,
-          advisorUserId: crmCtx.advisorUserId,
-          advisorName: crmCtx.advisorName,
-          advisorMobile: crmCtx.advisorMobile,
-          profileId: crmCtx.profileId,
+          mobile: mobile,
           grade: grade,
-          targetSubject: targetSubject
+          targetSubject: targetSubject,
+          profileId: crmCtx.profileId
         },
-        grade: grade,
-        targetSubject: targetSubject,
-        answers: formattedAnswers,
-        submittedAt: new Date().toISOString()
+        advisorInfo: {
+          token: crmCtx.token,
+          name: crmCtx.advisorName,
+          userId: crmCtx.advisorUserId,
+          mobile: crmCtx.advisorMobile
+        },
+        assessmentInfo: {
+          templateCode: "MOTIVATION",
+          templateName: "动力系统探索",
+          templateType: "STUDENT_LEARNING",
+          answers: formattedAnswers,
+          submittedAt: new Date().toISOString()
+        }
       };
 
       try {
-        const resp = await fetch('https://ffcrm-api.1605ai.com/api/assessment/submit', {
+        const resp = await fetch('https://ceping.1605ai.com/api/assessment/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -428,15 +414,6 @@
       }
     }
 
-    // ⚡ 一键秒填辅助
-    window.oneClickAutoFillAndAnswer = function() {
-      if (!document.getElementById('studentName').value) document.getElementById('studentName').value = '测试学员';
-      if (!document.getElementById('studentMobile').value) document.getElementById('studentMobile').value = '15765778832';
-      MOTIVATION_QUESTIONS.forEach(q => answers[q.id] = 4);
-      currentPage = totalPages - 1;
-      renderQuestions();
-      switchView('questionsView');
-    };
   </script>
 </body>
 </html>

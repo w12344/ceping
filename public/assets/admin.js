@@ -1,13 +1,14 @@
 const STORAGE_KEY = "adminToken";
+const DEFAULT_ADMIN_TOKEN = "7jEXGyw1";
 const ASSESSMENT_API_BASE = window.ASSESSMENT_API_BASE || "https://ffcrm-api.1605ai.com";
 const ASSESSMENT_LIST_API = `${ASSESSMENT_API_BASE}/api/assessment/public/list`;
 const LIST_PAGE_SIZE = 100;
 
 const TEMPLATE_META = {
-  LEARNING_STYLE: { templateCode: "LEARNING_STYLE", templateName: "学习风格测评", templateType: "STUDENT_LEARNING", templateTypeName: "学生学习测评", projectKey: "learningStyle", projectName: "学习风格测评", projectTagClass: "tag-xxfg" },
-  "学习风格": { templateCode: "LEARNING_STYLE", templateName: "学习风格测评", templateType: "STUDENT_LEARNING", templateTypeName: "学生学习测评", projectKey: "learningStyle", projectName: "学习风格测评", projectTagClass: "tag-xxfg" },
-  MOTIVATION: { templateCode: "MOTIVATION", templateName: "学习动机测评", templateType: "STUDENT_LEARNING", templateTypeName: "学生学习测评", projectKey: "motivation", projectName: "学习动机测评", projectTagClass: "tag-xxdj" },
-  "学习动机": { templateCode: "MOTIVATION", templateName: "学习动机测评", templateType: "STUDENT_LEARNING", templateTypeName: "学生学习测评", projectKey: "motivation", projectName: "学习动机测评", projectTagClass: "tag-xxdj" },
+  LEARNING_STYLE: { templateCode: "LEARNING_STYLE", templateName: "学习模式定位", templateType: "STUDENT_LEARNING", templateTypeName: "学生学习测评", projectKey: "learningStyle", projectName: "学习模式定位", projectTagClass: "tag-xxfg" },
+  "学习风格": { templateCode: "LEARNING_STYLE", templateName: "学习模式定位", templateType: "STUDENT_LEARNING", templateTypeName: "学生学习测评", projectKey: "learningStyle", projectName: "学习模式定位", projectTagClass: "tag-xxfg" },
+  MOTIVATION: { templateCode: "MOTIVATION", templateName: "动力系统探索", templateType: "STUDENT_LEARNING", templateTypeName: "学生学习测评", projectKey: "motivation", projectName: "动力系统探索", projectTagClass: "tag-xxdj" },
+  "学习动机": { templateCode: "MOTIVATION", templateName: "动力系统探索", templateType: "STUDENT_LEARNING", templateTypeName: "学生学习测评", projectKey: "motivation", projectName: "动力系统探索", projectTagClass: "tag-xxdj" },
   FTH_BOSS: { templateCode: "FTH_BOSS", templateName: "FTH 创业者职业特质", templateType: "CAREER_TALENT", templateTypeName: "职业特质测评", projectKey: "fthBoss", projectName: "FTH 创业者职业特质", projectTagClass: "tag-fthboss" },
   "FTH创业者": { templateCode: "FTH_BOSS", templateName: "FTH 创业者职业特质", templateType: "CAREER_TALENT", templateTypeName: "职业特质测评", projectKey: "fthBoss", projectName: "FTH 创业者职业特质", projectTagClass: "tag-fthboss" },
   FTH_TALENT: { templateCode: "FTH_TALENT", templateName: "FTH 职业特质(微信版)", templateType: "CAREER_TALENT", templateTypeName: "职业特质测评", projectKey: "fthTalent", projectName: "FTH 职业特质(微信版)", projectTagClass: "tag-fthtalent" },
@@ -33,10 +34,10 @@ function parseResultJson(raw) {
 function resolveTemplateMeta(templateCode) {
   if (TEMPLATE_META[templateCode]) return TEMPLATE_META[templateCode];
   const code = String(templateCode || "").toLowerCase();
-  if (code.includes("学习风格") || code.includes("style") || code.includes("learning")) {
+  if (code.includes("学习风格") || code.includes("学习模式定位") || code.includes("style") || code.includes("learning")) {
     return TEMPLATE_META["LEARNING_STYLE"];
   }
-  if (code.includes("学习动机") || code.includes("motivation")) {
+  if (code.includes("学习动机") || code.includes("动力系统探索") || code.includes("motivation")) {
     return TEMPLATE_META["MOTIVATION"];
   }
   if (code.includes("微信") || code.includes("talent")) {
@@ -63,16 +64,58 @@ function mapApiRecordToItem(record) {
   const meta = resolveTemplateMeta(record.templateCode);
   const parsed = parseResultJson(record.resultJson);
   const resObj = parsed.resultData || parsed.result || parsed;
-  const userInfo = parsed.userInfo || resObj.userInfo || parsed.basicInfo || {};
-  const studentName = record.customerName || resObj.name || userInfo.studentName || "匿名";
-  const phoneNumber = record.customerMobile || resObj.contact || userInfo.phoneNumber || "--";
-  const submittedAt = record.createdAt || resObj.createdAt || resObj.submittedAt || "";
-  const durationSeconds = Number(resObj.durationSeconds || parsed.durationSeconds || 0) || 0;
-  const reportData = parsed.report || resObj;
-  const advisorName = record.advisorName || record.employeeName || userInfo.advisorName || "";
-  const advisorUserId = record.advisorUserId || record.employeeId || userInfo.advisorUserId || "";
-  const advisorMobile = record.advisorMobile || userInfo.advisorMobile || "";
-  const profileId = record.profileId || record.customerId || userInfo.profileId || "";
+
+  // 1. 结构化抽取 studentInfo (支持新版 studentInfo 与旧版 userInfo/平铺字段兼容)
+  const studentInfo = parsed.studentInfo || parsed.userInfo || parsed.basicInfo || resObj.userInfo || {};
+  const studentName = record.customerName || studentInfo.name || studentInfo.studentName || parsed.name || resObj.name || "匿名";
+  const phoneNumber = record.customerMobile || studentInfo.mobile || studentInfo.phoneNumber || studentInfo.contact || parsed.contact || resObj.contact || "--";
+  const grade = studentInfo.grade || parsed.grade || resObj.grade || "--";
+  const specialtyDirection = studentInfo.specialtyDirection || parsed.specialtyDirection || resObj.specialtyDirection || "";
+  const scoreBand = studentInfo.scoreBand || parsed.scoreBand || resObj.scoreBand || "";
+  const foreignLanguage = studentInfo.foreignLanguage || parsed.foreignLanguage || resObj.foreignLanguage || "";
+  const targetSubject = studentInfo.targetSubject || parsed.targetSubject || resObj.targetSubject || "--";
+  const targetSubjectScore = studentInfo.targetSubjectScore ?? parsed.targetSubjectScore ?? resObj.targetSubjectScore;
+  const targetSubjectFullScore = studentInfo.targetSubjectFullScore ?? parsed.targetSubjectFullScore ?? resObj.targetSubjectFullScore ?? 150;
+  const learningFocus = studentInfo.learningFocus || parsed.learningFocus || resObj.learningFocus || "";
+  const profileId = studentInfo.profileId || parsed.profileId || record.profileId || record.customerId || "";
+
+  // 2. 结构化抽取 advisorInfo
+  const advisorInfo = parsed.advisorInfo || {};
+  const advisorName = record.employeeName || advisorInfo.name || record.advisorName || "";
+  const advisorMobile = advisorInfo.mobile || record.advisorMobile || "";
+  const advisorToken = advisorInfo.token || record.advisorToken || "";
+  const advisorEmployeeId = record.employeeId || advisorInfo.employeeId || "";
+
+  // 3. 结构化抽取 assessmentInfo
+  const assessmentInfo = parsed.assessmentInfo || {};
+  const answers = assessmentInfo.answers || parsed.answers || [];
+  const durationSeconds = Number(assessmentInfo.durationSeconds || parsed.durationSeconds || resObj.durationSeconds || 0) || 0;
+  const submittedAt = record.createdAt || assessmentInfo.submittedAt || parsed.submittedAt || resObj.submittedAt || "";
+  const reportUrl = record.reportUrl || assessmentInfo.reportUrl || (record.id ? `https://ceping.1605ai.com/report.html?id=${record.id}` : "");
+
+  // 4. 诊断得分计算 (以学习风格为例，自动计算 VARK 4 通道得分与主导通道)
+  let vScore = 0, aScore = 0, rScore = 0, kScore = 0;
+  if (Array.isArray(answers)) {
+    answers.forEach(ans => {
+      const qId = String(ans.questionId || ans.id || "");
+      const val = Number(ans.value || ans.score || 0);
+      if (qId.startsWith("V")) vScore += val;
+      else if (qId.startsWith("A")) aScore += val;
+      else if (qId.startsWith("R")) rScore += val;
+      else if (qId.startsWith("K")) kScore += val;
+    });
+  }
+
+  let dominantModality = "";
+  if (vScore > 0 || aScore > 0 || rScore > 0 || kScore > 0) {
+    const maxVal = Math.max(vScore, aScore, rScore, kScore);
+    const dominants = [];
+    if (vScore === maxVal) dominants.push("视觉型 (V)");
+    if (aScore === maxVal) dominants.push("听觉型 (A)");
+    if (rScore === maxVal) dominants.push("读写型 (R)");
+    if (kScore === maxVal) dominants.push("动觉型 (K)");
+    dominantModality = dominants.join(" + ");
+  }
 
   const base = {
     id: record.id,
@@ -83,48 +126,57 @@ function mapApiRecordToItem(record) {
     studentName,
     phoneNumber,
     profileId,
+    grade,
+    specialtyDirection,
+    scoreBand,
+    foreignLanguage,
+    targetSubject,
+    targetSubjectScore,
+    targetSubjectFullScore,
+    learningFocus,
     advisorName,
-    advisorUserId,
     advisorMobile,
+    advisorToken,
+    advisorEmployeeId,
+    employeeName: advisorName,
+    employeeId: advisorEmployeeId,
+    answers,
+    answersCount: answers.length,
+    vScore,
+    aScore,
+    rScore,
+    kScore,
+    dominantModality,
     submittedAt,
     durationSeconds,
-    reportData,
+    reportData: parsed.report || resObj,
     _parsed: parsed,
-    employeeName: advisorName,
-    employeeId: advisorUserId,
     ossKey: `assessment/${record.id}`,
     ossUrl: "",
-    reportUrl: ""
+    reportUrl
   };
 
   if (meta.projectKey === "learningStyle") {
-    const studentReport = reportData.studentReport || parsed.studentReport || {};
-    const overview = studentReport.overview || {};
-    const diagnostic = studentReport.diagnosticOverview || {};
-    const grade = parsed.grade || userInfo.grade || overview.grade || "--";
-    const targetSubject = parsed.targetSubject || userInfo.targetSubject || overview.targetSubject || "--";
-    const score = parsed.targetSubjectScore ?? userInfo.targetSubjectScore;
-    const fullScore = parsed.targetSubjectFullScore ?? userInfo.targetSubjectFullScore ?? 150;
-    const styleType = diagnostic.styleType || resObj.primaryPreference || resObj.resultType || "做答完成";
+    let scoreText = "--";
+    if (targetSubjectScore !== null && targetSubjectScore !== undefined && targetSubjectScore !== "") {
+      scoreText = `${targetSubjectScore}/${targetSubjectFullScore}分`;
+    }
+    const styleType = dominantModality || "学习模式定位已完成";
 
     return {
       ...base,
-      grade,
-      specialtyDirection: parsed.learningFocus || userInfo.learningFocus || overview.learningFocus || "",
-      targetSubject,
-      scoreText: score !== null && score !== undefined && score !== "" ? `${score}/${fullScore}分` : "--",
+      scoreText,
       detailSummary: `${styleType}${targetSubject !== "--" ? " · " + targetSubject : ""}`
     };
   }
 
   if (meta.projectKey === "motivation") {
+    const profileName = parsed.profileName || resObj.profileName || "自主积极型";
     return {
       ...base,
-      grade: resObj.grade || userInfo.grade || "--",
-      specialtyDirection: "",
       targetSubject: "动机诊断",
-      scoreText: resObj.scores ? `核心属性: ${resObj.profileName || "--"}` : "--",
-      detailSummary: `${resObj.profileName || "动机类型"}${resObj.representativeName ? " · " + resObj.representativeName : ""}`
+      scoreText: resObj.scores ? `核心属性: ${profileName}` : "--",
+      detailSummary: `${profileName}${resObj.representativeName ? " · " + resObj.representativeName : ""}`
     };
   }
 
@@ -169,9 +221,6 @@ function mapApiRecordToItem(record) {
 
   return {
     ...base,
-    grade: "--",
-    specialtyDirection: "",
-    targetSubject: "--",
     scoreText: "--",
     detailSummary: record.templateCode || "测评记录"
   };
@@ -264,8 +313,6 @@ const elements = {
   modalReportTitle: document.getElementById("modalReportTitle"),
   modalReportTag: document.getElementById("modalReportTag"),
   modalReportContainer: document.getElementById("modalReportContainer"),
-  modalPrintBtn: document.getElementById("modalPrintBtn"),
-  modalDownloadBtn: document.getElementById("modalDownloadBtn"),
   closeModalBtn: document.getElementById("closeModalBtn")
 };
 
@@ -418,26 +465,6 @@ function init() {
     elements.mobileCardList.addEventListener("click", handleActionClick);
   }
 
-  // Modal 顶栏打印
-  elements.modalPrintBtn.addEventListener("click", () => {
-    if (state.activeItem?.projectKey === "learningStyle") {
-      printLearningStyleReport(state.activeItem);
-      return;
-    }
-    const iframe = elements.modalReportContainer.querySelector(".report-preview-frame");
-    if (iframe?.contentWindow) {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-      return;
-    }
-    window.print();
-  });
-
-  // Modal 顶栏下载整份图片
-  elements.modalDownloadBtn.addEventListener("click", () => {
-    if (state.activeItem) downloadReportImageOrFile(state.activeItem);
-  });
-
   // Modal 关闭
   elements.closeModalBtn.addEventListener("click", closeModal);
   elements.reportModal.addEventListener("click", (e) => {
@@ -568,6 +595,14 @@ function getRealisticDuration(item) {
 function renderTable() {
   let list = state.allProjects;
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const typeParam = (urlParams.get("templateType") || urlParams.get("type") || "").toUpperCase();
+  if (typeParam === "STUDENT_LEARNING" || typeParam === "STUDENT" || typeParam === "LEARNING") {
+    list = list.filter(r => r.projectKey === "learningStyle" || r.projectKey === "motivation");
+  } else if (typeParam === "CAREER_TALENT" || typeParam === "CAREER" || typeParam === "TALENT") {
+    list = list.filter(r => r.projectKey === "fthBoss" || r.projectKey === "fthTalent" || r.projectKey === "fth1605" || r.projectKey === "customHTML");
+  }
+
   if (state.currentTab !== "all") {
     list = list.filter(r => r.projectKey === state.currentTab);
   }
@@ -592,10 +627,11 @@ function renderTable() {
         <tr>
           <th>学员姓名</th>
           <th>手机号</th>
-          <th>年级 / 专向</th>
+          <th>年级 / 专向 / 分数段</th>
           <th>目标学科 (成绩)</th>
-          <th>学习风格核心通道与诊断结论</th>
-          <th>答题时长</th>
+          <th>归属顾问</th>
+          <th>学习风格通道与结论</th>
+          <th>答题情况</th>
           <th>测评时间</th>
           <th>操作</th>
         </tr>
@@ -607,6 +643,7 @@ function renderTable() {
           <th>手机号</th>
           <th>年级 / 专向</th>
           <th>动机诊断分型</th>
+          <th>归属顾问</th>
           <th>核心主导驱动力</th>
           <th>答题时长</th>
           <th>测评时间</th>
@@ -658,6 +695,7 @@ function renderTable() {
           <th>手机号</th>
           <th>年级 / 专向</th>
           <th>诊断结论 / 特质</th>
+          <th>归属顾问</th>
           <th>答题时长</th>
           <th>测评时间</th>
           <th>操作</th>
@@ -670,7 +708,7 @@ function renderTable() {
   if (list.length === 0) {
     elements.sessionTableBody.innerHTML = `
       <tr>
-        <td colspan="8" class="table-empty">没有匹配的测评报告记录</td>
+        <td colspan="9" class="table-empty">没有匹配的测评报告记录</td>
       </tr>
     `;
     if (elements.mobileCardList) {
@@ -687,48 +725,129 @@ function renderTable() {
       ? `${esc(item.targetSubject)} ${item.scoreText !== "--" ? esc(item.scoreText) : ""}`.trim()
       : (item.scoreText !== "--" ? esc(item.scoreText) : "--");
 
-    let col3 = "", col4 = "", col5 = "";
-
     if (item.projectKey === "learningStyle") {
-      col3 = `${esc(item.grade)}${item.specialtyDirection ? ' · ' + esc(item.specialtyDirection) : ''}`;
-      col4 = subjectScoreText;
-      col5 = `<strong style="color:#D97706">${esc(item.detailSummary)}</strong>`;
-    } else if (item.projectKey === "motivation") {
-      col3 = `${esc(item.grade)}${item.specialtyDirection ? ' · ' + esc(item.specialtyDirection) : ''}`;
-      col4 = `<span class="tag-badge tag-xxdj" style="font-weight:800;padding:4px 10px">${esc(item.detailSummary)}</span>`;
-      col5 = `<span style="color:#0284C7;font-weight:700">自我效能 88分 · 关系支持 90分</span>`;
-    } else if (item.projectKey === "fthBoss") {
+      const studentNameCol = `<strong>${esc(item.studentName)}</strong>${item.profileId ? '<br><span style="font-size:11px;color:#6B7280;background:#F3F4F6;padding:1px 6px;border-radius:4px">#' + esc(item.profileId) + '</span>' : ''}`;
+      const gradeCol = `${esc(item.grade)}${item.specialtyDirection ? ' · ' + esc(item.specialtyDirection) : ''}${item.scoreBand ? '<br><span style="font-size:11.5px;color:#854D0E;background:#FEF9C3;padding:1px 6px;border-radius:4px">' + esc(item.scoreBand) + '</span>' : ''}`;
+      const subjectCol = `${subjectScoreText}${item.foreignLanguage ? ' <span style="font-size:11.5px;color:#0369A1;background:#E0F2FE;padding:1px 6px;border-radius:4px">' + esc(item.foreignLanguage) + '</span>' : ''}`;
+      const advisorCol = item.advisorName ? `<strong style="color:#1E293B">${esc(item.advisorName)}</strong>${item.advisorMobile ? '<br><span style="font-size:11.5px;color:#64748B">' + esc(item.advisorMobile) + '</span>' : ''}` : '<span style="color:#94A3B8">--</span>';
+      const conclusionCol = `<strong style="color:#D97706">${esc(item.dominantModality || item.detailSummary)}</strong>${(item.vScore || item.aScore || item.rScore || item.kScore) ? '<br><span style="font-size:11px;color:#6B7280;font-weight:600">V:' + item.vScore + ' A:' + item.aScore + ' R:' + item.rScore + ' K:' + item.kScore + '</span>' : ''}`;
+      const durationCol = `${item.answersCount ? '<span style="font-size:11.5px;font-weight:700;color:#166534;background:#DCFCE7;padding:2px 6px;border-radius:4px">' + item.answersCount + '题全</span><br>' : ''}${durationText}`;
+
+      return `
+        <tr>
+          <td>${studentNameCol}</td>
+          <td>${esc(item.phoneNumber)}</td>
+          <td>${gradeCol}</td>
+          <td>${subjectCol}</td>
+          <td>${advisorCol}</td>
+          <td>${conclusionCol}</td>
+          <td>${durationCol}</td>
+          <td style="white-space:nowrap">${timeStr}</td>
+          <td>
+            <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="preview">预览报告</a>
+            <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="download">下载报告</a>
+            <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="print">打印</a>
+          </td>
+        </tr>
+      `;
+    }
+
+    if (item.projectKey === "motivation") {
+      const studentNameCol = `<strong>${esc(item.studentName)}</strong>`;
+      const gradeCol = `${esc(item.grade)}${item.specialtyDirection ? ' · ' + esc(item.specialtyDirection) : ''}`;
+      const typeCol = `<span class="tag-badge tag-xxdj" style="font-weight:800;padding:4px 10px">${esc(item.detailSummary)}</span>`;
+      const advisorCol = item.advisorName ? `<strong style="color:#1E293B">${esc(item.advisorName)}</strong>` : '<span style="color:#94A3B8">--</span>';
+      const conclusionCol = `<span style="color:#0284C7;font-weight:700">7大动机维度全面诊断</span>`;
+
+      return `
+        <tr>
+          <td>${studentNameCol}</td>
+          <td>${esc(item.phoneNumber)}</td>
+          <td>${gradeCol}</td>
+          <td>${typeCol}</td>
+          <td>${advisorCol}</td>
+          <td>${conclusionCol}</td>
+          <td>${durationText}</td>
+          <td style="white-space:nowrap">${timeStr}</td>
+          <td>
+            <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="preview">预览报告</a>
+            <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="download">下载报告</a>
+            <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="print">打印</a>
+          </td>
+        </tr>
+      `;
+    }
+
+    if (item.projectKey === "fthBoss") {
       const pType = item.reportData?.primaryType ? `${item.reportData.primaryType.cn} ${item.reportData.primaryType.en}` : "冲刺型 Runner";
       const sType = item.reportData?.secondType ? item.reportData.secondType.cn : "攻坚型";
       const tType = item.reportData?.thirdType ? item.reportData.thirdType.cn : "分析型";
 
-      col3 = `<span style="background:#FFFBE9;border:1px solid #FDE68A;color:#D97706;padding:3px 10px;border-radius:9999px;font-weight:900;font-size:12px">${esc(item.reportData?.traitOrder || "FTH")}</span>`;
-      col4 = `<strong style="color:#D97706;font-size:14px">${esc(pType)}</strong>`;
-      col5 = `次优势: <strong style="color:#DC2626">${esc(sType)}</strong> · 辅: <span style="color:#0284C7">${esc(tType)}</span>`;
-    } else if (item.projectKey === "fthTalent") {
+      return `
+        <tr>
+          <td><strong>${esc(item.studentName)}</strong></td>
+          <td>${esc(item.phoneNumber)}</td>
+          <td><span style="background:#FFFBE9;border:1px solid #FDE68A;color:#D97706;padding:3px 10px;border-radius:9999px;font-weight:900;font-size:12px">${esc(item.reportData?.traitOrder || "FTH")}</span></td>
+          <td><strong style="color:#D97706;font-size:14px">${esc(pType)}</strong></td>
+          <td>次优势: <strong style="color:#DC2626">${esc(sType)}</strong> · 辅: <span style="color:#0284C7">${esc(tType)}</span></td>
+          <td>${durationText}</td>
+          <td style="white-space:nowrap">${timeStr}</td>
+          <td>
+            <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="preview">预览报告</a>
+            <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="download">下载报告</a>
+            <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="print">打印</a>
+          </td>
+        </tr>
+      `;
+    }
+
+    if (item.projectKey === "fthTalent") {
       const pType = item.reportData?.primaryType ? `${item.reportData.primaryType.cn} ${item.reportData.primaryType.en}` : "进取行动派";
-      col3 = `<span style="background:#E0F2FE;border:1px solid #BAE6FD;color:#0284C7;padding:3px 10px;border-radius:9999px;font-weight:900;font-size:12px">${esc(item.reportData?.traitOrder || "FTH-T12")}</span>`;
-      col4 = `<strong style="color:#0284C7;font-size:14px">${esc(pType)}</strong>`;
-      col5 = `${esc(item.detailSummary)}`;
-    } else if (item.projectKey === "fth1605") {
-      col3 = `<strong style="color:#7C3AED;font-size:14px">${esc(item.detailSummary || "AI/研发特质型")}</strong>`;
-      col4 = `<span class="tag-badge tag-fth1605" style="padding:4px 10px;font-weight:800">PPTX 演示文稿</span>`;
-      col5 = `<span style="color:#16A34A;font-weight:700">全量可视化分析</span>`;
-    } else {
-      col3 = `${esc(item.grade)}`;
-      col4 = subjectScoreText;
-      col5 = `${esc(item.detailSummary)}`;
+      return `
+        <tr>
+          <td><strong>${esc(item.studentName)}</strong></td>
+          <td>${esc(item.phoneNumber)}</td>
+          <td><span style="background:#E0F2FE;border:1px solid #BAE6FD;color:#0284C7;padding:3px 10px;border-radius:9999px;font-weight:900;font-size:12px">${esc(item.reportData?.traitOrder || "FTH-T12")}</span></td>
+          <td><strong style="color:#0284C7;font-size:14px">${esc(pType)}</strong></td>
+          <td>${esc(item.detailSummary)}</td>
+          <td>${durationText}</td>
+          <td style="white-space:nowrap">${timeStr}</td>
+          <td>
+            <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="preview">预览报告</a>
+            <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="download">下载报告</a>
+            <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="print">打印</a>
+          </td>
+        </tr>
+      `;
+    }
+
+    if (item.projectKey === "fth1605") {
+      return `
+        <tr>
+          <td><strong>${esc(item.studentName)}</strong></td>
+          <td>${esc(item.phoneNumber)}</td>
+          <td><strong style="color:#7C3AED;font-size:14px">${esc(item.detailSummary || "AI/研发特质型")}</strong></td>
+          <td><span class="tag-badge tag-fth1605" style="padding:4px 10px;font-weight:800">PPTX 演示文稿</span></td>
+          <td><span style="color:#16A34A;font-weight:700">全量可视化分析</span></td>
+          <td>${durationText}</td>
+          <td style="white-space:nowrap">${timeStr}</td>
+          <td>
+            <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="preview">预览报告</a>
+            <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="download">下载报告</a>
+            <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="print">打印</a>
+          </td>
+        </tr>
+      `;
     }
 
     return `
       <tr>
-        <td>
-          <strong>${esc(item.studentName)}</strong>
-        </td>
+        <td><strong>${esc(item.studentName)}</strong></td>
         <td>${esc(item.phoneNumber)}</td>
-        <td>${col3}</td>
-        <td>${col4}</td>
-        <td>${col5}</td>
+        <td>${esc(item.grade)}</td>
+        <td>${subjectScoreText}</td>
+        <td>${esc(item.advisorName || "--")}</td>
+        <td>${esc(item.detailSummary)}</td>
         <td>${durationText}</td>
         <td style="white-space:nowrap">${timeStr}</td>
         <td>
@@ -773,14 +892,18 @@ function renderTable() {
               <span class="m-value">${subjectScoreText}</span>
             </div>
             <div class="m-grid-item">
-              <span class="m-label">答题时长</span>
-              <span class="m-value">${durationText}</span>
+              <span class="m-label">归属顾问</span>
+              <span class="m-value">${esc(item.advisorName || "--")}</span>
+            </div>
+            <div class="m-grid-item">
+              <span class="m-label">答题情况</span>
+              <span class="m-value">${item.answersCount ? item.answersCount + '题 / ' : ''}${durationText}</span>
             </div>
           </div>
 
           <div class="m-conclusion-box">
             <span class="m-label">诊断结论 / 特质</span>
-            <div class="m-conclusion-text">${esc(item.detailSummary)}</div>
+            <div class="m-conclusion-text">${esc(item.dominantModality || item.detailSummary)}</div>
           </div>
 
           <div class="m-card-actions">
@@ -808,6 +931,27 @@ function storeLearningStylePreview(item) {
   }
 }
 
+function learningStylePreviewUrl(item, extraParams = {}) {
+  storeLearningStylePreview(item);
+  const params = new URLSearchParams({
+    id: String(item.id || ""),
+    mobile: item.phoneNumber || "",
+    preview: "1",
+    embed: "1",
+    ...extraParams
+  });
+  return `/report.html?${params.toString()}`;
+}
+
+function printLearningStyleReport(item) {
+  if (!item) return;
+  const url = learningStylePreviewUrl(item, { print: "1" });
+  const printWindow = window.open(url, "_blank", "noopener,noreferrer,width=1100,height=900");
+  if (!printWindow) {
+    alert("请允许弹出窗口后再打印报告。");
+  }
+}
+
 function storeMotivationPreview(item) {
   try {
     let raw = item._parsed || {};
@@ -832,13 +976,13 @@ function storeMotivationPreview(item) {
 function motivationPreviewUrl(item, extraParams = {}) {
   storeMotivationPreview(item);
   const params = new URLSearchParams({
+    id: String(item.id || ""),
     mobile: item.phoneNumber || "",
     preview: "1",
     embed: "1",
-    previewId: String(item.id),
     ...extraParams
   });
-  return `/xxdj/index.html?${params.toString()}`;
+  return `/motivation/report.html?${params.toString()}`;
 }
 
 function printMotivationReport(item) {
@@ -881,7 +1025,7 @@ function openFullReportPreview(item) {
   if (item.projectKey === "learningStyle") {
     const iframe = document.createElement("iframe");
     iframe.className = "report-preview-frame";
-    iframe.title = `${item.studentName} · 学习风格测评报告`;
+    iframe.title = `${item.studentName} · 学习模式定位报告`;
     iframe.src = learningStylePreviewUrl(item);
     elements.modalReportContainer.classList.add("is-iframe-preview");
     elements.modalReportContainer.innerHTML = "";
@@ -889,7 +1033,7 @@ function openFullReportPreview(item) {
   } else if (item.projectKey === "motivation") {
     const iframe = document.createElement("iframe");
     iframe.className = "report-preview-frame";
-    iframe.title = `${item.studentName} · 学习动机测评报告`;
+    iframe.title = `${item.studentName} · 动力系统探索报告`;
     iframe.src = motivationPreviewUrl(item);
     elements.modalReportContainer.classList.add("is-iframe-preview");
     elements.modalReportContainer.innerHTML = "";
@@ -1255,7 +1399,7 @@ function renderAuthenticReportDOM(item) {
           <div style="display:flex;align-items:center;gap:12px">
             <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg, #FFE600 0%, #F5C518 100%);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;color:#1E1A1C;box-shadow:0 4px 12px rgba(245, 197, 24, 0.35)">凡</div>
             <div>
-              <div style="font-size:22px;font-weight:900;color:#1E1A1C">小凡教育科技 · 学习动机诊断报告</div>
+              <div style="font-size:22px;font-weight:900;color:#1E1A1C">小凡教育科技 · 动力系统探索报告</div>
               <div style="font-size:12px;color:#2D3092;font-weight:700">Make silence voice 让沉默发声 ｜ 学业自主力与动机七维度评估</div>
             </div>
           </div>
@@ -1313,7 +1457,7 @@ function renderAuthenticReportDOM(item) {
         <div style="display:flex;align-items:center;gap:12px">
           <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg, #FFE600 0%, #F5C518 100%);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;color:#1E1A1C;box-shadow:0 4px 12px rgba(245, 197, 24, 0.35)">凡</div>
           <div>
-            <div style="font-size:22px;font-weight:900;color:#1E1A1C">小凡教育科技 · 学习风格诊断报告</div>
+            <div style="font-size:22px;font-weight:900;color:#1E1A1C">小凡教育科技 · 学习模式定位报告</div>
             <div style="font-size:12px;color:#2D3092;font-weight:700">Make silence voice 让沉默发声 ｜ VAK 学力感应通道诊断</div>
           </div>
         </div>

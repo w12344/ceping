@@ -1,6 +1,6 @@
 export const DRAFT_KEY = "lsa:v2:draft";
 const CACHE_KEY = "lsa:v2:cache";
-const DRAFT_VERSION = 3;
+const DRAFT_VERSION = 4;
 const FIXED_COUNT = 42;
 const FIXED_PAGE_SIZE = 2;
 const PREFERENCE_COUNT = 32;
@@ -154,6 +154,8 @@ function initialState() {
 
 let state = initialState();
 let elements = null;
+let pendingBasicForm = null;
+let resumeTargetView = null;
 
 function byId(id) {
   return document.getElementById(id);
@@ -167,7 +169,57 @@ function safeParse(value) {
   }
 }
 
+function basicFormSnapshot(form) {
+  if (!form) return null;
+  try {
+    const data = sessionPayload(form);
+    const advisorInput = form.advisorName || form.querySelector('[name="advisorName"]');
+    data.advisorName = advisorInput?.value?.trim() || "";
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function hasPartialBasicForm(info) {
+  if (!info) return false;
+  return !!(
+    info.studentName ||
+    info.phoneNumber ||
+    info.grade ||
+    info.scoreBand ||
+    info.specialtyDirection ||
+    info.foreignLanguage ||
+    info.targetSubject ||
+    info.targetSubjectScore != null ||
+    info.learningFocus ||
+    info.advisorName
+  );
+}
+
+function applyBasicFormSnapshot(form, data) {
+  if (!form || !data) return;
+  if (data.studentName) form.studentName.value = data.studentName;
+  if (data.phoneNumber) form.phoneNumber.value = data.phoneNumber;
+  for (const field of ["grade", "specialtyDirection", "scoreBand", "foreignLanguage", "learningFocus"]) {
+    if (!data[field]) continue;
+    const input = form.querySelector(`input[name="${field}"][value="${CSS.escape(data[field])}"]`);
+    if (input) input.checked = true;
+  }
+  if (data.foreignLanguage) updateTargetSubjects();
+  if (data.targetSubject) form.targetSubject.value = data.targetSubject;
+  updateTargetSubjectScoreLimit();
+  if (data.targetSubjectScore != null && data.targetSubjectScore !== "") {
+    form.targetSubjectScore.value = String(data.targetSubjectScore);
+  }
+  const advisorInput = form.advisorName || form.querySelector('[name="advisorName"]');
+  if (advisorInput && data.advisorName) advisorInput.value = data.advisorName;
+}
+
 function cacheState() {
+  const basicForm = elements?.basicForm
+    ? basicFormSnapshot(elements.basicForm)
+    : (state.userInfo || pendingBasicForm || null);
   return {
     version: DRAFT_VERSION,
     anonymousCode: state.anonymousCode,
@@ -175,12 +227,71 @@ function cacheState() {
     calibrationItems: state.calibrationItems,
     preferenceScale: state.preferenceScale,
     strategyScale: state.strategyScale,
-    stage: state.stage
+    stage: state.stage,
+    currentView: state.sessionId ? "assessment" : "basic",
+    basicForm
   };
 }
 
+function updateResumeButtonVisibility() {
+  if (!elements?.resumeButton) return;
+  elements.resumeButton.hidden = !hasRecoverableProgress();
+}
+
+function hasRecoverableProgress() {
+  const draft = safeParse(localStorage.getItem(DRAFT_KEY));
+  const cache = safeParse(localStorage.getItem(CACHE_KEY));
+  if (!cache) return false;
+  if (cache.version !== DRAFT_VERSION && cache.version === 3 && hasPartialBasicForm(cache.basicForm)) {
+    cache.version = DRAFT_VERSION;
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+  }
+  if (cache.version !== DRAFT_VERSION) return false;
+  if (draft && draft.version === DRAFT_VERSION && typeof draft.sessionId === "string" && Array.isArray(cache.fixedItems) && cache.fixedItems.length === FIXED_COUNT) {
+    return true;
+  }
+  return hasPartialBasicForm(cache.basicForm);
+}
+
+function persistBasicProgress() {
+  if (!elements?.basicForm) return;
+  const basicForm = basicFormSnapshot(elements.basicForm);
+  const existingCache = safeParse(localStorage.getItem(CACHE_KEY));
+  if (!hasPartialBasicForm(basicForm) && !state.sessionId) {
+    if (hasPartialBasicForm(existingCache?.basicForm)) {
+      updateResumeButtonVisibility();
+      return;
+    }
+    clearDraft();
+    updateResumeButtonVisibility();
+    return;
+  }
+  const cache = cacheState();
+  cache.basicForm = basicForm;
+  cache.currentView = state.sessionId ? "assessment" : "basic";
+  localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+  if (state.sessionId) {
+    persistDraft();
+  } else {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      version: DRAFT_VERSION,
+      sessionId: null,
+      currentPage: 0,
+      answers: [],
+      startedAt: null,
+      itemOrder: []
+    }));
+  }
+  updateResumeButtonVisibility();
+}
+
 function persistDraft() {
-  if (!state.sessionId) return;
+  const cache = cacheState();
+  localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+  if (!state.sessionId) {
+    persistBasicProgress();
+    return;
+  }
   const draft = makeDraft({
     sessionId: state.sessionId,
     currentPage: state.currentPage,
@@ -189,17 +300,16 @@ function persistDraft() {
     itemOrder: state.itemOrder
   });
   localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-  localStorage.setItem(CACHE_KEY, JSON.stringify(cacheState()));
 }
 
 function clearDraft() {
   localStorage.removeItem(DRAFT_KEY);
   localStorage.removeItem(CACHE_KEY);
+  pendingBasicForm = null;
+  resumeTargetView = null;
 }
 
-function recoverDraft() {
-  const draft = safeParse(localStorage.getItem(DRAFT_KEY));
-  const cache = safeParse(localStorage.getItem(CACHE_KEY));
+function recoverAssessmentDraft(draft, cache) {
   if (!draft || !cache || draft.version !== DRAFT_VERSION || cache.version !== DRAFT_VERSION) return false;
   if (typeof draft.sessionId !== "string" || !Array.isArray(draft.answers) || !Array.isArray(cache.fixedItems)) return false;
   const itemById = new Map(cache.fixedItems.map((item) => [item.id, item]));
@@ -222,17 +332,94 @@ function recoverDraft() {
     strategyScale: Array.isArray(cache.strategyScale) && cache.strategyScale.length === 5
       ? cache.strategyScale
       : STRATEGY_SCALE,
-    stage: cache.stage === "calibration" ? "calibration" : "fixed"
+    stage: cache.stage === "calibration" ? "calibration" : "fixed",
+    studentName: cache.basicForm?.studentName || "",
+    phoneNumber: cache.basicForm?.phoneNumber || "",
+    userInfo: cache.basicForm || null
   };
   return true;
 }
 
+function recoverDraft() {
+  const draft = safeParse(localStorage.getItem(DRAFT_KEY));
+  const cache = safeParse(localStorage.getItem(CACHE_KEY));
+  pendingBasicForm = cache?.basicForm || null;
+  resumeTargetView = null;
+
+  if (cache && cache.version === DRAFT_VERSION && recoverAssessmentDraft(draft, cache)) {
+    resumeTargetView = "assessment";
+    return true;
+  }
+
+  if (cache && cache.version === DRAFT_VERSION && hasPartialBasicForm(pendingBasicForm)) {
+    resumeTargetView = "basic";
+    return true;
+  }
+
+  pendingBasicForm = null;
+  return false;
+}
+
+function resumeSavedProgress() {
+  if (pendingBasicForm && elements?.basicForm) {
+    applyBasicFormSnapshot(elements.basicForm, pendingBasicForm);
+  } else if (state.userInfo && elements?.basicForm) {
+    applyBasicFormSnapshot(elements.basicForm, state.userInfo);
+  }
+  if (resumeTargetView === "assessment" && state.sessionId) {
+    showView(elements.assessmentView);
+    renderPage();
+    return;
+  }
+  showView(elements.basicView);
+}
+
+function updateStepIndicator(stepNum) {
+  document.querySelectorAll(".sidebar-step-item").forEach((el) => {
+    const s = parseInt(el.getAttribute("data-step"), 10);
+    el.classList.toggle("is-active", s === stepNum);
+    el.classList.toggle("is-completed", s < stepNum);
+  });
+  document.querySelectorAll(".mobile-step-item").forEach((el) => {
+    const s = parseInt(el.getAttribute("data-step"), 10);
+    el.classList.toggle("is-active", s === stepNum);
+    el.classList.toggle("is-completed", s < stepNum);
+  });
+}
+
 function showView(target) {
+  const contentWrapper = document.getElementById("contentLayoutWrapper");
   for (const view of [elements.startView, elements.basicView, elements.assessmentView, elements.submitErrorView]) {
     const active = view === target;
     view.hidden = !active;
     view.classList.toggle("is-active", active);
   }
+
+  if (contentWrapper) {
+    if (target === elements.basicView || target === elements.assessmentView || target === elements.submitErrorView) {
+      contentWrapper.style.display = "";
+    } else {
+      contentWrapper.style.display = "none";
+    }
+  }
+
+  const isFlow = target === elements.basicView || target === elements.assessmentView;
+  const isStart = target === elements.startView;
+  document.body.classList.toggle("assessment-flow-active", isFlow);
+  document.body.classList.toggle("assessment-start-active", isStart);
+
+  if (isStart) {
+    updateResumeButtonVisibility();
+  }
+
+  if (target === elements.basicView) {
+    updateStepIndicator(1);
+  } else if (target === elements.assessmentView) {
+    updateStepIndicator(2);
+  }
+
+  const contentArea = document.querySelector(".assessment-content-area");
+  if (contentArea) contentArea.scrollTop = 0;
   window.scrollTo({ top: 0, behavior: "auto" });
 }
 
@@ -364,16 +551,20 @@ function saveAnswer(answer) {
 
 function createScaleOption(item, scaleItem, questionIndex) {
   const label = document.createElement("label");
-  label.className = "scale-option";
+  const isSelected = answerFor(item.id)?.value === scaleItem.value;
+  label.className = `scale-option ${isSelected ? 'is-checked' : ''}`;
   const input = document.createElement("input");
   input.type = "radio";
   input.name = `response-${questionIndex}`;
   input.value = String(scaleItem.value);
-  input.checked = answerFor(item.id)?.value === scaleItem.value;
+  input.checked = isSelected;
   const display = document.createElement("span");
+  display.className = "scale-display";
   const number = document.createElement("strong");
+  number.className = "scale-num";
   number.textContent = String(scaleItem.value);
   const text = document.createElement("span");
+  text.className = "scale-text";
   text.textContent = scaleItem.label;
   display.append(number, text);
   input.addEventListener("change", () => {
@@ -383,6 +574,9 @@ function createScaleOption(item, scaleItem, questionIndex) {
       responseTimeMs: Math.max(0, Date.now() - state.renderedAt),
       answeredAt: new Date().toISOString()
     });
+    // Update active class for all options in this question
+    label.parentElement.querySelectorAll(".scale-option").forEach(el => el.classList.remove("is-checked"));
+    label.classList.add("is-checked");
     elements.pageError.hidden = true;
   });
   label.append(input, display);
@@ -391,12 +585,14 @@ function createScaleOption(item, scaleItem, questionIndex) {
 
 function createBinaryOption(item, option, questionIndex) {
   const label = document.createElement("label");
-  label.className = "binary-option";
+  const isSelected = answerFor(item.id)?.optionId === option.id;
+  label.className = `binary-option ${isSelected ? 'is-checked' : ''}`;
   const input = document.createElement("input");
   input.type = "radio";
   input.name = `response-${questionIndex}`;
-  input.checked = answerFor(item.id)?.optionId === option.id;
+  input.checked = isSelected;
   const display = document.createElement("span");
+  display.className = "binary-text";
   display.textContent = option.text;
   input.addEventListener("change", () => {
     saveAnswer({
@@ -405,6 +601,8 @@ function createBinaryOption(item, option, questionIndex) {
       responseTimeMs: Math.max(0, Date.now() - state.renderedAt),
       answeredAt: new Date().toISOString()
     });
+    label.parentElement.querySelectorAll(".binary-option").forEach(el => el.classList.remove("is-checked"));
+    label.classList.add("is-checked");
     elements.pageError.hidden = true;
   });
   label.append(input, display);
@@ -415,7 +613,7 @@ function createQuestionCard(item, displayIndex) {
   const accessibility = questionGroupAccessibility(displayIndex);
   const article = document.createElement("article");
   article.className = "question-card";
-  const index = document.createElement("p");
+  const index = document.createElement("span");
   index.className = "question-index";
   index.textContent = `Q${displayIndex}`;
   const prompt = document.createElement("p");
@@ -463,24 +661,37 @@ function renderPage() {
   state.currentPage = Math.max(0, Math.min(state.currentPage, pages.length - 1));
   const page = pages[state.currentPage];
   elements.questionList.replaceChildren();
-  const partHeading = state.stage === "fixed" ? fixedPartHeading(state.currentPage) : "";
-  if (partHeading) {
-    const heading = document.createElement("h2");
-    heading.className = "assessment-part-heading";
-    heading.textContent = partHeading;
-    elements.questionList.append(heading);
-    const guidance = fixedPartGuidance(state.currentPage);
-    if (guidance) {
-      const description = document.createElement("p");
-      description.className = "assessment-part-guidance";
-      description.textContent = guidance;
-      elements.questionList.append(description);
-    }
+
+  // Determine current step index based on progress
+  let currentStep = 2;
+  if (state.currentPage >= 4 && state.currentPage <= 5) {
+    currentStep = 3;
+  } else if (state.currentPage > 5 || state.stage === "calibration") {
+    currentStep = 4;
   }
+  updateStepIndicator(currentStep);
+
+  // Update assessment heading card
+  const badgeEl = document.getElementById("assessmentStepBadge");
+  const titleEl = document.getElementById("assessmentViewTitle");
+  const subtitleEl = document.getElementById("assessmentViewSubtitle");
+
+  if (badgeEl) badgeEl.textContent = `0${currentStep}`;
+  if (titleEl) {
+    if (currentStep === 2) titleEl.textContent = "学习情况";
+    else if (currentStep === 3) titleEl.textContent = "兴趣与动机";
+    else titleEl.textContent = "学科基础";
+  }
+  if (subtitleEl) {
+    if (currentStep === 2) subtitleEl.textContent = "学习习惯与风格诊断，没有对错之分，请根据真实情况作答。";
+    else if (currentStep === 3) subtitleEl.textContent = "探索学习兴趣与内在驱动力。";
+    else subtitleEl.textContent = "了解目标学科的掌握情况与薄弱环节。";
+  }
+
   const offset = state.stage === "calibration" ? FIXED_COUNT : state.currentPage * FIXED_PAGE_SIZE;
   page.forEach((item, index) => elements.questionList.append(createQuestionCard(item, offset + state.currentPage * (state.stage === "calibration" ? CALIBRATION_PAGE_SIZE : 0) + index + 1)));
   elements.previousButton.disabled = state.currentPage === 0;
-  elements.nextButton.textContent = state.currentPage === pages.length - 1 ? (state.stage === "calibration" ? "生成报告" : "完成作答") : "下一页";
+  elements.nextButton.textContent = state.currentPage === pages.length - 1 ? (state.stage === "calibration" ? "生成报告 ➔" : "完成作答 ➔") : "下一页 ➔";
   elements.pageError.hidden = true;
   state.renderedAt = Date.now();
   persistDraft();
@@ -597,45 +808,45 @@ async function finalSubmit() {
     // 提交测评结果至 FFCRM 后端统一保存接口，并等待调用成功
     let recordId = null;
     try {
-      const backendBase = "https://ffcrm-api.1605ai.com";
+      const backendBase = window.ASSESSMENT_API_BASE || "https://ffcrm-api.1605ai.com";
+      const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+      const timeoutId = controller ? setTimeout(() => controller.abort(), 8000) : null;
       const response = await fetch(`${backendBase}/api/assessment/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller ? controller.signal : undefined,
         body: JSON.stringify({
-          templateCode: "LEARNING_STYLE",
-          templateName: "学习风格测评",
-          templateType: "STUDENT_LEARNING",
-          token: advisorToken,
-          advisorToken: advisorToken,
-          advisorUserId: advisorUserId,
-          advisorName: advisorName,
-          advisorMobile: advisorMobile,
-          profileId: profileId,
-          customerId: profileId,
-          studentName: studentName,
-          studentMobile: phoneNumber,
-          name: studentName,
-          contact: phoneNumber,
-          session: reportSession,
-          userInfo: {
-            ...userInfo,
-            advisorToken,
-            advisorUserId,
-            advisorName,
-            advisorMobile,
-            profileId
+          studentInfo: {
+            name: studentName,
+            mobile: phoneNumber,
+            grade: userInfo.grade || state.grade,
+            specialtyDirection: userInfo.specialtyDirection || state.specialtyDirection,
+            scoreBand: userInfo.scoreBand || state.scoreBand,
+            foreignLanguage: userInfo.foreignLanguage || state.foreignLanguage,
+            targetSubject: userInfo.targetSubject || state.targetSubject,
+            targetSubjectScore: userInfo.targetSubjectScore || state.targetSubjectScore,
+            targetSubjectFullScore: userInfo.targetSubjectFullScore || 150,
+            learningFocus: userInfo.learningFocus || state.learningFocus,
+            profileId: profileId
           },
-          grade: userInfo.grade || state.grade,
-          targetSubject: userInfo.targetSubject || state.targetSubject,
-          learningFocus: userInfo.learningFocus || state.learningFocus,
-          targetSubjectScore: userInfo.targetSubjectScore || state.targetSubjectScore,
-          targetSubjectFullScore: userInfo.targetSubjectFullScore,
-          reportUrl: (typeof window !== "undefined" ? window.location.origin : "https://ceping.1605ai.com") + "/report.html",
-          answers: state.answers,
-          durationSeconds: durationSeconds(),
-          submittedAt: new Date().toISOString()
+          advisorInfo: {
+            token: advisorToken,
+            name: advisorName,
+            userId: advisorUserId,
+            mobile: advisorMobile
+          },
+          assessmentInfo: {
+            templateCode: "LEARNING_STYLE",
+            templateName: "学习模式定位",
+            templateType: "STUDENT_LEARNING",
+            answers: state.answers,
+            durationSeconds: durationSeconds(),
+            submittedAt: new Date().toISOString(),
+            reportUrl: (typeof window !== "undefined" ? window.location.origin : "https://ceping.1605ai.com") + "/report.html"
+          }
         })
       });
+      if (timeoutId) clearTimeout(timeoutId);
       const resData = await response.json().catch(() => ({}));
       if (response.ok && (resData.code === 0 || resData.code === 200)) {
         if (resData.data && (resData.data.id || resData.data.savedId)) {
@@ -666,16 +877,15 @@ async function finalSubmit() {
       startedAt: state.startedAt,
       completedAt: new Date().toISOString()
     }));
+    localStorage.setItem("lsa_last_record", localStorage.getItem("lsa_session_" + reportSession) || "");
 
     // 接口调用成功/完成后，等待 1 秒再跳转到 report 页面
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    if (recordId) {
-      window.location.assign(`/report.html?id=${encodeURIComponent(recordId)}`);
-    } else {
-      persistDraft();
-      showView(elements.submitErrorView);
-    }
+    const reportQuery = recordId
+      ? `id=${encodeURIComponent(recordId)}&session=${encodeURIComponent(reportSession)}`
+      : `session=${encodeURIComponent(reportSession)}`;
+    window.location.assign(`/report.html?${reportQuery}`);
   } catch {
     persistDraft();
     showView(elements.submitErrorView);
@@ -740,7 +950,33 @@ async function createSession(event) {
   renderPage();
 }
 
+function bindHomeBackButtons() {
+  const goBack = () => {
+    if (typeof window.goBackOrFallback === "function") {
+      window.goBackOrFallback("/portal.html");
+      return;
+    }
+    if (typeof window.goBack === "function") {
+      window.goBack();
+      return;
+    }
+    window.history.back();
+  };
+  (function detectIPadDevice() {
+    if (typeof window === "undefined" || typeof navigator === "undefined") return;
+    const ua = navigator.userAgent || "";
+    const isIPad = /iPad/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (isIPad) {
+      document.documentElement.classList.add("device-ipad");
+    }
+  })();
+  document.querySelectorAll("#homeBackButton, [data-home-back]").forEach((button) => {
+    button.addEventListener("click", goBack);
+  });
+}
+
 function bindEvents() {
+  bindHomeBackButtons();
   elements.startButton.addEventListener("click", () => showView(elements.basicView));
   elements.basicBackButton.addEventListener("click", () => showView(elements.startView));
   elements.basicForm.addEventListener("submit", createSession);
@@ -750,6 +986,7 @@ function bindEvents() {
   elements.targetSubject.addEventListener("change", updateTargetSubjectScoreLimit);
   for (const control of elements.basicForm.querySelectorAll("input, select")) {
     const refreshError = () => {
+      persistBasicProgress();
       if (elements.basicError.hidden) return;
       const error = validateSessionPayload(sessionPayload(elements.basicForm));
       elements.basicError.textContent = error;
@@ -777,8 +1014,7 @@ function bindEvents() {
     }
   });
   elements.resumeButton.addEventListener("click", () => {
-    showView(elements.assessmentView);
-    renderPage();
+    resumeSavedProgress();
   });
 }
 
@@ -805,6 +1041,67 @@ function autoFillInputsFromUrlContext() {
       elements.basicForm.phoneNumber.dispatchEvent(new Event("change", { bubbles: true }));
     }
   }
+}
+
+function setupQuickFillButton() {
+  const button = document.getElementById("quickFillButton");
+  if (!button) return;
+  button.addEventListener("click", () => {
+    if (typeof window.oneClickAutoFillAndAnswer === "function") {
+      window.oneClickAutoFillAndAnswer();
+    }
+  });
+}
+
+async function oneClickAutoFillAndAnswer() {
+  if (!elements?.basicForm) return;
+
+  const snapshot = {
+    studentName: "测试学员",
+    phoneNumber: "15765778832",
+    grade: "高三",
+    specialtyDirection: "美术设计",
+    scoreBand: "400至450",
+    foreignLanguage: "英语",
+    targetSubject: "英语",
+    targetSubjectScore: 110,
+    learningFocus: "practice",
+    advisorName: (elements.basicForm.advisorName?.value || localStorage.getItem("advisor_name") || "测试顾问").trim()
+  };
+  applyBasicFormSnapshot(elements.basicForm, snapshot);
+  persistBasicProgress();
+
+  if (!state.sessionId) {
+    const info = sessionPayload(elements.basicForm);
+    const ordered = orderFixedItems(STATIC_QUESTIONS);
+    Object.assign(state, {
+      ...initialState(),
+      studentName: info.studentName,
+      phoneNumber: info.phoneNumber,
+      userInfo: info,
+      sessionId: "session_" + Date.now(),
+      startedAt: new Date().toISOString(),
+      itemOrder: ordered.map(({ id }) => id),
+      fixedItems: ordered,
+      preferenceScale: PREFERENCE_SCALE,
+      strategyScale: STRATEGY_SCALE
+    });
+  }
+
+  const answeredAt = new Date().toISOString();
+  state.answers = STATIC_QUESTIONS.map((item) => ({
+    questionId: item.id,
+    value: 4,
+    responseTimeMs: 300,
+    answeredAt
+  }));
+  state.currentPage = Math.max(0, currentPages().length - 1);
+  document.body.classList.remove("assessment-start-active");
+  document.body.classList.add("assessment-flow-active");
+  showView(elements.assessmentView);
+  renderPage();
+  persistDraft();
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function bootstrap() {
@@ -834,75 +1131,364 @@ function bootstrap() {
     loadingOverlay: byId("loadingOverlay"),
     loadingText: byId("loadingText")
   };
+  document.body.classList.add("assessment-start-active");
   bindEvents();
   autoFillInputsFromUrlContext();
-  if (recoverDraft()) elements.resumeButton.hidden = false;
+  setupLearningStyleAdvisorSelector();
+  setupQuickFillButton();
+  recoverDraft();
+  updateResumeButtonVisibility();
+  window.addEventListener("pageshow", () => updateResumeButtonVisibility());
+  window.addEventListener("pagehide", () => {
+    if (elements?.basicForm) persistBasicProgress();
+  });
 }
 
-window.oneClickAutoFillAndAnswer = async function () {
-  console.log("⚡ [一键自动填表 & 自动答题] 启动中...");
+function setupLearningStyleAdvisorSelector() {
+  const container = document.getElementById("advisorContainer");
+  const input = document.getElementById("advisorInput");
+  const dropdown = document.getElementById("advisorDropdownList");
+  if (!container || !input || !dropdown) return;
 
-  if (!elements.basicView.classList.contains("is-active") && !elements.assessmentView.classList.contains("is-active")) {
-    showView(elements.basicView);
+  const loc = typeof window !== "undefined" ? window.location : { search: "", hash: "" };
+  const params = new URLSearchParams(loc.search || "");
+  const hashSearch = loc.hash && loc.hash.includes("?") ? loc.hash.split("?")[1] : "";
+  const hashParams = new URLSearchParams(hashSearch);
+  const hasCtx = !!(params.get("ctx") || hashParams.get("ctx"));
+
+  if (hasCtx) {
+    container.style.display = "none";
+    return;
   }
 
-  if (elements.basicView.classList.contains("is-active")) {
-    const form = elements.basicForm;
-    if (!form.studentName.value) form.studentName.value = "测试学员";
-    if (!form.phoneNumber.value) form.phoneNumber.value = "15765778832";
+  container.style.display = "block";
 
-    const setRadio = (name, val) => {
-      const radio = form.querySelector(`input[name="${name}"][value="${val}"]`) || form.querySelector(`input[name="${name}"]`);
-      if (radio) radio.checked = true;
+  // 清除历史测试残存的默认李老师和非法占位符
+  const rawSaved = (localStorage.getItem("advisor_name") || "").trim();
+  if (rawSaved === "李老师" || ["用户", "顾问", "未知"].includes(rawSaved)) {
+    localStorage.removeItem("advisor_name");
+    localStorage.removeItem("advisor_user_id");
+    localStorage.removeItem("advisor_token");
+  }
+
+  const toggleBtn = document.getElementById("advisorToggleBtn") || container.querySelector(".advisor-arrow-btn");
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (container.classList.contains("is-open")) {
+        closeAdvisorDropdown();
+      } else {
+        renderItems();
+      }
+    });
+  }
+
+  input.setAttribute("readonly", "readonly");
+
+  let advisorRecords = [];
+
+  const savedAdvisor = (localStorage.getItem("advisor_name") || "").trim();
+  if (savedAdvisor && savedAdvisor !== "李老师" && !input.value) {
+    input.value = savedAdvisor;
+  }
+
+  function normalizeAdvisorRecord(record) {
+    if (typeof record === "string") {
+      return { employeeName: record.trim() };
+    }
+    return {
+      employeeId: record?.employeeId,
+      employeeName: (record?.employeeName || record?.name || record?.advisorName || "").trim(),
+      token: record?.token,
+      mobile: record?.mobile,
+      roleCodes: record?.roleCodes,
+      avatar: record?.avatar
     };
-    setRadio("grade", "高三");
-    setRadio("specialtyDirection", "美术设计");
-    setRadio("scoreBand", "400至450");
-    setRadio("foreignLanguage", "英语");
-    setRadio("learningFocus", "practice");
-
-    updateTargetSubjects();
-    if (elements.targetSubject.options.length > 1) {
-      elements.targetSubject.selectedIndex = 1;
-      updateTargetSubjectScoreLimit();
-    }
-    if (!elements.targetSubjectScore.value) {
-      elements.targetSubjectScore.value = "110";
-    }
-
-    for (const input of form.querySelectorAll("input, select")) {
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-      input.dispatchEvent(new Event("change", { bubbles: true }));
-    }
-
-    const submitBtn = elements.createSessionButton;
-    if (submitBtn) submitBtn.click();
-    await new Promise((r) => setTimeout(r, 200));
   }
 
-  if (elements.assessmentView.classList.contains("is-active")) {
-    const pages = currentPages();
-    for (let p = 0; p < pages.length; p++) {
-      state.currentPage = p;
-      const pageItems = pages[p];
-      for (const item of pageItems) {
-        if (!state.answers.some((a) => a.questionId === item.id)) {
-          state.answers.push({
-            questionId: item.id,
-            value: 4,
-            responseTimeMs: 300,
-            answeredAt: new Date().toISOString()
-          });
+  function applyAdvisorSelection(record) {
+    if (!record) return;
+    if (record.employeeName) {
+      input.value = record.employeeName;
+      localStorage.setItem("advisor_name", record.employeeName);
+    }
+    if (record.employeeId) {
+      localStorage.setItem("advisor_user_id", String(record.employeeId));
+    }
+    if (record.token) {
+      localStorage.setItem("advisor_token", record.token);
+      localStorage.setItem("feifan_ref", record.token);
+    }
+    if (record.mobile) {
+      localStorage.setItem("advisor_mobile", record.mobile);
+    }
+    persistBasicProgress();
+  }
+
+  const advisorApiBase = window.ASSESSMENT_API_BASE || "https://ffcrm-api.1605ai.com";
+  fetch(window.buildAdvisorListUrl ? window.buildAdvisorListUrl(advisorApiBase) : `${advisorApiBase}/api/assessment/advisors?roleCode=SALES,MARKET`)
+    .then(res => res.json())
+    .then(json => {
+      const records = Array.isArray(json.data) ? json.data : (json.data?.list || (Array.isArray(json) ? json : []));
+      if (Array.isArray(records) && records.length > 0) {
+        advisorRecords = records
+          .map(normalizeAdvisorRecord)
+          .filter(item => item.employeeName && !["用户", "未知"].includes(item.employeeName));
+      }
+      if (input.value.trim() === "李老师") {
+        input.value = "";
+      }
+      if (container.classList.contains("is-open") || input === document.activeElement) {
+        renderItems();
+      }
+    })
+    .catch(() => {
+      fetch(window.buildAdvisorListUrl ? window.buildAdvisorListUrl(advisorApiBase) : `${advisorApiBase}/api/assessment/advisors?roleCode=SALES,MARKET`)
+        .then(res => res.json())
+        .then(json => {
+          const records = Array.isArray(json.data) ? json.data : (json.data?.list || (Array.isArray(json) ? json : []));
+          if (Array.isArray(records) && records.length > 0) {
+            advisorRecords = records
+              .map(normalizeAdvisorRecord)
+              .filter(item => item.employeeName && !["用户", "未知"].includes(item.employeeName));
+          }
+          if (container.classList.contains("is-open") || input === document.activeElement) {
+            renderItems();
+          }
+        })
+        .catch(() => {});
+    });
+
+  function renderItems() {
+    if (advisorRecords.length === 0) {
+      dropdown.innerHTML = `
+        <li class="advisor-empty-hint">
+          <div>暂无可选顾问</div>
+          <div style="font-size:12px;color:#9CA3AF;margin-top:4px;">请稍后再试或联系老师协助</div>
+        </li>
+      `;
+    } else {
+      dropdown.innerHTML = advisorRecords.map(item => {
+        const name = item.employeeName;
+        const initial = name.slice(0, 1) || "顾";
+        const isSelected = input.value.trim() === name;
+        const employeeId = item.employeeId != null ? String(item.employeeId) : "";
+        const roleLabel = name.includes("总监") ? "市场总监" : "指导老师";
+        return `
+          <li class="advisor-item ${isSelected ? "is-selected" : ""}" data-value="${name}" data-employee-id="${employeeId}">
+            <div class="advisor-item-main">
+              <div class="advisor-avatar-badge">${initial}</div>
+              <span class="advisor-name-text">${name}</span>
+            </div>
+            <span class="advisor-role-pill">${roleLabel}</span>
+          </li>
+        `;
+      }).join("");
+    }
+    dropdown.style.display = "block";
+    container.classList.add("is-open");
+    liftAdvisorAboveKeyboard();
+  }
+
+  function liftAdvisorAboveKeyboard() {
+    function performScrollLift() {
+      if (!container || (!container.classList.contains('is-open') && document.activeElement !== input)) return;
+      const rect = container.getBoundingClientRect();
+      const visualH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      
+      // 让输入框保持在可见视口顶部约 60px-85px 处，给下方下拉面板留出全部可用空间
+      const targetTopOffset = Math.max(50, Math.min(85, visualH * 0.16));
+      const currentScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      const targetScrollY = currentScrollY + rect.top - targetTopOffset;
+      
+      if (Math.abs(rect.top - targetTopOffset) > 12) {
+        window.scrollTo({
+          top: Math.max(0, targetScrollY),
+          behavior: 'smooth'
+        });
+      }
+
+      // 动态判断下拉框展开方向与最大可用高度
+      if (dropdown && dropdown.style.display !== 'none') {
+        const updatedRect = container.getBoundingClientRect();
+        const curVisualH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        const spaceBelow = curVisualH - updatedRect.bottom - 16;
+        const spaceAbove = updatedRect.top - 16;
+
+        if (spaceBelow < 150 && spaceAbove > spaceBelow) {
+          dropdown.classList.add('open-upward');
+          dropdown.style.maxHeight = Math.min(240, Math.max(120, spaceAbove - 10)) + 'px';
+        } else {
+          dropdown.classList.remove('open-upward');
+          dropdown.style.maxHeight = Math.min(240, Math.max(130, spaceBelow)) + 'px';
         }
       }
     }
-    state.currentPage = pages.length - 1;
-    renderPage();
-    console.log("✅ 全部 42 道题目已完成！点击【下一页】或【提交】直接生成报告！");
+
+    performScrollLift();
+    setTimeout(performScrollLift, 160);
+    setTimeout(performScrollLift, 360);
   }
-};
+
+  function closeAdvisorDropdown() {
+    dropdown.style.display = "none";
+    container.classList.remove("is-open");
+    document.body.classList.remove("keyboard-active");
+    document.body.style.paddingBottom = "";
+    const maxScrollY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const currentScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+    if (currentScrollY > maxScrollY) {
+      window.scrollTo({ top: maxScrollY, behavior: "smooth" });
+    }
+  }
+
+  if (typeof window !== "undefined" && window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      if (container.classList.contains('is-open') || document.activeElement === input) {
+        liftAdvisorAboveKeyboard();
+      }
+    });
+  }
+
+  input.addEventListener("focus", () => {
+    renderItems();
+    liftAdvisorAboveKeyboard();
+  });
+  input.addEventListener("click", () => {
+    if (!container.classList.contains("is-open")) {
+      renderItems();
+    }
+  });
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeAdvisorDropdown();
+      return;
+    }
+    if (e.key !== "Tab") {
+      e.preventDefault();
+    }
+  });
+  input.addEventListener("blur", () => {
+    setTimeout(() => {
+      if (document.activeElement !== input && !container.classList.contains('is-open')) {
+        closeAdvisorDropdown();
+      }
+    }, 200);
+  });
+
+  dropdown.addEventListener("click", (e) => {
+    const target = e.target.closest("[data-value]");
+    if (target) {
+      const val = target.dataset.value;
+      const employeeId = target.dataset.employeeId;
+      const matched = advisorRecords.find(item =>
+        (employeeId && String(item.employeeId) === employeeId) || item.employeeName === val
+      );
+      if (matched) {
+        applyAdvisorSelection(matched);
+      }
+      closeAdvisorDropdown();
+      input.blur();
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!container.contains(e.target)) {
+      closeAdvisorDropdown();
+      if (input.value.trim()) {
+        localStorage.setItem("advisor_name", input.value.trim());
+      }
+    }
+  });
+}
+
+// 全局移动端表单输入防遮挡与收起后 100% 防留白机制
+function setupGlobalMobileKeyboardAvoidance() {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+
+  let isKeyboardOpen = false;
+
+  function resetPageScrollBounds() {
+    document.body.classList.remove("keyboard-active");
+    document.body.style.paddingBottom = "";
+    document.documentElement.style.scrollPaddingBottom = "";
+
+    const currentScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+    const maxScrollY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+
+    if (currentScrollY > maxScrollY) {
+      window.scrollTo({
+        top: maxScrollY,
+        behavior: "smooth"
+      });
+    }
+  }
+
+  if (window.visualViewport) {
+    let initialViewportHeight = window.visualViewport.height;
+
+    window.visualViewport.addEventListener("resize", () => {
+      const currentHeight = window.visualViewport.height;
+      const heightDifference = initialViewportHeight - currentHeight;
+
+      if (heightDifference > 100) {
+        isKeyboardOpen = true;
+        document.body.classList.add("keyboard-active");
+      } else if (heightDifference <= 40) {
+        if (isKeyboardOpen) {
+          isKeyboardOpen = false;
+          resetPageScrollBounds();
+        }
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      initialViewportHeight = window.innerHeight;
+      resetPageScrollBounds();
+    });
+  }
+
+  document.addEventListener("focusin", (e) => {
+    const target = e.target;
+    if (!target || !["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName)) return;
+    if (target.type === "radio" || target.type === "checkbox") return;
+
+    const fieldWrapper = target.closest(".text-field") || target.closest(".field") || target.closest(".advisor-select-wrapper") || target;
+
+    function adjustScroll() {
+      const rect = fieldWrapper.getBoundingClientRect();
+      const visualH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      if (rect.top < 60 || rect.bottom > visualH - 40) {
+        const currentScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+        const targetScrollY = currentScrollY + rect.top - Math.max(55, visualH * 0.16);
+        window.scrollTo({
+          top: Math.max(0, targetScrollY),
+          behavior: "smooth"
+        });
+      }
+    }
+
+    adjustScroll();
+    setTimeout(adjustScroll, 160);
+    setTimeout(adjustScroll, 360);
+  });
+
+  document.addEventListener("focusout", () => {
+    setTimeout(() => {
+      const active = document.activeElement;
+      if (!active || !["INPUT", "SELECT", "TEXTAREA"].includes(active.tagName)) {
+        const anyOpen = document.querySelector(".advisor-select-wrapper.is-open");
+        if (!anyOpen) {
+          resetPageScrollBounds();
+        }
+      }
+    }, 200);
+  });
+}
 
 if (typeof document !== "undefined") {
+  window.oneClickAutoFillAndAnswer = oneClickAutoFillAndAnswer;
+  setupGlobalMobileKeyboardAvoidance();
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bootstrap, { once: true });
   else bootstrap();
 }

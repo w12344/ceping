@@ -6,7 +6,9 @@
 (function (global) {
   "use strict";
 
-  const BACKEND_BASE = "https://ffcrm-api.1605ai.com";
+  const host = (global.location && global.location.hostname) || "";
+  const isLocal = host === "localhost" || host === "127.0.0.1" || host === "[::1]";
+  const BACKEND_BASE = global.ASSESSMENT_API_BASE || (isLocal ? "http://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
   const SUBMIT_ENDPOINT = `${BACKEND_BASE}/api/assessment/submit`;
 
   /**
@@ -215,39 +217,31 @@
       const session = config.session || `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
       const payload = {
-        templateCode: templateCode,
-        templateName: templateName,
-        templateType: templateType,
-        token: token,
-        name: name,
-        contact: contact,
-        session: session,
-
-        // 标准 🔑 顾问 & 🎓 学员透传字段
-        advisorUserId: ctx.advisor.userId,
-        advisorName: ctx.advisor.name,
-        advisorMobile: ctx.advisor.mobile,
-
-        profileId: ctx.student.profileId,
-        customerId: ctx.student.profileId,
-        studentName: name,
-        studentMobile: contact,
-
-        userInfo: {
-          studentName: name,
-          phoneNumber: contact,
-          profileId: ctx.student.profileId,
-          advisorToken: token,
-          advisorUserId: ctx.advisor.userId,
-          advisorName: ctx.advisor.name,
-          advisorMobile: ctx.advisor.mobile,
-          ...(config.userInfo || {})
+        studentInfo: {
+          name: name,
+          mobile: contact,
+          profileId: ctx.student.profileId || config.profileId,
+          ...(config.studentInfo || config.userInfo || {})
         },
-        answers: config.answers || {},
-        resultData: config.resultData || config.result || {},
-        reportUrl: config.redirectUrl || "https://ceping.1605ai.com/report.html",
-        durationSeconds: Number(config.durationSeconds) || 60,
-        submittedAt: new Date().toISOString()
+        advisorInfo: {
+          token: token,
+          name: ctx.advisor.name || config.advisorName || "",
+          userId: ctx.advisor.userId || config.advisorUserId || "",
+          mobile: ctx.advisor.mobile || config.advisorMobile || "",
+          ...(config.advisorInfo || {})
+        },
+        assessmentInfo: {
+          templateCode: templateCode,
+          templateName: templateName,
+          templateType: templateType,
+          answers: config.answers || {},
+          scores: config.scores || {},
+          resultData: config.resultData || config.result || {},
+          reportUrl: config.redirectUrl || config.reportUrl || "https://ceping.1605ai.com/report.html",
+          durationSeconds: Number(config.durationSeconds) || 60,
+          submittedAt: new Date().toISOString(),
+          extraInfo: config.extraInfo || {}
+        }
       };
 
       try {
@@ -304,4 +298,37 @@
   global.parseAssessmentContextFromUrl = parseAssessmentContextFromUrl;
   global.getFFCRMContextFromUrl = getFFCRMContextFromUrl;
   global.FeifanAssessment = FeifanAssessment;
+
+  if (!global.goBack) {
+    global.goBack = function goBack() {
+      if (global.CommonBridge?.goBack) {
+        global.CommonBridge.goBack();
+        return;
+      }
+      if (global.AndroidBridge?.goBack) {
+        global.AndroidBridge.goBack();
+        return;
+      }
+      global.history.back();
+    };
+  }
+
+  if (!global.goBackOrFallback) {
+    global.goBackOrFallback = function goBackOrFallback(fallbackUrl) {
+      if (global.CommonBridge?.goBack) {
+        global.CommonBridge.goBack();
+        return;
+      }
+      if (global.AndroidBridge?.goBack) {
+        global.AndroidBridge.goBack();
+        return;
+      }
+      const fallback = fallbackUrl || "/portal.html";
+      if (global.history && global.history.length > 1) {
+        global.history.back();
+        return;
+      }
+      global.location.href = fallback;
+    };
+  }
 })(typeof window !== "undefined" ? window : globalThis);

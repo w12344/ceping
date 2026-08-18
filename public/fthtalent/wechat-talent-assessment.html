@@ -781,6 +781,7 @@
       }
     }
   </style>
+
 </head>
 <body>
   <section class="login-screen" id="loginScreen">
@@ -915,7 +916,6 @@
 
         <div class="actions">
           <button class="btn secondary" id="backBtn" type="button">重新测一次</button>
-          <button class="btn" id="copyBtn" type="button">复制结果摘要</button>
           <button class="btn secondary" id="historyBtn" type="button">我的历史</button>
         </div>
         <p class="hint" id="saveStatus"></p>
@@ -1457,40 +1457,30 @@
         const token = ctx.advisor.token;
 
         const submitPayload = {
-          templateCode: "FTH_TALENT",
-          templateName: "FTH 职业特质测评(微信版)",
-          templateType: "CAREER_TALENT",
-          token: token,
-          advisorToken: token,
-          advisorUserId: ctx.advisor.userId,
-          advisorName: ctx.advisor.name,
-          advisorMobile: ctx.advisor.mobile,
-
-          profileId: ctx.student.profileId,
-          customerId: ctx.student.profileId,
-          studentName: resultData.name || tester?.name || ctx.student.name || "",
-          studentMobile: contact || ctx.student.mobile || "",
-          name: resultData.name || tester?.name || ctx.student.name || "",
-          contact: contact || ctx.student.mobile || "",
-
-          userInfo: {
-            studentName: resultData.name || tester?.name || ctx.student.name,
-            phoneNumber: contact || ctx.student.mobile,
-            profileId: ctx.student.profileId,
-            advisorToken: token,
-            advisorUserId: ctx.advisor.userId,
-            advisorName: ctx.advisor.name,
-            advisorMobile: ctx.advisor.mobile
+          studentInfo: {
+            name: resultData.name || tester?.name || ctx.student.name || "",
+            mobile: contact || ctx.student.mobile || "",
+            profileId: ctx.student.profileId
           },
-
-          answers: resultData.answers || answersState || {},
-          scores: resultData.scores || {},
-          resultData: resultData,
-          submittedAt: new Date().toISOString()
+          advisorInfo: {
+            token: token,
+            name: ctx.advisor.name,
+            userId: ctx.advisor.userId,
+            mobile: ctx.advisor.mobile
+          },
+          assessmentInfo: {
+            templateCode: "FTH_TALENT",
+            templateName: "FTH 职业特质测评(微信版)",
+            templateType: "CAREER_TALENT",
+            answers: resultData.answers || answersState || {},
+            scores: resultData.scores || {},
+            resultData: resultData,
+            submittedAt: new Date().toISOString()
+          }
         };
 
         try {
-          const res = await fetch("https://ffcrm-api.1605ai.com/api/assessment/submit", {
+          const res = await fetch("https://ceping.1605ai.com/api/assessment/submit", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(submitPayload)
@@ -1528,7 +1518,7 @@
 
       let records = [];
       try {
-        const apiRes = await fetch("https://ffcrm-api.1605ai.com/api/assessment/result/page?customerMobile=" + encodeURIComponent(contact) + "&pageSize=100");
+        const apiRes = await fetch("https://ceping.1605ai.com/api/assessment/result/page?customerMobile=" + encodeURIComponent(contact) + "&pageSize=100");
         const apiJson = await apiRes.json();
         const recordsData = apiJson.data?.list || apiJson.data || [];
         if ((apiJson.code === 200 || apiJson.code === 0) && Array.isArray(recordsData)) {

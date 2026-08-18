@@ -9,6 +9,18 @@ interface AssessmentPortalProps {
   hideTabs?: boolean;
 }
 
+const getInitialTemplateType = () => {
+  if (typeof window === "undefined") return "ALL";
+  const params = new URLSearchParams(window.location.search);
+  const type = params.get("templateType") || params.get("type");
+  if (type) {
+    const upper = type.toUpperCase();
+    if (["STUDENT_LEARNING", "STUDENT", "LEARNING"].includes(upper)) return "STUDENT_LEARNING";
+    if (["CAREER_TALENT", "CAREER", "TALENT"].includes(upper)) return "CAREER_TALENT";
+  }
+  return "ALL";
+};
+
 export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
   token,
   onUpdateToken,
@@ -16,12 +28,29 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [advisorTokenInput, setAdvisorTokenInput] = useState<string>(token);
+  const [selectedType, setSelectedType] = useState<string>(getInitialTemplateType);
   const customTemplates = getCustomTemplates();
+
+  const handleTypeChange = (type: string) => {
+    setSelectedType(type);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (type === "ALL") {
+        url.searchParams.delete("templateType");
+        url.searchParams.delete("type");
+      } else {
+        url.searchParams.set("templateType", type);
+      }
+      window.history.replaceState({}, "", url.toString());
+    }
+  };
 
   const builtInAssessments = [
     {
       id: "learningStyle",
-      title: "学习风格诊断测评",
+      title: "学习模式定位",
+      templateCode: "LEARNING_STYLE",
+      templateType: "STUDENT_LEARNING",
       category: "POST_SALE",
       categoryName: "🎓 成交后 · 进门学情诊断",
       desc: "四大学习通道与目标学科深度匹配",
@@ -29,7 +58,9 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
     },
     {
       id: "motivation",
-      title: "学习动机诊断测评",
+      title: "动力系统探索",
+      templateCode: "MOTIVATION",
+      templateType: "STUDENT_LEARNING",
       category: "POST_SALE",
       categoryName: "🎓 成交后 · 状态与动机归因",
       desc: "七大维度与自主积极型行为诊断",
@@ -38,6 +69,8 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
     {
       id: "fthBoss",
       title: "FTH 创业者特质测评",
+      templateCode: "FTH_BOSS",
+      templateType: "CAREER_TALENT",
       category: "PRE_SALE",
       categoryName: "🛒 成交前 · 痛点唤醒与引流",
       desc: "创业者 / 领导者潜能剖析与团队匹配",
@@ -46,6 +79,8 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
     {
       id: "fthTalent",
       title: "FTH 职业特质 (微信版)",
+      templateCode: "FTH_TALENT",
+      templateType: "CAREER_TALENT",
       category: "PRE_SALE",
       categoryName: "🛒 成交前 · 痛点唤醒与引流",
       desc: "轻量卡片化人际与思维模式测评",
@@ -54,6 +89,8 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
     {
       id: "fth1605",
       title: "FTH 1605 深度专向版",
+      templateCode: "FTH_1605",
+      templateType: "CAREER_TALENT",
       category: "POST_SALE",
       categoryName: "🎓 成交后 · 教学方案匹配",
       desc: "1605 强效能力与性格特征建模",
@@ -66,12 +103,19 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
     ...customTemplates.map((t) => ({
       id: `custom_${t.templateCode}`,
       title: t.projectName,
+      templateCode: t.templateCode,
+      templateType: t.templateType || "CAREER_TALENT",
       category: t.category,
       categoryName: t.category === "PRE_SALE" ? "🛒 成交前测评" : "🎓 成交后测评",
       desc: `自定义 HTML 测评 (代码: ${t.templateCode})`,
       url: `https://ceping.1605ai.com/custom/${encodeURIComponent(t.templateCode)}/index.html`
     }))
   ];
+
+  const filteredCards = allCards.filter((card) => {
+    if (selectedType === "ALL") return true;
+    return card.templateType === selectedType;
+  });
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -169,9 +213,59 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
         </div>
       )}
 
+      {/* templateType 维度筛选 Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-amber-200 shadow-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-black text-amber-900 bg-amber-100 px-2.5 py-1 rounded-lg">
+            筛选维度
+          </span>
+          <span className="text-xs text-gray-500 font-medium">
+            通过 URL 参数 <code className="text-amber-800 font-mono font-bold bg-amber-50 px-1 py-0.5 rounded">?templateType=STUDENT_LEARNING</code> 精准分发
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5 bg-amber-50/80 p-1 rounded-xl border border-amber-200/60 w-full sm:w-auto overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => handleTypeChange("ALL")}
+            className={`px-3.5 py-1.5 text-xs font-black rounded-lg transition-all whitespace-nowrap ${
+              selectedType === "ALL"
+                ? "bg-[#FFE100] text-amber-950 shadow-sm"
+                : "text-amber-900 hover:bg-amber-100/60"
+            }`}
+          >
+            ✨ 全部测评
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTypeChange("STUDENT_LEARNING")}
+            className={`px-3.5 py-1.5 text-xs font-black rounded-lg transition-all whitespace-nowrap ${
+              selectedType === "STUDENT_LEARNING"
+                ? "bg-[#FFE100] text-amber-950 shadow-sm"
+                : "text-amber-900 hover:bg-amber-100/60"
+            }`}
+          >
+            🎓 学生学习诊断 (STUDENT_LEARNING)
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTypeChange("CAREER_TALENT")}
+            className={`px-3.5 py-1.5 text-xs font-black rounded-lg transition-all whitespace-nowrap ${
+              selectedType === "CAREER_TALENT"
+                ? "bg-[#FFE100] text-amber-950 shadow-sm"
+                : "text-amber-900 hover:bg-amber-100/60"
+            }`}
+          >
+            💼 职业特质诊断 (CAREER_TALENT)
+          </button>
+        </div>
+      </div>
+
       {/* 测评卡片网格 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {allCards.map((card) => {
+        {filteredCards.map((card) => {
           const shareUrl = getShareUrl(card.url);
           return (
             <div

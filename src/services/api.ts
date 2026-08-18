@@ -2,7 +2,7 @@ import { AssessmentRecord, CustomTemplate } from "./types";
 import { parseAssessmentContextFromUrl as parseCtx, getFFCRMContextFromUrl as getContext } from "../utils/url";
 import { getAssessmentDataFromCtx as getDataFromCtx } from "../utils/crypto";
 
-export const ASSESSMENT_API_BASE = "https://ffcrm-api.1605ai.com";
+export const ASSESSMENT_API_BASE = "https://ceping.1605ai.com";
 
 export const parseAssessmentContextFromUrl = parseCtx;
 export const getFFCRMContextFromUrl = getContext;
@@ -21,38 +21,38 @@ export interface TemplateMeta {
 export const TEMPLATE_META: Record<string, TemplateMeta> = {
   LEARNING_STYLE: {
     templateCode: "LEARNING_STYLE",
-    templateName: "学习风格测评",
+    templateName: "学习模式定位",
     templateType: "STUDENT_LEARNING",
     templateTypeName: "学生学习测评",
     projectKey: "learningStyle",
-    projectName: "学习风格测评",
+    projectName: "学习模式定位",
     projectTagClass: "bg-amber-100 text-amber-800 border-amber-200"
   },
   "学习风格": {
     templateCode: "LEARNING_STYLE",
-    templateName: "学习风格测评",
+    templateName: "学习模式定位",
     templateType: "STUDENT_LEARNING",
     templateTypeName: "学生学习测评",
     projectKey: "learningStyle",
-    projectName: "学习风格测评",
+    projectName: "学习模式定位",
     projectTagClass: "bg-amber-100 text-amber-800 border-amber-200"
   },
   MOTIVATION: {
     templateCode: "MOTIVATION",
-    templateName: "学习动机测评",
+    templateName: "动力系统探索",
     templateType: "STUDENT_LEARNING",
     templateTypeName: "学生学习测评",
     projectKey: "motivation",
-    projectName: "学习动机测评",
+    projectName: "动力系统探索",
     projectTagClass: "bg-sky-100 text-sky-800 border-sky-200"
   },
   "学习动机": {
     templateCode: "MOTIVATION",
-    templateName: "学习动机测评",
+    templateName: "动力系统探索",
     templateType: "STUDENT_LEARNING",
     templateTypeName: "学生学习测评",
     projectKey: "motivation",
-    projectName: "学习动机测评",
+    projectName: "动力系统探索",
     projectTagClass: "bg-sky-100 text-sky-800 border-sky-200"
   },
   FTH_BOSS: {
@@ -123,8 +123,8 @@ export const TEMPLATE_META: Record<string, TemplateMeta> = {
 export function resolveTemplateMeta(templateCode: string): TemplateMeta {
   if (TEMPLATE_META[templateCode]) return TEMPLATE_META[templateCode];
   const code = String(templateCode || "").toLowerCase();
-  if (code.includes("学习风格") || code.includes("style") || code.includes("learning")) return TEMPLATE_META["LEARNING_STYLE"];
-  if (code.includes("学习动机") || code.includes("motivation")) return TEMPLATE_META["MOTIVATION"];
+  if (code.includes("学习风格") || code.includes("学习模式定位") || code.includes("style") || code.includes("learning")) return TEMPLATE_META["LEARNING_STYLE"];
+  if (code.includes("学习动机") || code.includes("动力系统探索") || code.includes("motivation")) return TEMPLATE_META["MOTIVATION"];
   if (code.includes("微信") || code.includes("talent")) return TEMPLATE_META["FTH_TALENT"];
   if (code.includes("1605")) return TEMPLATE_META["FTH_1605"];
   if (code.includes("fth") || code.includes("创业者") || code.includes("boss")) return TEMPLATE_META["FTH_BOSS"];
@@ -248,8 +248,60 @@ export async function fetchAssessmentList(token: string): Promise<AssessmentReco
   return allRecords.map((item, idx) => {
     const meta = resolveTemplateMeta(item.templateCode);
     const parsed = parseResultJson(item.resultJson);
-    const studentName = item.customerName || parsed.name || parsed.studentName || item.employeeName || "匿名学员";
-    const phoneNumber = item.customerMobile || parsed.contact || parsed.phone || parsed.phoneNumber || "未填手机号";
+    const resObj = parsed.resultData || parsed.result || parsed;
+
+    const studentInfo = parsed.studentInfo || parsed.userInfo || parsed.basicInfo || resObj.userInfo || {};
+    const studentName = item.customerName || studentInfo.name || studentInfo.studentName || parsed.name || resObj.name || item.employeeName || "匿名学员";
+    const phoneNumber = item.customerMobile || studentInfo.mobile || studentInfo.phoneNumber || studentInfo.contact || parsed.contact || resObj.contact || "未填手机号";
+    const grade = studentInfo.grade || parsed.grade || resObj.grade || "--";
+    const specialtyDirection = studentInfo.specialtyDirection || parsed.specialtyDirection || resObj.specialtyDirection || "";
+    const scoreBand = studentInfo.scoreBand || parsed.scoreBand || resObj.scoreBand || "";
+    const foreignLanguage = studentInfo.foreignLanguage || parsed.foreignLanguage || resObj.foreignLanguage || "";
+    const targetSubject = studentInfo.targetSubject || parsed.targetSubject || resObj.targetSubject || "--";
+    const targetSubjectScore = studentInfo.targetSubjectScore ?? parsed.targetSubjectScore ?? resObj.targetSubjectScore;
+    const targetSubjectFullScore = studentInfo.targetSubjectFullScore ?? parsed.targetSubjectFullScore ?? resObj.targetSubjectFullScore ?? 150;
+    const learningFocus = studentInfo.learningFocus || parsed.learningFocus || resObj.learningFocus || "";
+    const profileId = studentInfo.profileId || parsed.profileId || item.profileId || item.customerId || "";
+
+    const advisorInfo = parsed.advisorInfo || {};
+    const advisorName = item.employeeName || advisorInfo.name || item.advisorName || "";
+    const advisorMobile = advisorInfo.mobile || item.advisorMobile || "";
+    const advisorToken = advisorInfo.token || item.advisorToken || "";
+    const advisorEmployeeId = item.employeeId || advisorInfo.employeeId || "";
+
+    const assessmentInfo = parsed.assessmentInfo || {};
+    const answers = assessmentInfo.answers || parsed.answers || [];
+    const durationSeconds = Number(assessmentInfo.durationSeconds || parsed.durationSeconds || resObj.durationSeconds || 0) || 0;
+    const submittedAt = item.createdAt || item.createdTime || assessmentInfo.submittedAt || parsed.submittedAt || resObj.submittedAt || new Date().toISOString();
+    const reportUrl = item.reportUrl || assessmentInfo.reportUrl || (item.id ? `https://ceping.1605ai.com/report.html?id=${item.id}` : "");
+
+    let vScore = 0, aScore = 0, rScore = 0, kScore = 0;
+    if (Array.isArray(answers)) {
+      answers.forEach((ans: any) => {
+        const qId = String(ans.questionId || ans.id || "");
+        const val = Number(ans.value || ans.score || 0);
+        if (qId.startsWith("V")) vScore += val;
+        else if (qId.startsWith("A")) aScore += val;
+        else if (qId.startsWith("R")) rScore += val;
+        else if (qId.startsWith("K")) kScore += val;
+      });
+    }
+
+    let dominantModality = "";
+    if (vScore > 0 || aScore > 0 || rScore > 0 || kScore > 0) {
+      const maxVal = Math.max(vScore, aScore, rScore, kScore);
+      const dominants = [];
+      if (vScore === maxVal) dominants.push("视觉型 (V)");
+      if (aScore === maxVal) dominants.push("听觉型 (A)");
+      if (rScore === maxVal) dominants.push("读写型 (R)");
+      if (kScore === maxVal) dominants.push("动觉型 (K)");
+      dominantModality = dominants.join(" + ");
+    }
+
+    let scoreText = "--";
+    if (targetSubjectScore !== null && targetSubjectScore !== undefined && targetSubjectScore !== "") {
+      scoreText = `${targetSubjectScore}/${targetSubjectFullScore}分`;
+    }
 
     return {
       ...item,
@@ -259,7 +311,31 @@ export async function fetchAssessmentList(token: string): Promise<AssessmentReco
       projectTagClass: meta.projectTagClass,
       studentName,
       phoneNumber,
-      submittedAt: item.createdTime || item.submittedAt || parsed.submittedAt || new Date().toISOString(),
+      profileId,
+      grade,
+      specialtyDirection,
+      scoreBand,
+      foreignLanguage,
+      targetSubject,
+      targetSubjectScore,
+      targetSubjectFullScore,
+      learningFocus,
+      advisorName,
+      advisorMobile,
+      advisorToken,
+      advisorEmployeeId,
+      answers,
+      answersCount: answers.length,
+      vScore,
+      aScore,
+      rScore,
+      kScore,
+      dominantModality,
+      scoreText,
+      detailSummary: dominantModality || meta.projectName,
+      submittedAt,
+      durationSeconds,
+      reportUrl,
       resultData: parsed
     };
   });

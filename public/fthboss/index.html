@@ -30,7 +30,6 @@
           <span class="brand-en">FTH FOUNDER TALENT ASSESSMENT · 创业三大特质</span>
         </div>
       </div>
-      <button type="button" class="autofill-pill-btn" onclick="window.oneClickAutoFillAndAnswer()">⚡ 极速秒填全卷</button>
     </div>
   </header>
 
@@ -364,41 +363,29 @@
       const session = `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
       const payload = {
-        templateCode: "FTH_BOSS",
-        templateName: "FTH 创业者职业特质测评",
-        templateType: "CAREER_TALENT",
-        token: crmCtx.token,
-        advisorToken: crmCtx.token,
-        advisorUserId: crmCtx.advisorUserId,
-        advisorName: crmCtx.advisorName,
-        advisorMobile: crmCtx.advisorMobile,
-        profileId: crmCtx.profileId,
-        customerId: crmCtx.profileId,
-        studentName: name,
-        studentMobile: mobile,
-        name: name,
-        contact: mobile,
-        session: session,
-        userInfo: {
-          studentName: name,
-          studentMobile: mobile,
+        studentInfo: {
           name: name,
-          contact: mobile,
-          phoneNumber: mobile,
-          advisorToken: crmCtx.token,
-          advisorUserId: crmCtx.advisorUserId,
-          advisorName: crmCtx.advisorName,
-          advisorMobile: crmCtx.advisorMobile,
+          mobile: mobile,
           profileId: crmCtx.profileId,
           role: role
         },
-        role: role,
-        answers: formattedAnswers,
-        submittedAt: new Date().toISOString()
+        advisorInfo: {
+          token: crmCtx.token,
+          name: crmCtx.advisorName,
+          userId: crmCtx.advisorUserId,
+          mobile: crmCtx.advisorMobile
+        },
+        assessmentInfo: {
+          templateCode: "FTH_BOSS",
+          templateName: "FTH 创业者职业特质测评",
+          templateType: "CAREER_TALENT",
+          answers: formattedAnswers,
+          submittedAt: new Date().toISOString()
+        }
       };
 
       try {
-        const resp = await fetch('https://ffcrm-api.1605ai.com/api/assessment/submit', {
+        const resp = await fetch('https://ceping.1605ai.com/api/assessment/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -417,15 +404,6 @@
       }
     }
 
-    // ⚡ 一键秒填辅助
-    window.oneClickAutoFillAndAnswer = function() {
-      if (!document.getElementById('studentName').value) document.getElementById('studentName').value = '测试创始人';
-      if (!document.getElementById('studentMobile').value) document.getElementById('studentMobile').value = '15765778832';
-      FTH_BOSS_QUESTIONS.forEach(q => answers[q.id] = 4);
-      currentPage = totalPages - 1;
-      renderQuestions();
-      switchView('questionsView');
-    };
   </script>
 </body>
 </html>

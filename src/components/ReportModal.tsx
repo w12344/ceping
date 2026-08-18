@@ -1,5 +1,5 @@
 import React from "react";
-import { X, Printer } from "lucide-react";
+import { X } from "lucide-react";
 import { AssessmentRecord } from "../services/types";
 
 interface ReportModalProps {
@@ -28,21 +28,12 @@ export const ReportModal: React.FC<ReportModalProps> = ({ item, isOpen, onClose 
               {item.projectName || item.templateCode}
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => window.print()}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all shadow-sm"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span>打印报告</span>
-            </button>
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Body */}

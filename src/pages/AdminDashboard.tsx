@@ -14,9 +14,36 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   isLoading,
   onRefresh
 }) => {
+  const getInitialType = () => {
+    if (typeof window === "undefined") return "ALL";
+    const params = new URLSearchParams(window.location.search);
+    const type = params.get("templateType") || params.get("type");
+    if (type) {
+      const upper = type.toUpperCase();
+      if (["STUDENT_LEARNING", "STUDENT", "LEARNING"].includes(upper)) return "STUDENT_LEARNING";
+      if (["CAREER_TALENT", "CAREER", "TALENT"].includes(upper)) return "CAREER_TALENT";
+    }
+    return "ALL";
+  };
+
+  const [selectedTemplateType, setSelectedTemplateType] = useState<string>(getInitialType);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedRecord, setSelectedRecord] = useState<AssessmentRecord | null>(null);
+
+  const handleTemplateTypeChange = (type: string) => {
+    setSelectedTemplateType(type);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (type === "ALL") {
+        url.searchParams.delete("templateType");
+        url.searchParams.delete("type");
+      } else {
+        url.searchParams.set("templateType", type);
+      }
+      window.history.replaceState({}, "", url.toString());
+    }
+  };
 
   // Tab 统计与过滤
   const stats = useMemo(() => {
@@ -34,6 +61,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // 过滤结果
   const filteredRecords = useMemo(() => {
     return records.filter((record) => {
+      // 0. templateType 分类过滤
+      if (selectedTemplateType !== "ALL") {
+        const isStudent = record.projectKey === "learningStyle" || record.projectKey === "motivation";
+        const isCareer = record.projectKey === "fthBoss" || record.projectKey === "fthTalent" || record.projectKey === "fth1605" || record.projectKey === "customHTML";
+        if (selectedTemplateType === "STUDENT_LEARNING" && !isStudent) return false;
+        if (selectedTemplateType === "CAREER_TALENT" && !isCareer) return false;
+      }
       // 1. Tab 过滤
       if (activeTab !== "all" && record.projectKey !== activeTab) {
         return false;
@@ -48,7 +82,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       }
       return true;
     });
-  }, [records, activeTab, searchQuery]);
+  }, [records, selectedTemplateType, activeTab, searchQuery]);
 
   // 导出 CSV
   const handleExportCsv = () => {
@@ -90,7 +124,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
         <div className="bg-white rounded-2xl p-5 border border-emerald-200 shadow-sm relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-emerald-800">学习风格测评</span>
+            <span className="text-xs font-bold text-emerald-800">学习模式定位</span>
             <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-100 text-emerald-800">xxfg</span>
           </div>
           <div className="text-3xl font-black text-emerald-950 mt-2">{stats.learningStyle}</div>
@@ -99,7 +133,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
         <div className="bg-white rounded-2xl p-5 border border-amber-200 shadow-sm relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-amber-800">学习动机测评</span>
+            <span className="text-xs font-bold text-amber-800">动力系统探索</span>
             <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-800">xxdj</span>
           </div>
           <div className="text-3xl font-black text-amber-950 mt-2">{stats.motivation}</div>
@@ -123,8 +157,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="flex flex-wrap items-center gap-2 border-b border-gray-100 pb-3">
           {[
             { id: "all", label: `全部测评 (${stats.total})` },
-            { id: "learningStyle", label: `学习风格 (${stats.learningStyle})` },
-            { id: "motivation", label: `学习动机 (${stats.motivation})` },
+            { id: "learningStyle", label: `学习模式定位 (${stats.learningStyle})` },
+            { id: "motivation", label: `动力系统探索 (${stats.motivation})` },
             { id: "fthBoss", label: `FTH 创业者 (${stats.fthBoss})` },
             { id: "fthTalent", label: `FTH 微信版 (${stats.fthTalent})` },
             { id: "fth1605", label: `FTH 1605版 (${stats.fth1605})` },
@@ -185,60 +219,114 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <th className="p-3.5 pl-5">ID</th>
                 <th className="p-3.5">学员姓名</th>
                 <th className="p-3.5">联系电话</th>
-                <th className="p-3.5">测评项目</th>
-                <th className="p-3.5">提交时间</th>
-                <th className="p-3.5">诊断结论</th>
+                <th className="p-3.5">年级 / 专向 / 分数段</th>
+                <th className="p-3.5">目标学科 (成绩)</th>
+                <th className="p-3.5">归属顾问</th>
+                <th className="p-3.5">诊断结论 / 特质</th>
+                <th className="p-3.5">测评时间</th>
                 <th className="p-3.5 text-right pr-5">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-12 text-gray-400">
+                  <td colSpan={9} className="text-center py-12 text-gray-400">
                     <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-500" />
                     正在加载全量测评数据...
                   </td>
                 </tr>
               ) : filteredRecords.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-12 text-gray-400">
+                  <td colSpan={9} className="text-center py-12 text-gray-400">
                     <Layers className="w-8 h-8 mx-auto mb-2 text-amber-300" />
                     暂无匹配的测评数据记录
                   </td>
                 </tr>
               ) : (
-                filteredRecords.map((item) => (
-                  <tr key={item.id} className="hover:bg-amber-50/30 transition-colors">
-                    <td className="p-3.5 pl-5 font-mono text-gray-400">#{item.id}</td>
-                    <td className="p-3.5 font-bold text-gray-900">{item.studentName}</td>
-                    <td className="p-3.5 font-mono text-gray-600">{item.phoneNumber}</td>
-                    <td className="p-3.5">
-                      <span className={`px-2.5 py-0.5 text-[11px] font-bold rounded-full border ${item.projectTagClass}`}>
-                        {item.projectName || item.templateCode}
-                      </span>
-                    </td>
-                    <td className="p-3.5 text-gray-500">
-                      {new Date(item.submittedAt || "").toLocaleString("zh-CN", {
-                        month: "2-digit",
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit"
-                      })}
-                    </td>
-                    <td className="p-3.5 font-medium text-amber-800">
-                      {item.resultData?.profileName || item.resultData?.styleType || "普通答题数据"}
-                    </td>
-                    <td className="p-3.5 text-right pr-5">
-                      <button
-                        onClick={() => setSelectedRecord(item)}
-                        className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold text-amber-900 bg-amber-100 hover:bg-amber-200 rounded-lg transition-all"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>查看报告</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                filteredRecords.map((item) => {
+                  const subjectScore = item.targetSubject && item.targetSubject !== "--"
+                    ? `${item.targetSubject} ${item.scoreText && item.scoreText !== "--" ? `(${item.scoreText})` : ""}`
+                    : item.scoreText || "--";
+
+                  return (
+                    <tr key={item.id} className="hover:bg-amber-50/30 transition-colors">
+                      <td className="p-3.5 pl-5 font-mono text-gray-400">#{item.id}</td>
+                      <td className="p-3.5 font-bold text-gray-900">
+                        <div>{item.studentName}</div>
+                        {item.profileId && (
+                          <span className="text-[10px] text-gray-400 font-mono">#{item.profileId}</span>
+                        )}
+                      </td>
+                      <td className="p-3.5 font-mono text-gray-600">{item.phoneNumber}</td>
+                      <td className="p-3.5">
+                        <div className="text-gray-900 font-medium">
+                          {item.grade || "--"}{item.specialtyDirection ? ` · ${item.specialtyDirection}` : ""}
+                        </div>
+                        {item.scoreBand && (
+                          <span className="inline-block mt-0.5 text-[11px] font-semibold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                            {item.scoreBand}
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3.5">
+                        <div className="font-semibold text-gray-800">{subjectScore}</div>
+                        {item.foreignLanguage && (
+                          <span className="inline-block mt-0.5 text-[10px] font-bold text-sky-700 bg-sky-50 px-1.5 py-0.2 rounded">
+                            外语: {item.foreignLanguage}
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3.5">
+                        {item.advisorName ? (
+                          <div>
+                            <span className="font-bold text-gray-900">{item.advisorName}</span>
+                            {item.advisorMobile && (
+                              <div className="text-[11px] text-gray-400 font-mono">{item.advisorMobile}</div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">--</span>
+                        )}
+                      </td>
+                      <td className="p-3.5">
+                        <div className="font-bold text-amber-900">{item.dominantModality || item.detailSummary || item.projectName}</div>
+                        {(item.vScore || item.aScore || item.rScore || item.kScore) ? (
+                          <div className="text-[10px] font-mono text-gray-500 font-semibold mt-0.5">
+                            V:{item.vScore} A:{item.aScore} R:{item.rScore} K:{item.kScore}
+                          </div>
+                        ) : null}
+                      </td>
+                      <td className="p-3.5 text-gray-500 whitespace-nowrap">
+                        {new Date(item.submittedAt || "").toLocaleString("zh-CN", {
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit"
+                        })}
+                      </td>
+                      <td className="p-3.5 text-right pr-5 whitespace-nowrap space-x-1.5">
+                        <button
+                          onClick={() => setSelectedRecord(item)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-amber-900 bg-amber-100 hover:bg-amber-200 rounded-lg transition-all"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>查看报告</span>
+                        </button>
+                        {item.reportUrl && (
+                          <a
+                            href={item.reportUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            <span>打开</span>
+                          </a>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

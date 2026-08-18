@@ -766,6 +766,7 @@
       }
     }
   </style>
+
 </head>
 <body>
   <section class="login-screen" id="loginScreen">
@@ -905,7 +906,6 @@
 
         <div class="actions">
           <button class="btn secondary" id="backBtn" type="button">重新测一次</button>
-          <button class="btn" id="copyBtn" type="button">复制结果摘要</button>
           <button class="btn secondary" id="historyBtn" type="button">我的历史</button>
         </div>
         <p class="hint" id="saveStatus"></p>
@@ -1577,20 +1577,26 @@
         }
 
         const submitPayload = {
-          templateCode: "FTH_TALENT",
-          templateName: "FTH 职业特质测评(微信版)",
-          templateType: "CAREER_TALENT",
-          token: token,
-          name: resultData.name || tester?.name || "",
-          contact: contact,
-          answers: resultData.answers || answersState || {},
-          scores: resultData.scores || {},
-          resultData: resultData,
-          submittedAt: new Date().toISOString()
+          studentInfo: {
+            name: resultData.name || tester?.name || "",
+            mobile: contact
+          },
+          advisorInfo: {
+            token: token
+          },
+          assessmentInfo: {
+            templateCode: "FTH_TALENT",
+            templateName: "FTH 职业特质测评(微信版)",
+            templateType: "CAREER_TALENT",
+            answers: resultData.answers || answersState || {},
+            scores: resultData.scores || {},
+            resultData: resultData,
+            submittedAt: new Date().toISOString()
+          }
         };
 
         try {
-          const res = await fetch("https://ffcrm-api.1605ai.com/api/assessment/submit", {
+          const res = await fetch("https://ceping.1605ai.com/api/assessment/submit", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(submitPayload)
