@@ -21,6 +21,7 @@
           <span class="brand-sub">点亮每一个孩子的未来</span>
         </div>
       </div>
+      <button type="button" id="autofillBtn" class="test-autofill-btn" data-action="autofill-test" title="仅在 type=test 模式下展示">⚡ 快速填入</button>
     </div>
   </header>
 
@@ -50,15 +51,15 @@
           <div class="fact-card fact-card-time">
             <img src="/assets/images/icon-timer.png" alt="时间" class="fact-icon-img">
             <div class="fact-text">
-              <strong>8-10 分钟</strong>
+              <strong>6–8 分钟</strong>
               <span>预计完成时间</span>
             </div>
           </div>
           <div class="fact-card fact-card-count">
             <img src="/assets/images/icon-paper-pencil.png" alt="题量" class="fact-icon-img">
             <div class="fact-text">
-              <strong>42 + 可选 4 题</strong>
-              <span>作答题目总量</span>
+              <strong>20 题</strong>
+              <span>每题可多选</span>
             </div>
           </div>
         </div>
@@ -71,7 +72,7 @@
             </div>
             <div class="notice-item">
               <img src="/assets/images/icon-shield-check.png" alt="规则" class="notice-bullet-icon">
-              <p><strong>没有标准答案</strong>：请按平时最常出现的真实情况作答，无需选择“看起来更正确”的选项。</p>
+              <p><strong>没有标准答案</strong>：每题可以选一个，也可以选几个。选最贴近你平时会做的。</p>
             </div>
             <div class="notice-item">
               <img src="/assets/images/icon-bulb.png" alt="说明" class="notice-bullet-icon">
@@ -92,8 +93,8 @@
           <div class="trust-badge-item">
             <img src="/assets/images/icon-shield-check.png" alt="科学量表" class="trust-icon">
             <div class="trust-info">
-              <strong>科学量表</strong>
-              <span>权威量表，专业认证</span>
+              <strong>科学诊断</strong>
+              <span>情境化量表，真实反映</span>
             </div>
           </div>
           <div class="trust-badge-item">
@@ -106,8 +107,8 @@
           <div class="trust-badge-item">
             <img src="/assets/images/icon-check-circle.png" alt="个性化报告" class="trust-icon">
             <div class="trust-info">
-              <strong>个性化报告</strong>
-              <span>定制建议，精准提升</span>
+              <strong>专属方案</strong>
+              <span>学科行动卡，精准起步</span>
             </div>
           </div>
         </div>
@@ -124,46 +125,30 @@
               <span class="step-num-badge">01</span>
               <div class="step-label-group">
                 <strong>基本信息</strong>
-                <span>填写个人基本信息</span>
+                <span>确定目标学科与阶段</span>
               </div>
             </div>
             <div class="step-connector"></div>
             <div class="sidebar-step-item" data-step="2">
               <span class="step-num-badge">02</span>
               <div class="step-label-group">
-                <strong>学习情况</strong>
-                <span>学习习惯与风格</span>
+                <strong>学习模式诊断</strong>
+                <span>20道情境选择</span>
               </div>
             </div>
             <div class="step-connector"></div>
             <div class="sidebar-step-item" data-step="3">
               <span class="step-num-badge">03</span>
               <div class="step-label-group">
-                <strong>兴趣与动机</strong>
-                <span>兴趣与学习动力</span>
-              </div>
-            </div>
-            <div class="step-connector"></div>
-            <div class="sidebar-step-item" data-step="4">
-              <span class="step-num-badge">04</span>
-              <div class="step-label-group">
-                <strong>学科基础</strong>
-                <span>各学科掌握情况</span>
-              </div>
-            </div>
-            <div class="step-connector"></div>
-            <div class="sidebar-step-item" data-step="5">
-              <span class="step-num-badge">05</span>
-              <div class="step-label-group">
-                <strong>提交完成</strong>
-                <span>生成专属报告</span>
+                <strong>生成报告</strong>
+                <span>专属学习入口与行动卡</span>
               </div>
             </div>
           </div>
 
           <div class="sidebar-mascot-box">
             <div class="sidebar-speech-bubble">
-              认真填写信息<br>将获得更准确的分析哦！
+              每题可选1个或多个<br>选最符合你平时的做法哦！
             </div>
             <img src="/assets/images/mascot-pencil-owl.png" alt="非凡猫头鹰助教" class="sidebar-owl-img">
           </div>
@@ -173,16 +158,21 @@
       <!-- Right Main Content Area -->
       <div class="assessment-content-area">
         <!-- Mobile Horizontal Step Indicator -->
-        <div class="mobile-step-indicator">
-          <div class="mobile-step-item is-active" data-step="1">01</div>
-          <div class="mobile-step-line"></div>
-          <div class="mobile-step-item" data-step="2">02</div>
-          <div class="mobile-step-line"></div>
-          <div class="mobile-step-item" data-step="3">03</div>
-          <div class="mobile-step-line"></div>
-          <div class="mobile-step-item" data-step="4">04</div>
-          <div class="mobile-step-line"></div>
-          <div class="mobile-step-item" data-step="5">05</div>
+        <div class="mobile-step-indicator" id="mobileStepIndicator">
+          <div class="mobile-step-item is-active" data-step="1">
+            <span class="mobile-step-badge">01</span>
+            <span class="mobile-step-text">基本信息</span>
+          </div>
+          <div class="mobile-step-line" data-step-line="1"></div>
+          <div class="mobile-step-item" data-step="2">
+            <span class="mobile-step-badge">02</span>
+            <span class="mobile-step-text">模式诊断</span>
+          </div>
+          <div class="mobile-step-line" data-step-line="2"></div>
+          <div class="mobile-step-item" data-step="3">
+            <span class="mobile-step-badge">03</span>
+            <span class="mobile-step-text">诊断报告</span>
+          </div>
         </div>
 
         <!-- View 1: Basic Information -->
@@ -191,8 +181,8 @@
             <div class="heading-left-content">
               <span class="section-number-pill">01</span>
               <div class="heading-titles">
-                <h1 id="basicTitle">基本信息</h1>
-                <p>用于生成更贴近当前阶段和目标学科的建议。</p>
+                <h1 id="basicTitle">先确定这次要解决什么</h1>
+                <p>一次只生成一门学科的报告，为您量身定制行动建议。</p>
               </div>
             </div>
             <div class="heading-right-visual">
@@ -207,11 +197,11 @@
                 <input id="studentName" name="studentName" type="text" placeholder="请输入你的姓名" autocomplete="name" maxlength="30" required>
               </label>
               <label class="text-field" for="phoneNumber">
-                <span class="field-title">手机号</span>
-                <input id="phoneNumber" name="phoneNumber" type="tel" placeholder="请输入手机号" autocomplete="tel" inputmode="numeric" maxlength="11" pattern="1[3-9][0-9]{9}" required>
+                <span class="field-title">联系方式</span>
+                <input id="phoneNumber" name="phoneNumber" type="tel" placeholder="请输入手机号或微信号" autocomplete="tel" maxlength="30" required>
               </label>
 
-              <div id="advisorContainer" class="advisor-select-wrapper" style="display:none;">
+              <div id="advisorContainer" class="advisor-select-wrapper">
                 <div class="advisor-field-header">
                   <span class="field-title">归属顾问</span>
                   <span class="advisor-field-tag" style="background:#F3F4F6;color:#6B7280;border:1px solid #E5E7EB;">选填</span>
@@ -230,7 +220,7 @@
             </div>
 
             <div class="form-panel choice-panel" role="group" aria-labelledby="gradeLabel">
-              <h2 id="gradeLabel" class="panel-label"><span>✨</span> 你现在读几年级？</h2>
+              <h2 id="gradeLabel" class="panel-label"><span>✨</span> 你目前所在年级？</h2>
               <div class="choice-grid grid-2x2">
                 <label><input type="radio" name="grade" value="高一" required><span>高一</span></label>
                 <label><input type="radio" name="grade" value="高二"><span>高二</span></label>
@@ -240,31 +230,20 @@
             </div>
 
             <div class="form-panel choice-panel" role="group" aria-labelledby="specialtyLabel">
-              <h2 id="specialtyLabel" class="panel-label"><span>✨</span> 你学的是什么专业方向？</h2>
-              <div class="choice-grid grid-2x2">
-                <label><input type="radio" name="specialtyDirection" value="文科" required><span>文科</span></label>
-                <label><input type="radio" name="specialtyDirection" value="理科"><span>理科</span></label>
-                <label><input type="radio" name="specialtyDirection" value="艺术"><span>艺术</span></label>
+              <h2 id="specialtyLabel" class="panel-label"><span>✨</span> 你的专业方向？</h2>
+              <div class="choice-grid compact">
+                <label><input type="radio" name="specialtyDirection" value="美术设计" required><span>美术设计</span></label>
+                <label><input type="radio" name="specialtyDirection" value="音乐"><span>音乐</span></label>
+                <label><input type="radio" name="specialtyDirection" value="舞蹈"><span>舞蹈</span></label>
+                <label><input type="radio" name="specialtyDirection" value="播音表演"><span>播音表演</span></label>
+                <label><input type="radio" name="specialtyDirection" value="书法"><span>书法</span></label>
                 <label><input type="radio" name="specialtyDirection" value="体育"><span>体育</span></label>
-                <label class="grid-full-row"><input type="radio" name="specialtyDirection" value="其他"><span>其他（请填写）</span></label>
-              </div>
-            </div>
-
-            <div class="form-panel choice-panel" role="group" aria-labelledby="scoreBandLabel">
-              <h2 id="scoreBandLabel" class="panel-label"><span>✨</span> 你最近一次文化课考了多少分？</h2>
-              <div class="choice-grid grid-2x2">
-                <label><input type="radio" name="scoreBand" value="350以下" required><span>350以下</span></label>
-                <label><input type="radio" name="scoreBand" value="350至400"><span>350至400</span></label>
-                <label><input type="radio" name="scoreBand" value="400至450"><span>400至450</span></label>
-                <label><input type="radio" name="scoreBand" value="450至500"><span>450至500</span></label>
-                <label><input type="radio" name="scoreBand" value="500至550"><span>500至550</span></label>
-                <label><input type="radio" name="scoreBand" value="550至600"><span>550至600</span></label>
-                <label class="grid-full-row"><input type="radio" name="scoreBand" value="600以上"><span>600以上</span></label>
+                <label><input type="radio" name="specialtyDirection" value="其他"><span>其他</span></label>
               </div>
             </div>
 
             <div class="form-panel choice-panel" role="group" aria-labelledby="foreignLanguageLabel">
-              <h2 id="foreignLanguageLabel" class="panel-label"><span>✨</span> 你学哪门外语？</h2>
+              <h2 id="foreignLanguageLabel" class="panel-label"><span>✨</span> 你的外语科目？</h2>
               <div class="choice-grid compact">
                 <label><input type="radio" name="foreignLanguage" value="英语" required><span>英语</span></label>
                 <label><input type="radio" name="foreignLanguage" value="日语"><span>日语</span></label>
@@ -273,32 +252,19 @@
             </div>
 
             <div class="form-panel">
-              <label class="select-label" for="targetSubject">你现在最想先提高哪一门？</label>
-              <p class="field-help">选一门就好，报告会围绕它给建议。</p>
+              <label class="select-label" for="targetSubject">这次最想解决哪一门学科？</label>
+              <p class="field-help">这次报告只会围绕你选的这一门学科给建议。</p>
               <select id="targetSubject" name="targetSubject" required>
                 <option value="">请先选择外语科目</option>
               </select>
             </div>
 
-            <div class="form-panel">
-              <label class="text-field" for="targetSubjectScore">
-                <span class="field-title">最近一次目标学科成绩</span>
-                <small id="targetSubjectScoreHelp" class="field-help">请先选择目标学科。</small>
-                <div class="score-input-row">
-                  <input id="targetSubjectScore" name="targetSubjectScore" type="number" min="0" step="0.1" required inputmode="decimal">
-                  <span id="targetSubjectScoreUnit" class="score-unit">/ -- 分</span>
-                </div>
-              </label>
-            </div>
-
-            <div class="form-panel choice-panel" role="group" aria-labelledby="learningFocusLabel">
-              <h2 id="learningFocusLabel" class="panel-label">这门课，你最想先解决什么？</h2>
-              <p class="field-help">选一个你现在最想先改变的地方。</p>
-              <div class="choice-grid focus-grid">
-                <label><input type="radio" name="learningFocus" value="learning" required><span><strong>把新知识弄懂</strong><small>听过、看过，但自己说不清</small></span></label>
-                <label><input type="radio" name="learningFocus" value="memory"><span><strong>记住并复习</strong><small>学过一阵就忘，复习时想不起来</small></span></label>
-                <label><input type="radio" name="learningFocus" value="practice"><span><strong>会做、会应用</strong><small>听懂了，遇到题还是不会用</small></span></label>
-                <label><input type="radio" name="learningFocus" value="improve"><span><strong>把错题补起来</strong><small>同一类问题总是反复出现</small></span></label>
+            <div class="form-panel choice-panel" role="group" aria-labelledby="learningLevelLabel">
+              <h2 id="learningLevelLabel" class="panel-label"><span>✨</span> 这门学科现在处于哪个阶段？</h2>
+              <div class="choice-grid level-grid">
+                <label><input type="radio" name="learningLevel" value="基础巩固" required><span><strong>基础巩固</strong><small>基础知识还有缺口，基础题容易丢分</small></span></label>
+                <label><input type="radio" name="learningLevel" value="稳定提升"><span><strong>稳定提升</strong><small>基础题大多会做，想减少错误、突破中档题</small></span></label>
+                <label><input type="radio" name="learningLevel" value="冲刺提高"><span><strong>冲刺提高</strong><small>基础和中档题较稳定，想提升速度和综合题得分</small></span></label>
               </div>
             </div>
 
@@ -307,7 +273,7 @@
               <div class="actions-row">
                 <button class="secondary-button action-btn-half back-learning-center-btn" type="button" data-action="go-learning-center">返回学习中心</button>
                 <button id="basicBackButton" class="secondary-button action-btn-half" type="button">返回上一步</button>
-                <button id="createSessionButton" class="primary-button hero-start-btn action-btn-half" type="submit">下一步 ➔</button>
+                <button id="createSessionButton" class="primary-button hero-start-btn action-btn-half" type="submit">进入测评 ➔</button>
               </div>
               <div class="form-security-note">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
@@ -323,32 +289,29 @@
             <div class="heading-left-content">
               <span id="assessmentStepBadge" class="section-number-pill">02</span>
               <div class="heading-titles">
-                <h1 id="assessmentViewTitle">学习情况</h1>
-                <p id="assessmentViewSubtitle">学习习惯与风格诊断，没有对错之分，请根据真实情况作答。</p>
+                <h1 id="assessmentViewTitle">学习模式定位题目</h1>
+                <p id="assessmentViewSubtitle">可以选一个，也可以选几个。选最贴近你平时会做的。</p>
               </div>
             </div>
             <div class="heading-right-visual">
-              <img src="/assets/images/icon-id-card.png" alt="学习情况" class="heading-id-card-img">
+              <img src="/assets/images/icon-id-card.png" alt="学习模式定位" class="heading-id-card-img">
             </div>
           </div>
 
           <div class="progress-panel">
             <div class="progress-copy">
-              <span id="completionText">已完成 0 / 42</span>
-            </div>
-            <div id="progressBar" class="progress-track" role="progressbar" aria-label="测评完成进度" aria-valuemin="0" aria-valuemax="42" aria-valuenow="0">
-              <span id="progressFill"></span>
+              <span id="pageText">第 1 题 / 共 20 题</span>
             </div>
           </div>
 
           <div id="questionList" class="question-list" aria-live="polite"></div>
 
-          <p id="pageError" class="form-error" role="alert" hidden>请先完成本页全部题目。</p>
+          <p id="pageError" class="form-error" role="alert" hidden>请至少选一项最像你平时做法的选项。</p>
           <div class="form-actions-wrapper">
             <div class="actions-row">
               <button class="secondary-button action-btn-half back-learning-center-btn" type="button" data-action="go-learning-center">返回学习中心</button>
-              <button id="previousButton" class="secondary-button action-btn-half" type="button">上一页</button>
-              <button id="nextButton" class="primary-button hero-start-btn action-btn-half" type="button">下一页 ➔</button>
+              <button id="previousButton" class="secondary-button action-btn-half" type="button">上一题</button>
+              <button id="nextButton" class="primary-button hero-start-btn action-btn-half" type="button">下一题 ➔</button>
             </div>
             <div class="form-security-note">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>

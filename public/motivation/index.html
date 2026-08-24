@@ -22,6 +22,7 @@
           <span class="brand-sub">点亮每一个孩子的未来</span>
         </div>
       </div>
+      <button type="button" id="motivationAutofillBtn" class="test-autofill-btn" data-action="autofill-test" title="仅在 type=test 模式下展示">⚡ 快速填入</button>
     </div>
   </header>
 
@@ -1686,8 +1687,18 @@ window.oneClickAutoFillAndAnswer = async function () {
     }
   }, 150);
 
-  console.log("✅ [动机测评 - 极速秒填全卷] 78 道题目已全部极速秒填完成！请点击底部【提交并生成诊断报告】按钮进行提交！");
+  console.log("✅ [动机测评 - 极速秒填全卷] 题目已全部极速秒填完成！请点击底部【提交并生成诊断报告】按钮进行提交！");
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll('[data-action="autofill-test"], #motivationAutofillBtn').forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (typeof window.oneClickAutoFillAndAnswer === "function") {
+        window.oneClickAutoFillAndAnswer();
+      }
+    });
+  });
+});
 </script>
 </body>
 </html>

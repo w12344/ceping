@@ -1,66 +1,10 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { getFFCRMContextFromUrl } from "../utils/url";
 import { submitAssessmentPayload } from "../services/api";
+import { QUESTIONS } from "../utils/reportEngine";
 
-interface QuestionItem {
-  id: string;
-  prompt: string;
-}
-
-const STATIC_QUESTIONS: QuestionItem[] = [
-  { id: "V01", prompt: "看书或资料时，我喜欢用不同颜色的笔划出重点。" },
-  { id: "V02", prompt: "对于带有流程图、思维导图或表格的讲解，我更容易理解。" },
-  { id: "V03", prompt: "记忆英文单词或语文诗词时，脑海里会浮现出文字的样子。" },
-  { id: "V04", prompt: "老师讲课时如果配合黑板板书或 PPT，我听得更专注。" },
-  { id: "V05", prompt: "复习时，我习惯先把整本书或章节的框架在脑海里过一遍。" },
-  { id: "V06", prompt: "对于排版整洁、字迹工整的笔记，我的复习效率更高。" },
-  { id: "V07", prompt: "做几何题或物理受力分析时，我必须先画出草图。" },
-  { id: "V08", prompt: "做错题归因时，把错题用剪贴或扫描方式归类看图更容易记住。" },
-  { id: "V09", prompt: "看到一段文字，我能很快从视觉上扫视出关键词。" },
-  { id: "V10", prompt: "在没有图表辅助的情况下，纯听长篇大论容易走神。" },
-  { id: "V11", prompt: "做笔记时，我会尝试使用箭头、框图等图形表示逻辑关系。" },
-  { id: "V12", prompt: "遇到难题时，闭上眼睛脑海中能显现出相关公式或定理的页面布局。" },
-  { id: "V13", prompt: "相比听录音讲解，我更愿意看书上的文字和解答步骤。" },
-  { id: "V14", prompt: "对于新知识，只要给我看一份清晰的样例或范例，我就能明白。" },
-
-  { id: "A01", prompt: "听老师口头讲解题目步骤比我自己看书理解得更快。" },
-  { id: "A02", prompt: "背诵课文或公式时，大声朗读或小声念叨能让我记得更牢。" },
-  { id: "A03", prompt: "我喜欢和同学或老师通过探讨、问答的方式复习知识点。" },
-  { id: "A04", prompt: "做题卡住时，把题目要求小声读出来往往能带来思路。" },
-  { id: "A05", prompt: "对于讲座、音频或课堂录音，我能准确记住其中的话语。" },
-  { id: "A06", prompt: "如果周围有吵闹的声音，我的学习注意力会受到很大干扰。" },
-  { id: "A07", prompt: "学习英语时，听力、口语对我的语感帮助比纯做语法题大。" },
-  { id: "A08", prompt: "做错题复盘时，我喜欢口头向别人（或自己）讲解一遍这道题。" },
-  { id: "A09", prompt: "我很擅长捕捉老师上课时强调的语调、重音和口头提示。" },
-  { id: "A10", prompt: "听歌或环境音乐有助于我放松并进入解题状态。" },
-  { id: "A11", prompt: "记忆复杂概念时，我会尝试把它编成口诀或顺口溜。" },
-  { id: "A12", prompt: "比起文字报告，我更喜欢听别人口头汇报或说明。" },
-  { id: "A13", prompt: "自我复习时，我会试着像老师一样给空气或自己讲课。" },
-  { id: "A14", prompt: "对于讨论课或研讨会的形式，我参与度更高、收获更大。" },
-
-  { id: "K01", prompt: "我很难长时间安静地坐着看书，隔一阵就想动一动或换个姿势。" },
-  { id: "K02", prompt: "解题时我喜欢在草稿纸上不停地演算、画线或拿笔比划。" },
-  { id: "K03", prompt: "通过动手做真题、做实验或解具体例题，我才能真正掌握知识点。" },
-  { id: "K04", prompt: "纯看理论推导容易困倦，直接上手做题反而精神集中。" },
-  { id: "K05", prompt: "思考难题时，我习惯转笔、踱步或用身体动作辅助思考。" },
-  { id: "K06", prompt: "对于亲身体验或自己亲自踩过的坑，我的记忆最为深刻。" },
-  { id: "K07", prompt: "学习新工具或新题型时，我喜欢先试错操作，而不是先把说明看透。" },
-  { id: "K08", prompt: "我觉得做笔记的过程本身（手的动作）比事后看笔记更有助于记忆。" },
-  { id: "K09", prompt: "复习时，我习惯把知识点抄写一遍或手写卡片来记忆。" },
-  { id: "K10", prompt: "在有动手操作或互动演练的课堂上，我的吸收效率最高。" },
-  { id: "K11", prompt: "做理化生实验或数学建模时，我的理解比纯听课深得多。" },
-  { id: "K12", prompt: "我习惯用番茄工作法（学 25 分钟动一动），短时高频地学习。" },
-  { id: "K13", prompt: "做完一道综合大题并独立解出答案，会带给我极大的踏实感。" },
-  { id: "K14", prompt: "比起凭空想象，拿实际实物或具体题型作参考能让我快速上手。" }
-];
-
-const LIKERT_OPTIONS = [
-  { value: 1, label: "非常不符合" },
-  { value: 2, label: "较不符合" },
-  { value: 3, label: "一般" },
-  { value: 4, label: "比较符合" },
-  { value: 5, label: "非常符合" }
-];
+const FOREIGN_LANGUAGES = ["英语", "日语", "其他"];
+const ALL_SUBJECTS = ["语文", "数学", "英语", "日语", "物理", "化学", "生物", "政治", "历史", "地理"];
 
 export const LearningStyleAssessment: React.FC = () => {
   const [viewStep, setViewStep] = useState<"start" | "basic" | "questions">("start");
@@ -70,19 +14,17 @@ export const LearningStyleAssessment: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [grade, setGrade] = useState("高三");
   const [specialtyDirection, setSpecialtyDirection] = useState("美术设计");
-  const [scoreBand, setScoreBand] = useState("400至450");
   const [foreignLanguage, setForeignLanguage] = useState("英语");
-  const [targetSubject, setTargetSubject] = useState("英语");
-  const [targetSubjectScore, setTargetSubjectScore] = useState("110");
-  const [learningFocus, setLearningFocus] = useState("practice");
+  const [targetSubject, setTargetSubject] = useState("语文");
+  const [learningLevel, setLearningLevel] = useState("稳定提升");
 
-  // 答题状态
-  const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [currentPage, setCurrentPage] = useState(0);
+  // 答题状态：questionId -> optionIds[]
+  const [answers, setAnswers] = useState<Record<string, string[]>>({});
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // 顾问下拉框状态 (默认不用填，非必填；仅当 URL 携带明确参数时才填入)
+  // 顾问下拉框状态
   const [advisorName, setAdvisorName] = useState(() => {
     if (typeof window === "undefined") return "";
     const params = new URLSearchParams(window.location.search || "");
@@ -95,794 +37,509 @@ export const LearningStyleAssessment: React.FC = () => {
   const [advisorList, setAdvisorList] = useState<string[]>([]);
   const advisorWrapperRef = useRef<HTMLDivElement>(null);
 
+  const availableSubjects = useMemo(() => {
+    if (!FOREIGN_LANGUAGES.includes(foreignLanguage)) return ALL_SUBJECTS;
+    return ALL_SUBJECTS.filter((s) => s !== "英语" && s !== "日语").concat(foreignLanguage === "其他" ? [] : [foreignLanguage]);
+  }, [foreignLanguage]);
+
+  useEffect(() => {
+    if (!availableSubjects.includes(targetSubject)) {
+      setTargetSubject(availableSubjects[0] || "语文");
+    }
+  }, [availableSubjects, targetSubject]);
+
   useEffect(() => {
     function handleClickOutside(e: MouseEvent | TouchEvent) {
       if (advisorWrapperRef.current && !advisorWrapperRef.current.contains(e.target as Node)) {
         setAdvisorDropdownOpen(false);
       }
     }
-    document.addEventListener("pointerdown", handleClickOutside);
-    document.addEventListener("click", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
     return () => {
-      document.removeEventListener("pointerdown", handleClickOutside);
-      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
     };
   }, []);
 
-  const hasCtx = useMemo(() => {
-    const search = window.location.search || "";
-    const hash = window.location.hash || "";
-    return search.includes("ctx=") || hash.includes("ctx=");
+  useEffect(() => {
+    async function loadAdvisors() {
+      try {
+        const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "[::1]");
+        const backendBase = (window as any).ASSESSMENT_API_BASE || (isLocal ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
+        const res = await fetch(`${backendBase}/api/assessment/advisors`);
+        const json = await res.json().catch(() => ({}));
+        const EXCLUDED_ADVISORS = ["用户", "顾问", "未知", "李老师", "杜雨龙"];
+        const list = (json.code === 200 || json.code === 0) && Array.isArray(json.data) ? json.data : [];
+        const validNames = list
+          .map((a: any) => a?.name?.trim())
+          .filter((name: string) => name && !EXCLUDED_ADVISORS.includes(name));
+        const unique = Array.from(new Set(validNames)) as string[];
+        setAdvisorList(unique);
+      } catch (e) {
+        console.warn("加载顾问列表失败:", e);
+      }
+    }
+    loadAdvisors();
   }, []);
 
-  const pageSize = 6;
-  const totalPages = Math.ceil(STATIC_QUESTIONS.length / pageSize);
+  const totalQuestions = QUESTIONS.length;
+  const currentQuestion = QUESTIONS[currentIndex];
+  const currentSelectedOptions = answers[currentQuestion?.id] || [];
 
-  // 初始化 URL / ctx 自动回填
-  useEffect(() => {
-    const ctx = getFFCRMContextFromUrl();
-    if (ctx.student.name && !studentName) setStudentName(ctx.student.name);
-    if (ctx.student.mobile && !phoneNumber) setPhoneNumber(ctx.student.mobile);
-
-    if (!hasCtx) {
-      const isLocalReact = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "[::1]");
-      const apiBase = (typeof window !== "undefined" && (window as any).ASSESSMENT_API_BASE) || (isLocalReact ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
-      fetch(`${apiBase}/api/assessment/advisors?roleCode=SALES,MARKET`)
-        .then(res => res.json())
-        .then(json => {
-          const records = Array.isArray(json.data) ? json.data : (json.data?.list || (Array.isArray(json) ? json : []));
-          if (Array.isArray(records) && records.length > 0) {
-            const excluded = ((window as any).ASSESSMENT_EXCLUDED_ADVISORS as string[]) || ["用户", "顾问", "未知", "李老师", "杜雨龙"];
-            const fetchedNames = records
-              .map((r: any) => typeof r === "string" ? r : (r.employeeName || r.name || r.advisorName))
-              .filter((name: any) => name && typeof name === "string" && !excluded.includes(name.trim()));
-            if (fetchedNames.length > 0) setAdvisorList(fetchedNames);
-          }
-        })
-        .catch(() => {});
-    }
-  }, [hasCtx]);
-
-  const currentQuestions = useMemo(() => {
-    const start = currentPage * pageSize;
-    return STATIC_QUESTIONS.slice(start, start + pageSize);
-  }, [currentPage]);
-
-  const progressPercent = useMemo(() => {
-    const answeredCount = Object.keys(answers).length;
-    return Math.min(100, Math.round((answeredCount / STATIC_QUESTIONS.length) * 100));
+  const completedCount = useMemo(() => {
+    return Object.values(answers).filter((opts) => Array.isArray(opts) && opts.length > 0).length;
   }, [answers]);
 
-  const handleAnswerSelect = (questionId: string, value: number) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: value }));
+  const handleToggleOption = (optId: string) => {
+    const qid = currentQuestion.id;
+    const current = new Set(answers[qid] || []);
+    if (current.has(optId)) current.delete(optId);
+    else current.add(optId);
+    setAnswers({ ...answers, [qid]: Array.from(current) });
     setErrorMessage("");
   };
 
-  const handleNextPage = () => {
-    // 校验本页是否完成
-    const unAnswered = currentQuestions.some((q) => !answers[q.id]);
-    if (unAnswered) {
-      setErrorMessage("请先完成本页全部题目再进行下一页。");
+  const handleStart = () => {
+    setViewStep("basic");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleBasicSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!studentName.trim()) {
+      setErrorMessage("请填写学员姓名");
+      return;
+    }
+    if (!phoneNumber.trim()) {
+      setErrorMessage("请填写联系方式");
       return;
     }
     setErrorMessage("");
+    setViewStep("questions");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-    if (currentPage < totalPages - 1) {
-      setCurrentPage((prev) => prev + 1);
+  const handleNext = () => {
+    if (currentSelectedOptions.length === 0) {
+      setErrorMessage("请至少选一项最像你平时做法的选项。");
+      return;
+    }
+    setErrorMessage("");
+    if (currentIndex < totalQuestions - 1) {
+      setCurrentIndex((prev) => prev + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       handleSubmit();
     }
   };
 
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((prev) => prev - 1);
+      setErrorMessage("");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   const handleSubmit = async () => {
+    if (isSubmitting) return;
     setIsSubmitting(true);
-    setErrorMessage("");
 
-    const ctx = getFFCRMContextFromUrl();
-    const sessionId = `session_${Date.now()}`;
+    const ffcrm = getFFCRMContextFromUrl();
+    const finalAdvisorName = advisorName.trim() || ffcrm?.advisor?.name || "";
+    const sessionToken = "session_" + Date.now();
 
-    const formattedAnswers = Object.entries(answers).map(([qid, val]) => ({
-      questionId: qid,
-      value: val,
-      responseTimeMs: 300,
-      answeredAt: new Date().toISOString()
+    const formattedAnswers = Object.entries(answers).map(([questionId, optionIds]) => ({
+      questionId,
+      optionIds,
+      responseTimeMs: 2500
     }));
-
-    const finalAdvisorName = ctx.advisor.name || advisorName || localStorage.getItem("advisor_name") || "";
 
     const payload = {
       studentInfo: {
-        name: studentName,
-        mobile: phoneNumber,
+        name: studentName.trim(),
+        mobile: phoneNumber.trim(),
         grade,
         specialtyDirection,
-        scoreBand,
         foreignLanguage,
         targetSubject,
-        targetSubjectScore: Number(targetSubjectScore) || 0,
-        targetSubjectFullScore: 150,
-        learningFocus,
-        profileId: ctx.student.profileId
+        learningLevel
       },
       advisorInfo: {
-        token: ctx.advisor.token,
+        token: ffcrm?.advisor?.token || "",
         name: finalAdvisorName,
-        userId: ctx.advisor.userId,
-        mobile: ctx.advisor.mobile
+        userId: ffcrm?.advisor?.userId || "",
+        mobile: ffcrm?.advisor?.mobile || ""
       },
       assessmentInfo: {
         templateCode: "LEARNING_STYLE",
         templateName: "学习模式定位",
         templateType: "STUDENT_LEARNING",
         answers: formattedAnswers,
-        durationSeconds: 45,
+        durationSeconds: 300,
         submittedAt: new Date().toISOString(),
         reportUrl: (typeof window !== "undefined" ? window.location.origin : "https://ceping.1605ai.com") + "/report.html"
       }
     };
 
+    let recordId: string | null = null;
     try {
-      const savedData = await submitAssessmentPayload(payload);
-      const savedId = savedData?.id || savedData?.savedId;
-      if (savedId) {
-        window.location.hash = `#/report?id=${savedId}`;
-      } else {
-        window.location.hash = `#/report?mobile=${encodeURIComponent(phoneNumber)}&session=${encodeURIComponent(sessionId)}`;
+      const res = await submitAssessmentPayload(payload);
+      if (res && res.data) {
+        recordId = res.data.id || res.data.savedId || null;
       }
-    } catch (err: any) {
-      console.warn("提交测评结果失败:", err);
-      setErrorMessage(err.message || "提交失败，请检查网络后重试。");
-    } finally {
-      setIsSubmitting(false);
+    } catch (err) {
+      console.warn("提交数据异常，由离线队列/本地兜底:", err);
     }
-  };
-  const handleQuickFill = () => {
-    // 1. 自动填入学员基本信息
-    if (!studentName) setStudentName("测试学员");
-    if (!phoneNumber) setPhoneNumber("15765778832");
-    setGrade("高三");
-    setSpecialtyDirection("美术设计");
-    setScoreBand("400至450");
-    setForeignLanguage("英语");
-    setTargetSubject("英语");
-    setTargetSubjectScore("110");
-    setLearningFocus("practice");
 
-    // 2. 自动填入 42 道题目选项 (均为 4 - 比较符合)
-    const mockAnswers: Record<string, number> = {};
-    STATIC_QUESTIONS.forEach((q) => {
-      mockAnswers[q.id] = 4;
-    });
-    setAnswers(mockAnswers);
+    const snapshot = {
+      session: sessionToken,
+      recordId,
+      userInfo: {
+        studentName: studentName.trim(),
+        phoneNumber: phoneNumber.trim(),
+        grade,
+        specialtyDirection,
+        foreignLanguage,
+        targetSubject,
+        learningLevel
+      },
+      answers: formattedAnswers,
+      submittedAt: new Date().toISOString()
+    };
+    localStorage.setItem("lsa_session_" + sessionToken, JSON.stringify(snapshot));
+    if (recordId) localStorage.setItem("lsa_record_" + recordId, JSON.stringify(snapshot));
+    localStorage.setItem("lsa_last_record", JSON.stringify(snapshot));
 
-    // 3. 直接跳转至答题页最后一页，方便快速提交
-    setCurrentPage(totalPages - 1);
-    setViewStep("questions");
-    setErrorMessage("");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const query = recordId
+      ? `id=${encodeURIComponent(recordId)}&session=${encodeURIComponent(sessionToken)}`
+      : `session=${encodeURIComponent(sessionToken)}`;
+    window.location.assign(`/report.html?${query}`);
   };
+
+  const [isTestMode, setIsTestMode] = useState(false);
 
   useEffect(() => {
-    (window as any).oneClickAutoFillAndAnswer = handleQuickFill;
-    return () => {
-      if ((window as any).oneClickAutoFillAndAnswer === handleQuickFill) {
-        delete (window as any).oneClickAutoFillAndAnswer;
-      }
-    };
-  }, [studentName, phoneNumber, advisorName, totalPages]);
+    const params = new URLSearchParams(window.location.search);
+    const hash = window.location.hash || "";
+    const hashParams = new URLSearchParams(hash.includes("?") ? hash.split("?")[1] : "");
+    if (params.get("type") === "test" || hashParams.get("type") === "test" || params.get("test") === "1" || hashParams.get("test") === "1") {
+      setIsTestMode(true);
+    }
+  }, []);
+
+  const handleTestAutoFill = () => {
+    setStudentName("测试学员");
+    setPhoneNumber("13800138000");
+    setGrade("高三");
+    setSpecialtyDirection("美术设计");
+    setForeignLanguage("英语");
+    setTargetSubject("语文");
+    setLearningLevel("稳定提升");
+
+    const mockAns: Record<string, string[]> = {};
+    QUESTIONS.forEach((q: any, idx: number) => {
+      const opt = q.options[idx % q.options.length] || q.options[0];
+      mockAns[q.id] = [opt.id];
+    });
+    setAnswers(mockAns);
+    setCurrentIndex(QUESTIONS.length - 1);
+    setViewStep("questions");
+  };
 
   return (
-    <div className="min-h-screen pb-16">
-      {/* 顶部 Header Bar */}
-      <header className="brand-bar sticky top-0 z-50">
-        <div className="brand-lockup">
-          <div className="brand-left">
-            <div className="brand-badge-box">凡</div>
-            <div className="brand-text">
-              <span className="brand-cn">非凡教育</span>
-              <span className="brand-sub">点亮每一个孩子的未来</span>
-            </div>
+    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
+      {/* Brand Header */}
+      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center font-bold text-slate-950">凡</div>
+          <div>
+            <div className="text-sm font-bold text-slate-200">非凡教育 · 学习模式定位</div>
+            <div className="text-xs text-slate-400">定位最顺手的学习入口</div>
           </div>
         </div>
+        {isTestMode && (
+          <button
+            type="button"
+            onClick={handleTestAutoFill}
+            className="px-3 py-1 bg-amber-500/20 border border-amber-500 text-amber-300 hover:bg-amber-500/30 text-xs font-bold rounded-lg cursor-pointer flex items-center space-x-1"
+          >
+            <span>⚡ 快速填入</span>
+          </button>
+        )}
       </header>
 
-      {/* 主体 Container */}
-      <main className="page-shell">
-        {/* Step 1: Start 引导页 */}
+      {/* Main View Flow */}
+      <main className="flex-1 max-w-3xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center">
         {viewStep === "start" && (
-          <div className="hero-panel">
-            <div className="hero-top-grid">
-              <div className="hero-intro-col">
-                <div className="hero-header-tag">
-                  <span className="pill-badge">✨ 非凡教育 · 官方科学诊断量表</span>
-                </div>
-                <h1 className="hero-main-title">学习模式<span className="title-highlight">定位</span></h1>
-                <p className="hero-lead">
-                  回顾真实学习场景，看清你通常怎样接收、整理和运用信息，并获得目标学科的具体建议。
-                </p>
+          <div className="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 md:p-8 backdrop-blur text-center space-y-6">
+            <span className="inline-block px-3 py-1 bg-amber-500/10 text-amber-400 text-xs font-semibold rounded-full border border-amber-500/20">
+              精准诊断 · 科学赋能
+            </span>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-white">学习模式定位测评</h1>
+            <p className="text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
+              从平时真实的学习反应出发，找到自己更顺手的学习优势；遇到学习任务时，知道可以从哪儿下手。
+            </p>
+
+            <div className="grid grid-cols-2 gap-4 max-w-md mx-auto py-2">
+              <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+                <div className="text-lg font-bold text-amber-400">6–8 分钟</div>
+                <div className="text-xs text-slate-400">预计完成时间</div>
               </div>
-              <div className="hero-visual-col">
-                <div className="hero-visual-wrapper">
-                  <img src="/assets/images/hero-podium.png" alt="非凡教育学习模式定位" className="hero-podium-img" />
-                </div>
+              <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+                <div className="text-lg font-bold text-amber-400">20 题</div>
+                <div className="text-xs text-slate-400">每题可多选</div>
               </div>
             </div>
 
-            {/* Metrics Pills */}
-            <div className="fact-row" aria-label="测评概况">
-              <div className="fact-card fact-card-time">
-                <img src="/assets/images/icon-timer.png" alt="时间" className="fact-icon-img" />
-                <div className="fact-text">
-                  <strong>8-10 分钟</strong>
-                  <span>预计完成时间</span>
-                </div>
-              </div>
-              <div className="fact-card fact-card-count">
-                <img src="/assets/images/icon-paper-pencil.png" alt="题量" className="fact-icon-img" />
-                <div className="fact-text">
-                  <strong>42 + 可选 4 题</strong>
-                  <span>作答题目总量</span>
-                </div>
-              </div>
+            <div className="text-left bg-slate-900/40 p-4 rounded-xl border border-slate-800/80 space-y-2 text-xs text-slate-300">
+              <div className="font-semibold text-slate-200">作答前请知道：</div>
+              <div>• <strong>没有标准答案</strong>：每题可以选一个，也可以选几个。选最贴近你平时会做的。</div>
+              <div>• <strong>客观描述</strong>：结果描述的是当前顺手入口，不评价学习能力高低。</div>
             </div>
 
-            {/* Notice Block with Mascot Owl */}
-            <div className="notice-block-wrapper">
-              <div className="notice-block">
-                <div className="notice-header">
-                  <span className="notice-badge-dot">◇</span>
-                  <h2>作答前请知道</h2>
-                </div>
-                <div className="notice-item">
-                  <img src="/assets/images/icon-shield-check.png" alt="规则" className="notice-bullet-icon" />
-                  <p><strong>没有标准答案</strong>：请按平时最常出现的真实情况作答，无需选择“看起来更正确”的选项。</p>
-                </div>
-                <div className="notice-item">
-                  <img src="/assets/images/icon-bulb.png" alt="说明" className="notice-bullet-icon" />
-                  <p><strong>客观看待结果</strong>：结果描述的是当前学习入口与信息偏好，不评价学习能力的高低。</p>
-                </div>
-              </div>
-              <div className="notice-mascot">
-                <img src="/assets/images/mascot-owl.png" alt="非凡猫头鹰" className="mascot-img" />
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="hero-action-buttons">
-              <button
-                type="button"
-                onClick={() => setViewStep("basic")}
-                className="primary-button hero-start-btn"
-              >
-                开始测评 →
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewStep("basic")}
-                className="secondary-button hero-resume-btn"
-              >
-                继续上次作答
-              </button>
-            </div>
-
-            {/* Bottom Trust Badges */}
-            <div className="hero-trust-badges">
-              <div className="trust-badge-item">
-                <img src="/assets/images/icon-shield-check.png" alt="科学量表" className="trust-icon" />
-                <div className="trust-info">
-                  <strong>科学量表</strong>
-                  <span>权威量表，专业认证</span>
-                </div>
-              </div>
-              <div className="trust-badge-item">
-                <img src="/assets/images/icon-lock.png" alt="严格保密" className="trust-icon" />
-                <div className="trust-info">
-                  <strong>严格保密</strong>
-                  <span>数据加密，隐私保护</span>
-                </div>
-              </div>
-              <div className="trust-badge-item">
-                <img src="/assets/images/icon-check-circle.png" alt="个性化报告" className="trust-icon" />
-                <div className="trust-info">
-                  <strong>个性化报告</strong>
-                  <span>定制建议，精准提升</span>
-                </div>
-              </div>
-            </div>
+            <button
+              onClick={handleStart}
+              className="w-full max-w-xs mx-auto py-3 px-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl shadow-lg transition-transform active:scale-98 cursor-pointer"
+            >
+              开始定位测评 →
+            </button>
           </div>
         )}
 
-        {/* Step 2: Basic Info 表单 & Questions Page wrapped in two-column layout */}
-        {viewStep !== "start" && (
-          <div className="content-two-col-layout">
-            {/* Left Sidebar for PC */}
-            <aside className="assessment-sidebar">
-              <div className="sidebar-step-card">
-                <div className="sidebar-step-list">
-                  <div className={`sidebar-step-item ${viewStep === 'basic' ? 'is-active' : 'is-completed'}`} data-step="1">
-                    <span className="step-num-badge">01</span>
-                    <div className="step-label-group">
-                      <strong>基本信息</strong>
-                      <span>填写个人基本信息</span>
-                    </div>
-                  </div>
-                  <div className="step-connector"></div>
-                  <div className={`sidebar-step-item ${viewStep === 'questions' ? 'is-active' : ''}`} data-step="2">
-                    <span className="step-num-badge">02</span>
-                    <div className="step-label-group">
-                      <strong>学习情况</strong>
-                      <span>学习习惯与风格</span>
-                    </div>
-                  </div>
-                  <div className="step-connector"></div>
-                  <div className="sidebar-step-item" data-step="3">
-                    <span className="step-num-badge">03</span>
-                    <div className="step-label-group">
-                      <strong>兴趣与动机</strong>
-                      <span>兴趣与学习动力</span>
-                    </div>
-                  </div>
-                  <div className="step-connector"></div>
-                  <div className="sidebar-step-item" data-step="4">
-                    <span className="step-num-badge">04</span>
-                    <div className="step-label-group">
-                      <strong>学科基础</strong>
-                      <span>各学科掌握情况</span>
-                    </div>
-                  </div>
-                  <div className="step-connector"></div>
-                  <div className="sidebar-step-item" data-step="5">
-                    <span className="step-num-badge">05</span>
-                    <div className="step-label-group">
-                      <strong>提交完成</strong>
-                      <span>生成专属报告</span>
-                    </div>
-                  </div>
-                </div>
+        {viewStep === "basic" && (
+          <form onSubmit={handleBasicSubmit} className="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 md:p-8 backdrop-blur space-y-6">
+            <div className="border-b border-slate-700/60 pb-4">
+              <h2 className="text-xl font-bold text-white">01 先确定这次要解决什么</h2>
+              <p className="text-xs text-slate-400 mt-1">一次只生成一门学科的报告，为您量身定制行动建议。</p>
+            </div>
 
-                <div className="sidebar-mascot-box">
-                  <div className="sidebar-speech-bubble">
-                    认真填写信息<br />将获得更准确的分析哦！
-                  </div>
-                  <img src="/assets/images/mascot-pencil-owl.png" alt="非凡猫头鹰助教" className="sidebar-owl-img" />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">姓名 <span className="text-rose-400">*</span></label>
+                <input
+                  type="text"
+                  value={studentName}
+                  onChange={(e) => setStudentName(e.target.value)}
+                  placeholder="请输入你的姓名"
+                  className="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  required
+                />
               </div>
-            </aside>
-
-            {/* Right Main Area */}
-            <div className="assessment-content-area">
-              {/* Mobile Horizontal Step Indicator */}
-              <div className="mobile-step-indicator">
-                <div className={`mobile-step-item ${viewStep === 'basic' ? 'is-active' : 'is-completed'}`}>01</div>
-                <div className="mobile-step-line"></div>
-                <div className={`mobile-step-item ${viewStep === 'questions' ? 'is-active' : ''}`}>02</div>
-                <div className="mobile-step-line"></div>
-                <div className="mobile-step-item">03</div>
-                <div className="mobile-step-line"></div>
-                <div className="mobile-step-item">04</div>
-                <div className="mobile-step-line"></div>
-                <div className="mobile-step-item">05</div>
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">联系方式 <span className="text-rose-400">*</span></label>
+                <input
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="请输入手机号或微信号"
+                  className="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  required
+                />
               </div>
+            </div>
 
-              {viewStep === "basic" && (
-                <div className="space-y-6">
-                  <div className="section-heading-card">
-                    <div className="heading-left-content">
-                      <span className="section-number-pill">01</span>
-                      <div className="heading-titles">
-                        <h1>基本信息</h1>
-                        <p>用于生成更贴近当前阶段和目标学科的建议。</p>
-                      </div>
-                    </div>
-                    <div className="heading-right-visual">
-                      <img src="/assets/images/icon-id-card.png" alt="基本信息" className="heading-id-card-img" />
-                    </div>
+            <div ref={advisorWrapperRef} className="relative">
+              <label className="block text-xs font-medium text-slate-300 mb-1">
+                归属顾问 <span className="text-slate-500">(选填)</span>
+              </label>
+              <div
+                onClick={() => setAdvisorDropdownOpen(!advisorDropdownOpen)}
+                className="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white flex items-center justify-between cursor-pointer"
+              >
+                <span className={advisorName ? "text-white" : "text-slate-500"}>
+                  {advisorName || "请选择归属顾问（选填）"}
+                </span>
+                <span className="text-slate-400 text-xs">▼</span>
+              </div>
+              {advisorDropdownOpen && (
+                <div className="absolute top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-20">
+                  <div
+                    onClick={() => { setAdvisorName(""); setAdvisorDropdownOpen(false); }}
+                    className="px-3 py-2 text-xs text-slate-400 hover:bg-slate-700 cursor-pointer"
+                  >
+                    不选择顾问
                   </div>
-
-                  <div className="feifan-card p-6 space-y-6">
-                    {/* 姓名与手机号 */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">学员姓名 *</label>
-                        <input
-                          type="text"
-                          value={studentName}
-                          onChange={(e) => setStudentName(e.target.value)}
-                          placeholder="请输入你的姓名"
-                          className="w-full px-4 py-3 rounded-xl border border-amber-200 focus:border-[#F5C518] focus:ring-2 focus:ring-amber-200 outline-none transition-all text-sm"
-                        />
+                  {advisorList.length > 0 ? (
+                    advisorList.map((adv) => (
+                      <div
+                        key={adv}
+                        onClick={() => { setAdvisorName(adv); setAdvisorDropdownOpen(false); }}
+                        className="px-3 py-2 text-xs text-white hover:bg-amber-500/20 hover:text-amber-300 cursor-pointer"
+                      >
+                        {adv}
                       </div>
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">手机号 *</label>
-                        <input
-                          type="tel"
-                          maxLength={11}
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
-                          placeholder="请输入手机号"
-                          className="w-full px-4 py-3 rounded-xl border border-amber-200 focus:border-[#F5C518] focus:ring-2 focus:ring-amber-200 outline-none transition-all text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    {/* 归属顾问 (链接未带 ctx 时展示) */}
-                    {!hasCtx && (
-                      <div className="relative" ref={advisorWrapperRef}>
-                        <div className="flex justify-between items-center mb-1.5">
-                          <label className="text-xs font-bold text-gray-700">归属顾问</label>
-                          <span className="text-[11px] font-medium text-gray-500 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-full">
-                            选填
-                          </span>
-                        </div>
-                        <div 
-                          className="relative cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setAdvisorDropdownOpen((prev) => !prev);
-                          }}
-                        >
-                          <input
-                            type="text"
-                            readOnly
-                            value={advisorName}
-                            onKeyDown={(e) => {
-                              if (e.key === "Escape") {
-                                setAdvisorDropdownOpen(false);
-                                return;
-                              }
-                              if (e.key !== "Tab") {
-                                e.preventDefault();
-                              }
-                            }}
-                            placeholder="请选择归属顾问（选填）"
-                            className="w-full px-4 py-3 pr-10 rounded-xl border border-amber-200 focus:border-[#F5C518] focus:ring-2 focus:ring-amber-200 outline-none transition-all text-sm bg-white font-medium cursor-pointer caret-transparent select-none"
-                          />
-                          <div className={`absolute right-3 top-1/2 -translate-y-1/2 text-amber-600 pointer-events-none transition-transform duration-200 ${advisorDropdownOpen ? 'rotate-180' : ''}`}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
-                          </div>
-                        </div>
-
-                        {advisorDropdownOpen && (
-                          <div 
-                            className="absolute left-0 right-0 top-[calc(100%+4px)] bg-white border border-amber-200/80 rounded-2xl shadow-xl max-h-56 overflow-y-auto z-50 p-1.5 animate-in fade-in duration-150"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {/* 暂不指定顾问选项 */}
-                            <div
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setAdvisorName("");
-                                localStorage.removeItem("advisor_name");
-                                localStorage.removeItem("advisor_user_id");
-                                localStorage.removeItem("advisor_token");
-                                localStorage.removeItem("advisor_mobile");
-                                localStorage.removeItem("feifan_ref");
-                                setAdvisorDropdownOpen(false);
-                              }}
-                              className={`px-3 py-2.5 rounded-xl cursor-pointer transition-all flex items-center justify-between group mb-0.5 ${
-                                !advisorName.trim() ? "bg-amber-50 text-amber-900" : "hover:bg-gray-50 text-gray-700"
-                              }`}
-                            >
-                              <div className="flex items-center gap-2.5">
-                                <div className="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 text-gray-400 font-extrabold text-sm flex items-center justify-center shadow-sm flex-shrink-0">
-                                  无
-                                </div>
-                                <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900">暂不指定顾问（选填）</span>
-                              </div>
-                              <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg">
-                                选填
-                              </span>
-                            </div>
-
-                            {advisorList.length === 0 ? (
-                              <div className="p-3 text-center bg-gray-50 rounded-xl m-1">
-                                <div className="text-xs text-gray-500 font-medium">暂无其他可选顾问</div>
-                                <div className="text-[11px] text-gray-400 mt-1">可直接跳过此项继续测评</div>
-                              </div>
-                            ) : (
-                              advisorList.map((name) => {
-                                const initial = name.slice(0, 1) || "顾";
-                                const isSelected = advisorName.trim() === name;
-                                return (
-                                  <div
-                                    key={name}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setAdvisorName(name);
-                                      localStorage.setItem("advisor_name", name);
-                                      setAdvisorDropdownOpen(false);
-                                    }}
-                                    className={`px-3 py-2.5 rounded-xl cursor-pointer transition-all flex items-center justify-between group mb-0.5 ${
-                                      isSelected ? "bg-amber-50 text-amber-900" : "hover:bg-amber-50/70 text-gray-800"
-                                    }`}
-                                  >
-                                    <div className="flex items-center gap-2.5">
-                                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 text-amber-800 font-extrabold text-sm flex items-center justify-center shadow-sm flex-shrink-0">
-                                        {initial}
-                                      </div>
-                                      <span className="text-sm font-bold text-gray-800 group-hover:text-amber-900">{name}</span>
-                                    </div>
-                                    <span className="text-[11px] font-semibold text-amber-800 bg-amber-100/70 border border-amber-200 px-2 py-0.5 rounded-lg">
-                                      指导老师
-                                    </span>
-                                  </div>
-                                );
-                              })
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* 年级 2x2 选择 */}
-                    <div>
-                      <h2 className="text-sm font-bold text-gray-800 mb-2">✨ 你现在读几年级？ *</h2>
-                      <div className="choice-grid grid-2x2">
-                        {["高一", "高二", "高三", "高复"].map((g) => (
-                          <label key={g} className={grade === g ? "is-checked" : ""}>
-                            <input
-                              type="radio"
-                              name="grade"
-                              checked={grade === g}
-                              onChange={() => setGrade(g)}
-                            />
-                            <span>{g}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* 专业方向 2x2 选择 */}
-                    <div>
-                      <h2 className="text-sm font-bold text-gray-800 mb-2">✨ 你学的是什么专业方向？ *</h2>
-                      <div className="choice-grid grid-2x2">
-                        {["文科", "理科", "艺术", "体育"].map((dir) => (
-                          <label key={dir} className={specialtyDirection === dir ? "is-checked" : ""}>
-                            <input
-                              type="radio"
-                              name="specialtyDirection"
-                              checked={specialtyDirection === dir}
-                              onChange={() => setSpecialtyDirection(dir)}
-                            />
-                            <span>{dir}</span>
-                          </label>
-                        ))}
-                        <label className={`grid-full-row ${specialtyDirection === "其他" ? "is-checked" : ""}`}>
-                          <input
-                            type="radio"
-                            name="specialtyDirection"
-                            checked={specialtyDirection === "其他"}
-                            onChange={() => setSpecialtyDirection("其他")}
-                          />
-                          <span>其他（请填写）</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* 文化课分数段 2x2 选择 */}
-                    <div>
-                      <h2 className="text-sm font-bold text-gray-800 mb-2">✨ 你最近一次文化课考了多少分？ *</h2>
-                      <div className="choice-grid grid-2x2">
-                        {["350以下", "350至400", "400至450", "450至500", "500至550", "550至600"].map((sb) => (
-                          <label key={sb} className={scoreBand === sb ? "is-checked" : ""}>
-                            <input
-                              type="radio"
-                              name="scoreBand"
-                              checked={scoreBand === sb}
-                              onChange={() => setScoreBand(sb)}
-                            />
-                            <span>{sb}</span>
-                          </label>
-                        ))}
-                        <label className={`grid-full-row ${scoreBand === "600以上" ? "is-checked" : ""}`}>
-                          <input
-                            type="radio"
-                            name="scoreBand"
-                            checked={scoreBand === "600以上"}
-                            onChange={() => setScoreBand("600以上")}
-                          />
-                          <span>600以上</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* 目标学科与分数 */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">最想提分的科目 *</label>
-                        <select
-                          value={targetSubject}
-                          onChange={(e) => setTargetSubject(e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl border border-amber-200 focus:border-[#F5C518] focus:ring-2 focus:ring-amber-200 outline-none transition-all text-sm bg-white"
-                        >
-                          {["英语", "数学", "语文", "日语", "物理", "化学", "生物", "历史", "政治", "地理"].map((sub) => (
-                            <option key={sub} value={sub}>{sub}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">该科目当前分数 *</label>
-                        <input
-                          type="number"
-                          value={targetSubjectScore}
-                          onChange={(e) => setTargetSubjectScore(e.target.value)}
-                          placeholder="如 110"
-                          className="w-full px-4 py-3 rounded-xl border border-amber-200 focus:border-[#F5C518] focus:ring-2 focus:ring-amber-200 outline-none transition-all text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="form-actions-wrapper">
-                      <div className="actions-row">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (typeof (window as any).CommonBridge?.goBack === "function") {
-                              (window as any).CommonBridge.goBack();
-                            } else if (typeof (window as any).goBackOrFallback === "function") {
-                              (window as any).goBackOrFallback("/portal.html");
-                            } else {
-                              window.history.back();
-                            }
-                          }}
-                          className="secondary-button action-btn-half back-learning-center-btn"
-                        >
-                          返回学习中心
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setViewStep("start")}
-                          className="secondary-button action-btn-half"
-                        >
-                          返回上一步
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (!studentName || !phoneNumber) {
-                              setErrorMessage("请填写姓名与手机号。");
-                              return;
-                            }
-                            setErrorMessage("");
-                            setViewStep("questions");
-                          }}
-                          className="primary-button hero-start-btn action-btn-half"
-                        >
-                          下一步 ➔
-                        </button>
-                      </div>
-                      <div className="form-security-note">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                        <span>信息仅用于测评分析，我们将严格保密</span>
-                      </div>
-                    </div>
-                    {errorMessage && <p className="text-xs font-bold text-red-500 text-center">{errorMessage}</p>}
-                  </div>
-                </div>
-              )}
-
-              {/* Step 3: Questions 答题页 */}
-              {viewStep === "questions" && (
-                <div className="space-y-6">
-                  <div className="section-heading-card">
-                    <div className="heading-left-content">
-                      <span className="section-number-pill">02</span>
-                      <div className="heading-titles">
-                        <h1>学习情况</h1>
-                        <p>学习习惯与风格诊断，没有对错之分，请根据真实情况作答。</p>
-                      </div>
-                    </div>
-                    <div className="heading-right-visual">
-                      <img src="/assets/images/icon-id-card.png" alt="学习情况" className="heading-id-card-img" />
-                    </div>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="progress-panel">
-                    <div className="progress-copy">
-                      <span>第 {currentPage + 1} / {totalPages} 页</span>
-                      <span>已完成 {Object.keys(answers).length} / {STATIC_QUESTIONS.length} 题</span>
-                    </div>
-                    <div className="progress-track" role="progressbar" aria-label="测评完成进度">
-                      <span id="progressFill" style={{ width: `${progressPercent}%` }}></span>
-                    </div>
-                  </div>
-
-                  {/* Question List */}
-                  <div className="space-y-4">
-                    {currentQuestions.map((q, idx) => {
-                      const globalIndex = currentPage * pageSize + idx + 1;
-                      const currentVal = answers[q.id];
-                      return (
-                        <div key={q.id} className="feifan-card p-5 md:p-6 space-y-3">
-                          <div className="flex items-start gap-3">
-                            <span className="px-2.5 py-1 rounded-md bg-amber-100 text-amber-900 font-extrabold text-xs">
-                              Q{globalIndex}
-                            </span>
-                            <p className="font-bold text-[#1E1A1C] text-base leading-relaxed">{q.prompt}</p>
-                          </div>
-
-                          {/* Likert 5 Pills Choice */}
-                          <div className="grid grid-cols-5 gap-2 pt-2">
-                            {LIKERT_OPTIONS.map((opt) => (
-                              <button
-                                key={opt.value}
-                                type="button"
-                                onClick={() => handleAnswerSelect(q.id, opt.value)}
-                                className={`py-2 px-1 rounded-xl border text-xs font-semibold flex flex-col items-center justify-center gap-0.5 transition-all ${
-                                  currentVal === opt.value
-                                    ? "bg-[#FFE100] border-[#F5C518] text-[#1E1A1C] font-extrabold shadow-md scale-105"
-                                    : "bg-[#FFFDF8] border-[#FDE68A] text-gray-700 hover:bg-[#FFFBE9]"
-                                }`}
-                              >
-                                <span className="text-sm font-black">{opt.value}</span>
-                                <span className="text-[11px] hidden sm:inline opacity-80">{opt.label}</span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {errorMessage && (
-                    <p className="text-sm font-bold text-red-500 bg-red-50 p-3 rounded-xl border border-red-200">
-                      {errorMessage}
-                    </p>
+                    ))
+                  ) : (
+                    <div className="px-3 py-2 text-xs text-slate-500 text-center">暂无可选择顾问</div>
                   )}
-
-                  {/* Navigation Actions - Same row display */}
-                  <div className="form-actions-wrapper">
-                    <div className="actions-row">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (typeof (window as any).CommonBridge?.goBack === "function") {
-                            (window as any).CommonBridge.goBack();
-                          } else if (typeof (window as any).goBackOrFallback === "function") {
-                            (window as any).goBackOrFallback("/portal.html");
-                          } else {
-                            window.history.back();
-                          }
-                        }}
-                        className="secondary-button action-btn-half back-learning-center-btn"
-                      >
-                        返回学习中心
-                      </button>
-                      <button
-                        type="button"
-                        disabled={currentPage === 0 || isSubmitting}
-                        onClick={() => {
-                          setCurrentPage((prev) => Math.max(0, prev - 1));
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        className="secondary-button action-btn-half"
-                      >
-                        上一页
-                      </button>
-                      <button
-                        type="button"
-                        disabled={isSubmitting}
-                        onClick={handleNextPage}
-                        className="primary-button hero-start-btn action-btn-half"
-                      >
-                        {isSubmitting
-                          ? "提交诊断中..."
-                          : currentPage === totalPages - 1
-                          ? "完成作答 ➔"
-                          : "下一页 ➔"}
-                      </button>
-                    </div>
-                    <div className="form-security-note">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                      <span>信息仅用于测评分析，我们将严格保密</span>
-                    </div>
-                  </div>
                 </div>
               )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-300 mb-2">年级 <span className="text-rose-400">*</span></label>
+              <div className="grid grid-cols-4 gap-2">
+                {["高一", "高二", "高三", "高复"].map((g) => (
+                  <button
+                    key={g}
+                    type="button"
+                    onClick={() => setGrade(g)}
+                    className={`py-2 text-xs font-medium rounded-lg border transition ${grade === g ? "bg-amber-500/20 border-amber-500 text-amber-300" : "bg-slate-900/50 border-slate-700 text-slate-300 hover:border-slate-600"}`}
+                  >
+                    {g}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-300 mb-2">专业方向 <span className="text-rose-400">*</span></label>
+              <div className="grid grid-cols-4 gap-2">
+                {["美术设计", "音乐", "舞蹈", "播音表演", "书法", "体育", "其他"].map((d) => (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => setSpecialtyDirection(d)}
+                    className={`py-2 text-xs font-medium rounded-lg border transition ${specialtyDirection === d ? "bg-amber-500/20 border-amber-500 text-amber-300" : "bg-slate-900/50 border-slate-700 text-slate-300 hover:border-slate-600"}`}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-2">外语科目 <span className="text-rose-400">*</span></label>
+                <div className="grid grid-cols-3 gap-2">
+                  {FOREIGN_LANGUAGES.map((fl) => (
+                    <button
+                      key={fl}
+                      type="button"
+                      onClick={() => setForeignLanguage(fl)}
+                      className={`py-2 text-xs font-medium rounded-lg border transition ${foreignLanguage === fl ? "bg-amber-500/20 border-amber-500 text-amber-300" : "bg-slate-900/50 border-slate-700 text-slate-300 hover:border-slate-600"}`}
+                    >
+                      {fl}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-2">目标学科 <span className="text-rose-400">*</span></label>
+                <select
+                  value={targetSubject}
+                  onChange={(e) => setTargetSubject(e.target.value)}
+                  className="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                >
+                  {availableSubjects.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-300 mb-2">这门学科现在处于哪个阶段？ <span className="text-rose-400">*</span></label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                {[
+                  { level: "基础巩固", desc: "基础知识还有缺口，基础题容易丢分" },
+                  { level: "稳定提升", desc: "基础题大多会做，想突破中档题" },
+                  { level: "冲刺提高", desc: "基础和中档题稳定，想冲刺高分" }
+                ].map((item) => (
+                  <button
+                    key={item.level}
+                    type="button"
+                    onClick={() => setLearningLevel(item.level)}
+                    className={`p-3 text-left rounded-lg border transition ${learningLevel === item.level ? "bg-amber-500/20 border-amber-500 text-amber-300" : "bg-slate-900/50 border-slate-700 text-slate-300 hover:border-slate-600"}`}
+                  >
+                    <div className="font-bold text-xs">{item.level}</div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">{item.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {errorMessage && <p className="text-xs text-rose-400">{errorMessage}</p>}
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setViewStep("start")}
+                className="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold rounded-xl text-sm"
+              >
+                返回
+              </button>
+              <button
+                type="submit"
+                className="flex-1 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold rounded-xl text-sm shadow-md"
+              >
+                进入作答 ➔
+              </button>
+            </div>
+          </form>
+        )}
+
+        {viewStep === "questions" && currentQuestion && (
+          <div className="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 md:p-8 backdrop-blur space-y-6">
+            {/* Progress Header */}
+            <div className="flex justify-end items-center text-xs text-slate-400 font-semibold">
+              <span>第 {currentIndex + 1} 题 / 共 {totalQuestions} 题</span>
+            </div>
+
+            {/* Question Card */}
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <span className="text-amber-400 font-bold text-xs tracking-wider">QUESTION {String(currentIndex + 1).padStart(2, "0")}</span>
+                <h2 className="text-lg md:text-xl font-bold text-white leading-snug">
+                  {currentQuestion.prompt}
+                </h2>
+                <p className="text-xs text-slate-400">可以选一个，也可以选几个。选最贴近你平时会做的。</p>
+              </div>
+
+              {/* Options */}
+              <div className="space-y-2.5 pt-2">
+                {currentQuestion.options.map((opt: any, optIdx: number) => {
+                  const isChecked = currentSelectedOptions.includes(opt.id);
+                  const letter = String.fromCharCode(65 + optIdx);
+                  return (
+                    <div
+                      key={opt.id}
+                      onClick={() => handleToggleOption(opt.id)}
+                      className={`p-3.5 rounded-xl border flex items-start space-x-3 cursor-pointer transition ${isChecked ? "bg-amber-500/20 border-amber-500 text-white shadow-sm" : "bg-slate-900/60 border-slate-700/70 text-slate-300 hover:border-slate-600"}`}
+                    >
+                      <div className={`w-5 h-5 rounded flex items-center justify-center font-bold text-xs mt-0.5 border ${isChecked ? "bg-amber-500 text-slate-950 border-amber-500" : "bg-slate-800 text-slate-400 border-slate-700"}`}>
+                        {letter}
+                      </div>
+                      <div className="flex-1 text-sm leading-relaxed">{opt.text}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {errorMessage && <p className="text-xs text-rose-400">{errorMessage}</p>}
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-4 border-t border-slate-700/60">
+              <button
+                type="button"
+                onClick={handlePrev}
+                disabled={currentIndex === 0}
+                className="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none border border-slate-700 text-slate-300 font-semibold rounded-xl text-sm"
+              >
+                上一题
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={isSubmitting}
+                className="flex-1 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-sm shadow-md transition"
+              >
+                {isSubmitting ? "正在生成报告..." : currentIndex === totalQuestions - 1 ? "完成并生成报告 ➔" : "下一题 ➔"}
+              </button>
             </div>
           </div>
         )}
@@ -890,5 +547,4 @@ export const LearningStyleAssessment: React.FC = () => {
     </div>
   );
 };
-
 export default LearningStyleAssessment;

@@ -86,6 +86,37 @@
   }
 
   if (typeof document !== "undefined") {
+    // 1. 自动检测是否处于安卓设备/安卓 WebView/桥接环境，若不是安卓环境，则隐藏“返回学习中心”按钮
+    (function detectAndroidEnv() {
+      const ua = (typeof navigator !== "undefined" ? navigator.userAgent : "") || "";
+      const isAndroidUa = /Android/i.test(ua);
+      const hasAndroidBridge = !!(global.AndroidBridge || global.CommonBridge || global.Android);
+      const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+      const hash = typeof window !== "undefined" ? (window.location.hash || "") : "";
+      const hashParams = hash.includes("?") ? new URLSearchParams(hash.split("?")[1] || "") : null;
+      const hasAndroidParam = ["android", "app_android"].includes(
+        params?.get("platform") || params?.get("env") || params?.get("client") ||
+        hashParams?.get("platform") || hashParams?.get("env") || ""
+      );
+      if (isAndroidUa || hasAndroidBridge || hasAndroidParam) {
+        document.documentElement.classList.add("is-android");
+        if (document.body) document.body.classList.add("is-android");
+      }
+    })();
+
+    // 2. 自动检测 URL 是否带有 type=test (测试调试模式)，若有则显示“快速填写”按钮
+    (function detectTestMode() {
+      if (typeof window === "undefined") return;
+      const params = new URLSearchParams(window.location.search);
+      const hash = window.location.hash || "";
+      const hashParams = hash.includes("?") ? new URLSearchParams(hash.split("?")[1] || "") : null;
+      const isTest = (params.get("type") === "test" || hashParams?.get("type") === "test" || params.get("test") === "1" || hashParams?.get("test") === "1");
+      if (isTest) {
+        document.documentElement.classList.add("is-test-mode");
+        if (document.body) document.body.classList.add("is-test-mode");
+      }
+    })();
+
     document.addEventListener("click", function (e) {
       const btn = e.target && e.target.closest && e.target.closest('[data-action="go-learning-center"], .back-learning-center-btn');
       if (btn) {
