@@ -95,39 +95,6 @@
     });
   }
 
-  // 开启 VConsole 移动端调试面板
-  if (typeof window !== "undefined" && !window.__vconsole_loaded__) {
-    window.__vconsole_loaded__ = true;
-    const cdns = [
-      "https://unpkg.com/vconsole@latest/dist/vconsole.min.js",
-      "https://cdn.jsdelivr.net/npm/vconsole@3.15.1/dist/vconsole.min.js",
-      "https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.15.1/vconsole.min.js"
-    ];
-    let cdnIndex = 0;
-
-    function tryLoadVConsole() {
-      if (cdnIndex >= cdns.length) return;
-      const script = document.createElement("script");
-      script.src = cdns[cdnIndex++];
-      script.async = true;
-      script.onload = function () {
-        if (window.VConsole && !window.vConsole) {
-          window.vConsole = new window.VConsole();
-        }
-      };
-      script.onerror = function () {
-        tryLoadVConsole();
-      };
-      (document.head || document.documentElement).appendChild(script);
-    }
-
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", tryLoadVConsole);
-    } else {
-      tryLoadVConsole();
-    }
-  }
-
   // =========================================================================
   // 全局防复制保护机制（支持安卓 WebView / 移动端 H5 / 各类内置浏览器）
   // 彻底禁用复制、剪切、长按选中文本、长按呼出系统菜单与拖拽，保护测评与报告知识产权
