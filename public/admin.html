@@ -7,8 +7,9 @@
   <link rel="stylesheet" href="assets/admin.css?v=20260813_v500">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="/assets/api-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 <body class="admin-body">
   <!-- 顶部导航条 -->
@@ -145,11 +146,58 @@
           <span id="modalReportTag" class="tag-badge"></span>
         </div>
         <div class="modal-header-actions">
+          <button id="modalDownloadPdfBtn" class="token-btn pdf-btn" style="background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;font-weight:700;padding:5px 12px;cursor:pointer">📄 下载 PDF</button>
+          <button id="modalDownloadPngBtn" class="token-btn png-btn" style="background:#FFFDF5;color:#D97706;border:1px solid #FDE68A;font-weight:700;padding:5px 12px;cursor:pointer">🖼️ 下载 PNG</button>
           <button id="closeModalBtn" class="close-btn">&times;</button>
         </div>
       </div>
       <div class="modal-body" id="modalReportContainer">
         <!-- 动态注入报告内容 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 下载格式选择弹窗 (PDF / PNG) -->
+  <div id="downloadFormatModal" class="modal-overlay" hidden>
+    <div class="modal-content download-format-card">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <h2>选择报告下载格式</h2>
+          <span id="downloadTargetStudent" class="tag-badge" style="background:#FEF3C7;color:#92400E;font-weight:700"></span>
+        </div>
+        <button id="closeDownloadFormatBtn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body download-format-body">
+        <p class="download-format-desc">请选择适合你的报告文件格式：</p>
+        <div class="format-options-grid">
+          <button type="button" class="format-option-card" id="choosePdfDownloadBtn">
+            <div class="format-icon pdf-icon">📄</div>
+            <div class="format-info">
+              <div class="format-title-row">
+                <strong class="format-title">PDF 电子文档</strong>
+                <span class="format-badge pdf-badge">推荐打印 / 归档</span>
+              </div>
+              <p class="format-sub">标准 PDF 分页文档，适合发送给家长、电脑端查看或打印装订。</p>
+            </div>
+            <span class="format-arrow">➔</span>
+          </button>
+
+          <button type="button" class="format-option-card" id="choosePngDownloadBtn">
+            <div class="format-icon png-icon">🖼️</div>
+            <div class="format-info">
+              <div class="format-title-row">
+                <strong class="format-title">PNG 高清长图</strong>
+                <span class="format-badge png-badge">手机 / 微信首选</span>
+              </div>
+              <p class="format-sub">超高清全景长图，适合保存在手机相册、微信沟通或朋友圈分享。</p>
+            </div>
+            <span class="format-arrow">➔</span>
+          </button>
+        </div>
+        <div id="downloadLoadingStatus" class="download-loading-status" hidden>
+          <span class="download-spinner"></span>
+          <span id="downloadLoadingText">正在生成报告中，请稍候...</span>
+        </div>
       </div>
     </div>
   </div>

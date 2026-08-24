@@ -26,8 +26,8 @@
       <div style="display:flex;align-items:center;gap:12px">
         <div class="brand-badge-box">凡</div>
         <div>
-          <span class="brand-cn">非凡教育 · FTH 创业者职业特质测评</span>
-          <span class="brand-en">FTH FOUNDER TALENT ASSESSMENT · 创业三大特质</span>
+          <span class="brand-cn">非凡教育 · FTH 创业者特质测评</span>
+          <span class="brand-en">FTH ENTREPRENEURIAL TALENT ASSESSMENT</span>
         </div>
       </div>
     </div>
@@ -37,9 +37,9 @@
     <!-- Step 1: 引导页 -->
     <section id="startView" class="view is-active">
       <div class="hero-panel">
-        <p class="eyebrow">FTH FOUNDER ASSESSMENT</p>
-        <h1>FTH 创业者职业特质<br>诊断测评</h1>
-        <p class="hero-lead">深入剖析你的“主导特质（F特质-破局行动 / T特质-逻辑判断 / H特质-关系共情）”，看清你在创业与项目推进中的核心本能与潜在短板。</p>
+        <p class="eyebrow">FTH ENTREPRENEUR ASSESSMENT</p>
+        <h1>创业者特质<br>破局与系统诊断</h1>
+        <p class="hero-lead">针对企业创始人、高潜合伙人及连续创业者设计的特质评估模型，全景剖析破局攻坚（F）、理性逻辑（T）与领袖共情（H）三大创业特质。</p>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0">
           <div style="padding:16px;background:#FFFDF5;border:1px solid #FDE68A;border-radius:14px">
@@ -47,15 +47,15 @@
             <span style="font-size:12px;color:#6B7280">预计完成时长</span>
           </div>
           <div style="padding:16px;background:#FFFDF5;border:1px solid #FDE68A;border-radius:14px">
-            <strong style="font-size:18px;color:#1E1A1C;display:block">30 题维度诊断</strong>
-            <span style="font-size:12px;color:#6B7280">破局·理性·共情三维</span>
+            <strong style="font-size:18px;color:#1E1A1C;display:block">30 题权威量表</strong>
+            <span style="font-size:12px;color:#6B7280">创业三维心智模型</span>
           </div>
         </div>
 
         <div style="padding:16px;background:#FFFBE9;border:1px solid #FDE68A;border-radius:14px;margin-bottom:24px;font-size:14px;color:#374151">
           <strong style="color:#1E1A1C;display:block;margin-bottom:4px">💡 作答须知</strong>
-          <p style="margin:2px 0">• 测评没有高低优劣之分，每种特质类型都有其独特的商业爆发力与生态组合。</p>
-          <p style="margin:2px 0">• 请凭借第一直觉选择最符合你真实决策习惯的选项。</p>
+          <p style="margin:2px 0">• 请按平时处理真实商业决策与危机时的第一直觉进行选择。</p>
+          <p style="margin:2px 0">• 测评结果将帮助你找到最佳创业生态位与合伙人互补建议。</p>
         </div>
 
         <button type="button" class="primary-button" style="width:100%" onclick="switchView('basicView')">开始测评</button>
@@ -66,7 +66,7 @@
     <section id="basicView" class="view">
       <div class="form-panel" style="padding:28px">
         <h2 style="font-size:22px;font-weight:800;margin-bottom:6px">填写创业者基本信息</h2>
-        <p style="font-size:13px;color:#6B7280;margin-bottom:20px">用于生成专属的特质画像与合伙人匹配建议。</p>
+        <p style="font-size:13px;color:#6B7280;margin-bottom:20px">用于生成专属的创业者特质诊断报告。</p>
 
         <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:20px">
           <div>
@@ -91,7 +91,8 @@
         </div>
 
         <div style="display:flex;gap:12px;margin-top:28px">
-          <button type="button" class="secondary-button" onclick="switchView('startView')">返回</button>
+          <button type="button" class="secondary-button back-learning-center-btn" data-action="go-learning-center">返回学习中心</button>
+          <button type="button" class="secondary-button" onclick="switchView('startView')">返回上一步</button>
           <button type="button" class="primary-button" style="flex:1" onclick="validateBasicAndStart()">进入测评</button>
         </div>
         <p id="basicError" style="color:#EF4444;font-size:13px;font-weight:800;margin-top:10px" hidden></p>
@@ -115,6 +116,7 @@
       <p id="pageError" style="color:#EF4444;font-size:13px;font-weight:700;margin-top:12px" hidden>请回答完本页所有题目再继续。</p>
 
       <div style="display:flex;gap:12px;margin-top:20px">
+        <button type="button" class="secondary-button back-learning-center-btn" data-action="go-learning-center">返回学习中心</button>
         <button id="prevBtn" type="button" class="secondary-button" onclick="changePage(-1)">上一页</button>
         <button id="nextBtn" type="button" class="primary-button" style="flex:1" onclick="changePage(1)">下一页</button>
       </div>

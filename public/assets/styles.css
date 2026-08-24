@@ -17,8 +17,21 @@
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input, textarea, [contenteditable="true"], select {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
 }
 
 html {
@@ -34,6 +47,9 @@ body {
   font-size: 16px;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 body.assessment-page {
@@ -98,17 +114,43 @@ textarea {
   display: none !important;
 }
 
-/* 返回按钮：PC端和移动端一律不显示，仅在 iPad / 平板端 (768px ~ 1024px) 显示 */
-@media (min-width: 768px) and (max-width: 1024px) {
-  body.assessment-page.assessment-start-active .brand-back-button,
-  body.assessment-start-active .brand-back-button {
+/* 开始页：返回按钮放在 hero 卡片内左侧，避免与边框重叠 */
+@media (max-width: 1024px) {
+  body.assessment-page.assessment-start-active .brand-bar {
+    display: none !important;
+  }
+
+  body.assessment-page.assessment-start-active .hero-panel-topbar {
+    display: flex !important;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 0 0 12px;
+    padding: 0;
+  }
+
+  body.assessment-page.assessment-start-active .hero-back-button {
     display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(253, 230, 138, 0.9);
+    background: #fff;
+    color: #4B5563;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  body.assessment-page.assessment-start-active .hero-panel {
+    padding-top: clamp(20px, 4vw, 28px);
   }
 }
 
-html.device-ipad body.assessment-page.assessment-start-active .brand-back-button,
-html.device-ipad body.assessment-start-active .brand-back-button {
-  display: inline-flex !important;
+html.device-ipad body.assessment-page.assessment-start-active .brand-back-button {
+  display: none !important;
 }
 
 .brand-left {
@@ -772,13 +814,14 @@ h1 {
     display: none;
   }
 
-  .autofill-pill-btn {
-    display: none;
+  .autofill-pill-btn:not(.print-btn-pill) {
+    font-size: 11px;
+    padding: 5px 10px;
+    letter-spacing: -0.2px;
   }
 
-  body.assessment-page .brand-right,
-  body.assessment-page .autofill-pill-btn {
-    display: inline-flex !important;
+  body.assessment-page .brand-right {
+    display: none !important;
   }
 
   .hero-intro-col {
@@ -4894,29 +4937,43 @@ body.report-page .report-kicker {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
-  max-width: 520px;
+  max-width: 560px;
 }
 
-.action-btn-half {
-  flex: 1;
+.actions-row .action-btn-half,
+.actions-row .secondary-button,
+.actions-row .primary-button,
+.actions-row .back-learning-center-btn {
   min-height: 48px;
   height: 48px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   border-radius: 9999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 20px;
+  padding: 0 16px;
   box-sizing: border-box;
   cursor: pointer;
   transition: all 0.2s ease;
   text-decoration: none;
+  white-space: nowrap !important;
+  line-height: 1;
 }
 
-.secondary-button.action-btn-half {
+.actions-row .back-learning-center-btn {
+  flex: 1.1;
+  background: #FFFFFF;
+  border: 1.5px solid #FDE68A;
+  color: #78350F;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(245, 197, 24, 0.08);
+}
+
+.actions-row .secondary-button {
+  flex: 1;
   background: #FFFFFF;
   border: 1.5px solid #FDE68A;
   color: #1E1A1C;
@@ -4924,18 +4981,8 @@ body.report-page .report-kicker {
   box-shadow: 0 2px 8px rgba(245, 197, 24, 0.08);
 }
 
-.secondary-button.action-btn-half:hover:not(:disabled) {
-  background: #FFFDF5;
-  border-color: #F5C518;
-  transform: translateY(-1px);
-}
-
-.secondary-button.action-btn-half:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.primary-button.action-btn-half {
+.actions-row .primary-button {
+  flex: 1.25;
   background: linear-gradient(135deg, #FFE600 0%, #F5C518 100%);
   color: #1E1A1C;
   font-weight: 800;
@@ -4943,9 +4990,25 @@ body.report-page .report-kicker {
   box-shadow: 0 4px 14px rgba(245, 197, 24, 0.35);
 }
 
-.primary-button.action-btn-half:hover {
+.actions-row .secondary-button:hover:not(:disabled),
+.actions-row .back-learning-center-btn:hover:not(:disabled) {
+  background: #FFFDF5;
+  border-color: #F5C518;
+  color: #1E1A1C;
+  transform: translateY(-1px);
+}
+
+.actions-row .primary-button:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 6px 18px rgba(245, 197, 24, 0.45);
+}
+
+.actions-row .secondary-button:disabled,
+.actions-row .back-learning-center-btn:disabled,
+.actions-row .primary-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .form-security-note {
@@ -6071,20 +6134,25 @@ body.report-page {
   body.assessment-page .brand-lockup {
     width: 100%;
     min-height: 0;
-    padding: max(10px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 0;
+    padding: max(10px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
     justify-content: flex-end;
     pointer-events: none;
   }
 
-  body.assessment-page .brand-left,
-  body.assessment-page .brand-lockup > div:not(.brand-right) {
+  body.assessment-page.assessment-start-active .brand-lockup {
+    justify-content: flex-start;
+  }
+
+  body.assessment-page.assessment-start-active .brand-back-button {
+    pointer-events: auto;
+  }
+
+  body.assessment-page .brand-left {
     display: none !important;
   }
 
-  body.assessment-page .brand-right,
-  body.assessment-page .autofill-pill-btn {
-    display: inline-flex !important;
-    pointer-events: auto;
+  body.assessment-page .brand-right {
+    display: none !important;
   }
 
   body.assessment-page.assessment-start-active .page-shell {
@@ -6330,6 +6398,17 @@ body.report-page {
 
   .form-actions-wrapper .actions-row {
     max-width: 100%;
+    gap: 8px;
+  }
+
+  .actions-row .action-btn-half,
+  .actions-row .secondary-button,
+  .actions-row .primary-button,
+  .actions-row .back-learning-center-btn {
+    padding: 0 10px !important;
+    font-size: 13px !important;
+    min-height: 44px;
+    height: 44px;
   }
 }
 
@@ -6458,11 +6537,11 @@ body.report-page {
   }
 
   body.assessment-page.assessment-start-active .hero-panel {
-    padding: 14px 18px 10px;
+    padding: clamp(20px, 4vw, 28px) 18px 10px;
   }
 
   body.assessment-page.assessment-start-active .hero-panel-topbar {
-    margin-bottom: 4px;
+    margin-bottom: 12px;
   }
 
   body.assessment-page.assessment-start-active .hero-podium-img {
@@ -6773,3 +6852,15 @@ body.report-page {
     width: 164px;
   }
 }
+
+/* 打印与 PDF 导出通用防截断排版规则：仅对原子级条目防截断，大卡片允许自然跨页排版 */
+.detail-section,
+.portrait-item,
+.strength-card,
+.score-card,
+.action-item-card,
+.report-stat-row {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+

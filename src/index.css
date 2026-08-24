@@ -14,6 +14,22 @@
   --feifan-shadow-warm: 0 12px 36px rgba(245, 197, 24, 0.12), 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
+*, *::before, *::after {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input, textarea, [contenteditable="true"], select {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -22,6 +38,9 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Inter", sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* 暖黄品牌头栏 */

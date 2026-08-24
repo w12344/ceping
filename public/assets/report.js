@@ -80,8 +80,9 @@ function reportIdFromLocation() {
   return new URLSearchParams(window.location.search).get("id");
 }
 
+const isLocalReport = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "[::1]");
 const BACKEND_BASE = (typeof window !== "undefined" && window.ASSESSMENT_API_BASE)
-  || "https://ffcrm-api.1605ai.com";
+  || (isLocalReport ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
 const ASSESSMENT_SUBMIT_API = `${BACKEND_BASE}/api/assessment/submit`;
 const ASSESSMENT_RESULT_API = `${BACKEND_BASE}/api/assessment/result`;
 let currentAssessmentSubmitPayload = null;

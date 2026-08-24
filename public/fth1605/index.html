@@ -33,67 +33,65 @@
     </div>
   </header>
 
-  <main class="page-shell">
-    <!-- Step 1: 引导页 -->
+  <main class="page-shell" style="max-width:760px;margin:24px auto;padding:0 16px 40px">
+    <!-- Step 1: 封面介绍页 -->
     <section id="startView" class="view is-active">
-      <div class="hero-panel">
-        <p class="eyebrow">FTH 1605 ASSESSMENT</p>
-        <h1>FTH 职业特质<br>1605 权威版测评</h1>
-        <p class="hero-lead">针对 AI 研发、产品创新与高潜精英团队设计的职业特质测评，剖析破局攻坚（F特质）、理性模型（T特质）与共情协作（H特质）的三维本能。</p>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0">
-          <div style="padding:16px;background:#FFFDF5;border:1px solid #FDE68A;border-radius:14px">
-            <strong style="font-size:18px;color:#1E1A1C;display:block">6 - 8 分钟</strong>
-            <span style="font-size:12px;color:#6B7280">预计完成时长</span>
+      <div class="panel" style="text-align:center;padding:36px 20px">
+        <div class="pill-badge" style="margin-bottom:12px">✨ 非凡教育 · 研发人才特质评估模型</div>
+        <h1 style="font-size:28px;font-weight:900;color:#1E1A1C;margin-bottom:12px">FTH 1605 职业特质测评</h1>
+        <p style="color:#4B5563;font-size:15px;line-height:1.7;max-width:540px;margin:0 auto 24px">
+          从<strong>攻坚开拓能力 (A)</strong>、<strong>系统思维与工匠标准 (M)</strong>、<strong>业务同理与生态赋能 (E)</strong> 三大维度，精准诊断你的核心技术与研发特质。
+        </p>
+        <div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:12px;max-width:540px;margin:0 auto 28px;text-align:center">
+          <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:16px;padding:12px">
+            <strong style="color:#D97706;display:block;font-size:16px">30 题</strong>
+            <span style="font-size:12px;color:#6B7280">量表题目总数</span>
           </div>
-          <div style="padding:16px;background:#FFFDF5;border:1px solid #FDE68A;border-radius:14px">
-            <strong style="font-size:18px;color:#1E1A1C;display:block">30 题权威模型</strong>
-            <span style="font-size:12px;color:#6B7280">1605 研发人才特质</span>
+          <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:16px;padding:12px">
+            <strong style="color:#D97706;display:block;font-size:16px">5-8 分钟</strong>
+            <span style="font-size:12px;color:#6B7280">预计完成时间</span>
+          </div>
+          <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:16px;padding:12px">
+            <strong style="color:#D97706;display:block;font-size:16px">多维雷达</strong>
+            <span style="font-size:12px;color:#6B7280">即时生成诊断报告</span>
           </div>
         </div>
-
-        <div style="padding:16px;background:#FFFBE9;border:1px solid #FDE68A;border-radius:14px;margin-bottom:24px;font-size:14px;color:#374151">
-          <strong style="color:#1E1A1C;display:block;margin-bottom:4px">💡 作答须知</strong>
-          <p style="margin:2px 0">• 请按平时处理工作难题与决策时的第一直觉进行选择。</p>
-          <p style="margin:2px 0">• 测评结果将帮助你找到最佳组织生态位与高质高效匹配建议。</p>
-        </div>
-
-        <button type="button" class="primary-button" style="width:100%" onclick="switchView('basicView')">开始测评</button>
+        <button type="button" class="primary-button hero-start-btn" style="width:100%;max-width:320px;margin:0 auto" onclick="switchView('basicView')">开始测评 ➔</button>
       </div>
     </section>
 
-    <!-- Step 2: 基本信息 -->
+    <!-- Step 2: 基本信息页 -->
     <section id="basicView" class="view">
-      <div class="form-panel" style="padding:28px">
-        <h2 style="font-size:22px;font-weight:800;margin-bottom:6px">填写 1605 研发人才信息</h2>
-        <p style="font-size:13px;color:#6B7280;margin-bottom:20px">用于生成专属的 1605 人才特质矩阵报告。</p>
+      <div class="panel" style="padding:28px 20px">
+        <h2 style="font-size:22px;font-weight:900;color:#1E1A1C;margin-bottom:6px">基本信息登记</h2>
+        <p style="font-size:13px;color:#6B7280;margin-bottom:20px">用于生成专属人才诊断报告与档案存档。</p>
 
-        <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:20px">
+        <div style="display:flex;flex-direction:column;gap:16px">
           <div>
-            <label style="font-size:13px;font-weight:800;color:#1E1A1C;display:block;margin-bottom:6px">姓名 / 称呼 *</label>
-            <input id="studentName" type="text" placeholder="请输入姓名" style="width:100%;min-height:52px;padding:14px 18px;font-size:16px;font-weight:700;border:1.5px solid #FDE68A;border-radius:14px;outline:none" />
+            <label style="display:block;font-size:14px;font-weight:800;color:#1E1A1C;margin-bottom:6px">姓名 <span style="color:#EF4444">*</span></label>
+            <input id="userName" type="text" placeholder="请输入你的姓名" class="text-field" style="width:100%;box-sizing:border-box">
           </div>
           <div>
-            <label style="font-size:13px;font-weight:800;color:#1E1A1C;display:block;margin-bottom:6px">手机号 / 微信 *</label>
-            <input id="studentMobile" type="tel" maxLength="11" placeholder="11位手机号" style="width:100%;min-height:52px;padding:14px 18px;font-size:16px;font-weight:700;border:1.5px solid #FDE68A;border-radius:14px;outline:none" />
+            <label style="display:block;font-size:14px;font-weight:800;color:#1E1A1C;margin-bottom:6px">手机号 <span style="color:#EF4444">*</span></label>
+            <input id="userPhone" type="tel" placeholder="请输入手机号" maxlength="11" class="text-field" style="width:100%;box-sizing:border-box">
           </div>
-        </div>
-
-        <div style="margin-bottom:20px">
-          <label style="font-size:13px;font-weight:800;color:#1E1A1C;display:block;margin-bottom:8px">研发 / 岗位方向 *</label>
-          <div class="choice-grid" style="display:flex;gap:10px;flex-wrap:wrap">
-            <label class="pill-radio-label is-checked"><input type="radio" name="devDirection" value="AI算法/大模型" checked><span>AI算法/大模型</span></label>
-            <label class="pill-radio-label"><input type="radio" name="devDirection" value="全栈/架构"><span>全栈/架构</span></label>
-            <label class="pill-radio-label"><input type="radio" name="devDirection" value="产品/交互"><span>产品/交互</span></label>
-            <label class="pill-radio-label"><input type="radio" name="devDirection" value="数据/增长"><span>数据/增长</span></label>
+          <div>
+            <label style="display:block;font-size:14px;font-weight:800;color:#1E1A1C;margin-bottom:6px">目标研发方向</label>
+            <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:8px" id="directionGroup">
+              <label class="pill-radio-label is-checked"><input type="radio" name="devDirection" value="AI算法/大模型" checked><span>AI算法/大模型</span></label>
+              <label class="pill-radio-label"><input type="radio" name="devDirection" value="全栈/架构"><span>全栈/架构</span></label>
+              <label class="pill-radio-label"><input type="radio" name="devDirection" value="产品/交互"><span>产品/交互</span></label>
+              <label class="pill-radio-label"><input type="radio" name="devDirection" value="数据/增长"><span>数据/增长</span></label>
+            </div>
           </div>
-        </div>
 
-        <div style="display:flex;gap:12px;margin-top:28px">
-          <button type="button" class="secondary-button" onclick="switchView('startView')">返回</button>
-          <button type="button" class="primary-button" style="flex:1" onclick="validateBasicAndStart()">进入测评</button>
+          <div style="display:flex;gap:12px;margin-top:28px">
+            <button type="button" class="secondary-button back-learning-center-btn" data-action="go-learning-center">返回学习中心</button>
+            <button type="button" class="secondary-button" onclick="switchView('startView')">返回上一步</button>
+            <button type="button" class="primary-button" style="flex:1" onclick="validateBasicAndStart()">进入测评</button>
+          </div>
+          <p id="basicError" style="color:#EF4444;font-size:13px;font-weight:800;margin-top:10px" hidden></p>
         </div>
-        <p id="basicError" style="color:#EF4444;font-size:13px;font-weight:800;margin-top:10px" hidden></p>
       </div>
     </section>
 
@@ -114,6 +112,7 @@
       <p id="pageError" style="color:#EF4444;font-size:13px;font-weight:700;margin-top:12px" hidden>请回答完本页所有题目再继续。</p>
 
       <div style="display:flex;gap:12px;margin-top:20px">
+        <button type="button" class="secondary-button back-learning-center-btn" data-action="go-learning-center">返回学习中心</button>
         <button id="prevBtn" type="button" class="secondary-button" onclick="changePage(-1)">上一页</button>
         <button id="nextBtn" type="button" class="primary-button" style="flex:1" onclick="changePage(1)">下一页</button>
       </div>

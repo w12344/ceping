@@ -7,9 +7,9 @@
   <meta name="robots" content="noindex, nofollow">
   <title>动力系统探索与行动报告｜非凡教育</title>
   <link rel="stylesheet" href="/assets/styles.css?v=20260815_v722">
-  <link rel="stylesheet" href="/assets/motivation.css?v=20260815_v722">
+  <link rel="stylesheet" href="/assets/motivation.css?v=20260821_v801">
   <script src="/assets/api-config.js"></script>
-  <script src="/assets/motivation-report-engine.js?v=20260815_v723"></script>
+  <script src="/assets/motivation-report-engine.js?v=20260821_v801"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body class="report-page motivation-report">
@@ -174,8 +174,8 @@
             <div class="section-card-header">
               <span class="section-order-badge">05</span>
               <div class="section-card-titles">
-                <h2>七大维度深度分析与二级机制释义</h2>
-                <p>按主维度和二级机制拆解具体卡点。</p>
+                <h2>这些分数，其实在说什么</h2>
+                <!-- <p>按主维度和二级机制拆解具体卡点。</p> -->
               </div>
             </div>
             <div id="dimensionDetails"></div>
@@ -185,20 +185,30 @@
             <div class="section-card-header">
               <span class="section-order-badge">06</span>
               <div class="section-card-titles">
-                <h2>优势与瓶颈卡点分析</h2>
-                <p>看清你的优势资源与核心阻碍。</p>
+                <h2>我看见了你的优势</h2>
+                <p>看清你的正向优势与稳定动机资源。</p>
               </div>
             </div>
             <div id="strengths"></div>
-            <div id="bottleneck" class="motivation-bottleneck-block"></div>
           </section>
 
           <section class="report-card report-section-card">
             <div class="section-card-header">
               <span class="section-order-badge">07</span>
               <div class="section-card-titles">
-                <h2>专家行动方案与落地指南</h2>
-                <p>给出可落地的提分建议与协同指南。</p>
+                <h2>我们一起看看真正卡住你的地方</h2>
+                <p>找到当前最核心的发展卡点与突破入口。</p>
+              </div>
+            </div>
+            <div id="bottleneck" class="motivation-bottleneck-block"></div>
+          </section>
+
+          <section class="report-card report-section-card">
+            <div class="section-card-header">
+              <span class="section-order-badge">08</span>
+              <div class="section-card-titles">
+                <h2>下一步，我们从这里开始</h2>
+                <p>围绕优先发展点的具体行动方案与落地指南。</p>
               </div>
             </div>
             <div id="actionPlan"></div>
@@ -210,7 +220,8 @@
 
   <script>
   (function() {
-    const BACKEND_BASE = window.ASSESSMENT_API_BASE || "https://ffcrm-api.1605ai.com";
+    const isLocalRep = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "[::1]");
+    const BACKEND_BASE = window.ASSESSMENT_API_BASE || (isLocalRep ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
 
     function $(id) { return document.getElementById(id); }
 
@@ -425,10 +436,17 @@
         $('bars').innerHTML = '';
       }
 
-      if (reportData.radarHTML) {
+      const radarScores = reportData.rawScores || assessment.rawScores || reportData.scores || assessment.scores || {};
+      const radarProfiles = reportData.radarProfiles || assessment.radarProfiles || {};
+      if (Object.keys(radarScores).length > 0 && window.MotivationReportEngine && typeof window.MotivationReportEngine.radar === "function") {
+        $('radar').innerHTML = window.MotivationReportEngine.radar(radarScores, radarProfiles);
+      } else if (reportData.radarHTML) {
         $('radar').innerHTML = reportData.radarHTML;
       } else {
         $('radar').innerHTML = '';
+      }
+      if (window.MotivationReportEngine && typeof window.MotivationReportEngine.renderAllRadarCanvases === "function") {
+        window.MotivationReportEngine.renderAllRadarCanvases(document);
       }
       if (reportData.radarEmotionHTML) {
         $('radarEmotion').innerHTML = reportData.radarEmotionHTML;

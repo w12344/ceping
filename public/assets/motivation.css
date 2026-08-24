@@ -3,6 +3,22 @@
    与学习风格测评保持 100% 视觉、输入框、文字、按钮与卡片一致性
    ========================================================================== */
 
+*, *::before, *::after {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input, textarea, [contenteditable="true"], select {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
 /* Progress bar is JS-only; never show in layout */
 body.motivation-page .motivation-progress-fallback {
   display: none !important;
@@ -43,33 +59,9 @@ body.motivation-page .assessment-content-area .section.active {
   box-shadow: 0 2px 12px rgba(245, 197, 24, 0.08);
 }
 
-.motivation-page .autofill-pill-btn {
-  background: #FEF3C7;
-  border: 1.5px solid #FDE68A;
-  color: #D97706;
-  border-radius: 9999px;
-  font-weight: 800;
-  font-size: 13px;
-  padding: 7px 18px;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(245, 197, 24, 0.12);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.motivation-page .autofill-pill-btn:hover {
-  background: #FDE68A;
-  color: #B45309;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(245, 197, 24, 0.2);
-}
-
 @media (max-width: 767px) {
-  body.motivation-page .brand-right,
-  body.motivation-page .autofill-pill-btn {
-    display: inline-flex !important;
+  body.motivation-page .brand-right {
+    display: none !important;
   }
 }
 
@@ -386,22 +378,46 @@ body.motivation-page.assessment-start-active #startView .hero-start-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
-  max-width: 520px;
+  max-width: 560px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .motivation-page .nav .btn,
+.motivation-page .nav .secondary-button,
+.motivation-page .nav .primary-button,
+.motivation-page .nav .back-learning-center-btn,
 .motivation-page .form-actions-row .primary-button,
+.motivation-page .form-actions-row .secondary-button,
+.motivation-page .form-actions-row .back-learning-center-btn {
+  min-height: 48px;
+  height: 48px;
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  white-space: nowrap !important;
+  line-height: 1;
+}
+
+.motivation-page .nav .back-learning-center-btn,
+.motivation-page .form-actions-row .back-learning-center-btn {
+  flex: 1.1;
+}
+
+.motivation-page .nav .secondary-button,
 .motivation-page .form-actions-row .secondary-button {
   flex: 1;
-  min-height: 52px;
-  height: 52px;
-  font-size: 16px;
-  padding: 0 24px;
-  white-space: nowrap;
+}
+
+.motivation-page .nav .primary-button,
+.motivation-page .form-actions-row .primary-button {
+  flex: 1.25;
 }
 
 /* ==========================================================================
@@ -1126,7 +1142,7 @@ body.motivation-report .strength-card p {
 }
 
 body.motivation-report .motivation-bottleneck-block {
-  margin-top: 14px;
+  margin-top: 0;
 }
 
 body.motivation-report #actionPlan .summary-box {
@@ -1169,3 +1185,17 @@ body.motivation-report #actionPlan .summary-box {
     font-size: 12px;
   }
 }
+
+/* 打印与 PDF 导出分页防截断优化：仅对原子级条目防截断，大卡片允许自然跨页排版 */
+.detail-section,
+.portrait-item,
+.strength-card,
+.advice-path,
+.mechanism,
+.state-bar-row,
+.bar-row,
+.score-card {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+

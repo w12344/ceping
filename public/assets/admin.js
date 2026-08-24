@@ -1,6 +1,7 @@
 const STORAGE_KEY = "adminToken";
 const DEFAULT_ADMIN_TOKEN = "7jEXGyw1";
-const ASSESSMENT_API_BASE = window.ASSESSMENT_API_BASE || "https://ffcrm-api.1605ai.com";
+const isLocalAdmin = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "[::1]");
+const ASSESSMENT_API_BASE = (typeof window !== "undefined" && window.ASSESSMENT_API_BASE) || (isLocalAdmin ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
 const ASSESSMENT_LIST_API = `${ASSESSMENT_API_BASE}/api/assessment/public/list`;
 const LIST_PAGE_SIZE = 100;
 
@@ -313,7 +314,18 @@ const elements = {
   modalReportTitle: document.getElementById("modalReportTitle"),
   modalReportTag: document.getElementById("modalReportTag"),
   modalReportContainer: document.getElementById("modalReportContainer"),
-  closeModalBtn: document.getElementById("closeModalBtn")
+  modalDownloadPdfBtn: document.getElementById("modalDownloadPdfBtn"),
+  modalDownloadPngBtn: document.getElementById("modalDownloadPngBtn"),
+  closeModalBtn: document.getElementById("closeModalBtn"),
+
+  // Download Format Modal
+  downloadFormatModal: document.getElementById("downloadFormatModal"),
+  downloadTargetStudent: document.getElementById("downloadTargetStudent"),
+  choosePdfDownloadBtn: document.getElementById("choosePdfDownloadBtn"),
+  choosePngDownloadBtn: document.getElementById("choosePngDownloadBtn"),
+  closeDownloadFormatBtn: document.getElementById("closeDownloadFormatBtn"),
+  downloadLoadingStatus: document.getElementById("downloadLoadingStatus"),
+  downloadLoadingText: document.getElementById("downloadLoadingText")
 };
 
 let state = {
@@ -322,7 +334,8 @@ let state = {
   allProjects: [],
   currentTab: "learningStyle",
   searchQuery: "",
-  activeItem: null
+  activeItem: null,
+  downloadItem: null
 };
 
 function initCustomAssessmentUpload() {
@@ -453,12 +466,48 @@ function init() {
       openFullReportPreview(item);
     } else if (action === "download") {
       e.preventDefault();
-      downloadReportImageOrFile(item);
+      openDownloadFormatModal(item);
     } else if (action === "print") {
       e.preventDefault();
       printFullReport(item);
+    } else if (action === "delete") {
+      e.preventDefault();
+      handleDeleteRecord(item);
     }
   };
+
+  async function handleDeleteRecord(item) {
+    if (!item || !item.id) return;
+    const name = item.studentName || "该学员";
+    const confirmed = window.confirm(`确定要删除【${name}】的测评记录吗？\nID: #${item.id}\n删除后该记录将从后台永久移除。`);
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`${ASSESSMENT_API_BASE}/api/assessment/delete?id=${encodeURIComponent(item.id)}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Admin-Export-Token": state.token || DEFAULT_ADMIN_TOKEN
+        },
+        body: JSON.stringify({ id: Number(item.id) || item.id })
+      });
+      const resData = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        throw new Error("后端暂未部署最新代码（401 认证拦截），请先将后端服务发布上线后生效");
+      }
+      if (!res.ok || (resData.code !== 200 && resData.code !== 0)) {
+        throw new Error(resData.message || "删除失败，服务器返回异常");
+      }
+
+      state.allProjects = state.allProjects.filter(r => String(r.id) !== String(item.id));
+      updateMetrics();
+      renderTable();
+      alert(`学员【${name}】的测评数据已成功删除！`);
+    } catch (err) {
+      console.error("删除记录失败:", err);
+      alert(`删除失败：${err.message || "网络请求异常，请稍后再试"}`);
+    }
+  }
 
   elements.sessionTableBody.addEventListener("click", handleActionClick);
   if (elements.mobileCardList) {
@@ -470,6 +519,38 @@ function init() {
   elements.reportModal.addEventListener("click", (e) => {
     if (e.target === elements.reportModal) closeModal();
   });
+
+  // 下载格式 Modal 事件绑定
+  if (elements.choosePdfDownloadBtn) {
+    elements.choosePdfDownloadBtn.addEventListener("click", () => {
+      downloadReportAs(state.downloadItem || state.activeItem, "pdf");
+    });
+  }
+  if (elements.choosePngDownloadBtn) {
+    elements.choosePngDownloadBtn.addEventListener("click", () => {
+      downloadReportAs(state.downloadItem || state.activeItem, "png");
+    });
+  }
+  if (elements.closeDownloadFormatBtn) {
+    elements.closeDownloadFormatBtn.addEventListener("click", closeDownloadFormatModal);
+  }
+  if (elements.downloadFormatModal) {
+    elements.downloadFormatModal.addEventListener("click", (e) => {
+      if (e.target === elements.downloadFormatModal) closeDownloadFormatModal();
+    });
+  }
+
+  // 预览窗顶部的 PDF / PNG 快捷下载
+  if (elements.modalDownloadPdfBtn) {
+    elements.modalDownloadPdfBtn.addEventListener("click", () => {
+      downloadReportAs(state.activeItem, "pdf");
+    });
+  }
+  if (elements.modalDownloadPngBtn) {
+    elements.modalDownloadPngBtn.addEventListener("click", () => {
+      downloadReportAs(state.activeItem, "png");
+    });
+  }
 
   fetchData();
 }
@@ -747,6 +828,7 @@ function renderTable() {
             <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="preview">预览报告</a>
             <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="download">下载报告</a>
             <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="print">打印</a>
+            <a class="action-link delete-link" href="#" data-id="${esc(item.id)}" data-action="delete">删除</a>
           </td>
         </tr>
       `;
@@ -773,6 +855,7 @@ function renderTable() {
             <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="preview">预览报告</a>
             <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="download">下载报告</a>
             <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="print">打印</a>
+            <a class="action-link delete-link" href="#" data-id="${esc(item.id)}" data-action="delete">删除</a>
           </td>
         </tr>
       `;
@@ -796,6 +879,7 @@ function renderTable() {
             <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="preview">预览报告</a>
             <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="download">下载报告</a>
             <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="print">打印</a>
+            <a class="action-link delete-link" href="#" data-id="${esc(item.id)}" data-action="delete">删除</a>
           </td>
         </tr>
       `;
@@ -816,6 +900,7 @@ function renderTable() {
             <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="preview">预览报告</a>
             <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="download">下载报告</a>
             <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="print">打印</a>
+            <a class="action-link delete-link" href="#" data-id="${esc(item.id)}" data-action="delete">删除</a>
           </td>
         </tr>
       `;
@@ -835,6 +920,7 @@ function renderTable() {
             <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="preview">预览报告</a>
             <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="download">下载报告</a>
             <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="print">打印</a>
+            <a class="action-link delete-link" href="#" data-id="${esc(item.id)}" data-action="delete">删除</a>
           </td>
         </tr>
       `;
@@ -854,6 +940,7 @@ function renderTable() {
           <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="preview">预览报告</a>
           <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="download">下载报告</a>
           <a class="action-link" href="#" data-id="${esc(item.id)}" data-action="print">打印</a>
+          <a class="action-link delete-link" href="#" data-id="${esc(item.id)}" data-action="delete">删除</a>
         </td>
       </tr>
     `;
@@ -910,6 +997,7 @@ function renderTable() {
             <a class="m-action-btn action-link" href="#" data-id="${esc(item.id)}" data-action="preview">预览报告</a>
             <a class="m-action-btn action-link m-download-btn" href="#" data-id="${esc(item.id)}" data-action="download">下载报告</a>
             <a class="m-action-btn action-link" href="#" data-id="${esc(item.id)}" data-action="print">打印</a>
+            <a class="m-action-btn action-link m-delete-btn" href="#" data-id="${esc(item.id)}" data-action="delete">删除</a>
           </div>
         </div>
       `;
@@ -980,6 +1068,7 @@ function motivationPreviewUrl(item, extraParams = {}) {
     mobile: item.phoneNumber || "",
     preview: "1",
     embed: "1",
+    _t: String(Date.now()),
     ...extraParams
   });
   return `/motivation/report.html?${params.toString()}`;
@@ -1051,8 +1140,8 @@ function openFullReportPreview(item) {
   elements.reportModal.hidden = false;
 }
 
-// 直接下载整份报告 (自动渲染 HD 图片 PNG 保存到本地)
-async function downloadReportImageOrFile(item) {
+// 打开下载格式选择弹窗 (支持 PDF / PNG)
+function openDownloadFormatModal(item) {
   if (!item) return;
 
   // 如果是 PPT / 产物文件，直接下载原文件
@@ -1067,53 +1156,264 @@ async function downloadReportImageOrFile(item) {
     return;
   }
 
+  state.downloadItem = item;
+  if (elements.downloadTargetStudent) {
+    elements.downloadTargetStudent.textContent = `${item.studentName || "学员"} · ${item.projectName || "测评报告"}`;
+  }
+  if (elements.downloadLoadingStatus) {
+    elements.downloadLoadingStatus.hidden = true;
+  }
+  if (elements.choosePdfDownloadBtn) elements.choosePdfDownloadBtn.disabled = false;
+  if (elements.choosePngDownloadBtn) elements.choosePngDownloadBtn.disabled = false;
+
+  if (elements.downloadFormatModal) {
+    elements.downloadFormatModal.hidden = false;
+  }
+}
+
+function closeDownloadFormatModal() {
+  if (elements.downloadFormatModal) {
+    elements.downloadFormatModal.hidden = true;
+  }
+  state.downloadItem = null;
+}
+
+// 智能 DOM 避让分页算法：精细化避让单行/单条目，绝不大面积留白，绝不截断文字
+function calculateSmartPageBreaks(reportNode, canvas, pageWidthPt = 595.28, pageHeightPt = 841.89) {
+  const contentWidth = canvas.width;
+  const contentHeight = canvas.height;
+  const nodeWidth = reportNode.offsetWidth || reportNode.scrollWidth || 800;
+  const scale = contentWidth / nodeWidth;
+  const maxPageHeightCanvasPx = (pageHeightPt / pageWidthPt) * contentWidth;
+
+  // 仅对细粒度原子块（单段文本、单个机制条、单个小卡片、标题等）进行防截断保护，大卡片容器允许自然跨页
+  const selector = [
+    ".mechanism",
+    ".detail-section",
+    ".advice-path",
+    ".score-type",
+    ".portrait-item",
+    ".strength-card",
+    ".state-bar-row",
+    ".bar-row",
+    ".score-card",
+    ".report-stat-row",
+    "h1", "h2", "h3", "h4",
+    "p"
+  ].join(", ");
+
+  const reportRect = reportNode.getBoundingClientRect();
+  const avoidBoxes = [];
+  const elementsToAvoid = reportNode.querySelectorAll(selector);
+
+  // 单个受保护原子元素的最大高度限制 (如 180px)，大容器不纳入，避免整页大面积留白
+  const maxAtomicHeight = 180 * scale;
+
+  elementsToAvoid.forEach((el) => {
+    const rect = el.getBoundingClientRect();
+    if (rect.height <= 0 || rect.width <= 0) return;
+    const top = (rect.top - reportRect.top + (reportNode.scrollTop || 0)) * scale;
+    const bottom = (rect.bottom - reportRect.top + (reportNode.scrollTop || 0)) * scale;
+    const height = bottom - top;
+
+    // 仅收集高度合理的小型原子元素
+    if (height > 6 && height <= maxAtomicHeight) {
+      avoidBoxes.push({ top, bottom, height });
+    }
+  });
+
+  const breakPoints = [0];
+  let currentY = 0;
+  // 单次最大允许回退距离 (不超过 120px 物理高度)，严格杜绝页面大片空白
+  const maxAllowedShift = 120 * scale;
+
+  while (currentY + maxPageHeightCanvasPx < contentHeight) {
+    const targetY = currentY + maxPageHeightCanvasPx;
+    let bestCutY = targetY;
+
+    // 查找被 targetY 穿过（切割）的最小原子元素
+    let intersectedBox = null;
+    for (const box of avoidBoxes) {
+      if (box.top < targetY && box.bottom > targetY) {
+        // 如果有多个嵌套元素被切，优先选择最内层/高度较小且切入较深的元素
+        if (!intersectedBox || (box.top > intersectedBox.top && box.height < intersectedBox.height)) {
+          intersectedBox = box;
+        }
+      }
+    }
+
+    if (intersectedBox) {
+      const shiftDistance = targetY - intersectedBox.top;
+      // 只有当向上微调距离在合理范围内 (≤ maxAllowedShift) 时才进行微调回退
+      if (shiftDistance > 0 && shiftDistance <= maxAllowedShift) {
+        bestCutY = Math.max(currentY + 40, intersectedBox.top - 4 * scale);
+      }
+    }
+
+    // 防死循环与最小步进保障
+    if (bestCutY <= currentY + 100) {
+      bestCutY = currentY + maxPageHeightCanvasPx;
+    }
+
+    currentY = bestCutY;
+    breakPoints.push(currentY);
+  }
+
+  return breakPoints;
+}
+
+// 统一执行报告下载 (format: "pdf" | "png")
+async function downloadReportAs(item, format = "pdf") {
+  if (!item) {
+    alert("未找到有效的报告数据");
+    return;
+  }
+
+  const formatText = format === "pdf" ? "PDF 电子文档" : "PNG 高清长图";
+
+  if (elements.downloadLoadingStatus) {
+    elements.downloadLoadingStatus.hidden = false;
+    elements.downloadLoadingText.textContent = `正在准备生成 ${formatText}，请稍候...`;
+  }
+  if (elements.choosePdfDownloadBtn) elements.choosePdfDownloadBtn.disabled = true;
+  if (elements.choosePngDownloadBtn) elements.choosePngDownloadBtn.disabled = true;
+
+  // 保证已打开预览窗渲染内容
   openFullReportPreview(item);
+
+  const delayMs = (item.projectKey === "learningStyle" || item.projectKey === "motivation") ? 1200 : 350;
 
   setTimeout(async () => {
     let reportNode = document.getElementById("captureReportContent");
-    const iframe = elements.modalReportContainer.querySelector(".report-preview-frame");
+    const iframe = elements.modalReportContainer?.querySelector(".report-preview-frame");
     if (!reportNode && iframe) {
+      if (elements.downloadLoadingText) {
+        elements.downloadLoadingText.textContent = `正在加载报告深度图表与分析数据...`;
+      }
       reportNode = await waitForIframeReport(iframe);
     }
     if (!reportNode) {
       alert("报告内容仍在加载，请稍后再试。");
+      if (elements.downloadLoadingStatus) elements.downloadLoadingStatus.hidden = true;
+      if (elements.choosePdfDownloadBtn) elements.choosePdfDownloadBtn.disabled = false;
+      if (elements.choosePngDownloadBtn) elements.choosePngDownloadBtn.disabled = false;
       return;
     }
 
     try {
+      if (elements.downloadLoadingText) {
+        elements.downloadLoadingText.textContent = `正在进行超清画质渲染 (2x Retina)...`;
+      }
+
       const win = reportNode.ownerDocument?.defaultView || window;
+      if (win.MotivationReportEngine && typeof win.MotivationReportEngine.renderAllRadarCanvases === "function") {
+        win.MotivationReportEngine.renderAllRadarCanvases(reportNode);
+      }
+
       const html2canvasFunc = win.html2canvas || window.html2canvas;
 
-      if (typeof html2canvasFunc === "function") {
-        const canvas = await html2canvasFunc(reportNode, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#FFFDF6",
-          logging: false
-        });
+      if (typeof html2canvasFunc !== "function") {
+        throw new Error("html2canvas 引擎未就绪");
+      }
+
+      const canvas = await html2canvasFunc(reportNode, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#FFFDF6",
+        logging: false
+      });
+
+      const studentClean = (item.studentName || "学员").trim();
+      const projectClean = (item.projectName || "测评").trim();
+
+      if (format === "png") {
+        // 导出为超清长图 PNG
         const imgData = canvas.toDataURL("image/png");
         const link = document.createElement("a");
         link.href = imgData;
-        link.download = `${item.studentName}_${item.projectName}_完整诊断报告.png`;
+        link.download = `${studentClean}_${projectClean}_完整诊断报告.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-      } else if (iframe && iframe.contentWindow) {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
       } else {
-        window.print();
+        // 导出为智能分页无截断 PDF
+        if (elements.downloadLoadingText) {
+          elements.downloadLoadingText.textContent = `正在进行智能排版分页 (DOM 智能防截断)...`;
+        }
+
+        const jsPDFConstructor = window.jspdf?.jsPDF || window.jsPDF;
+        if (typeof jsPDFConstructor === "function") {
+          const pageWidth = 595.28;
+          const pageHeight = 841.89;
+          const pdf = new jsPDFConstructor("p", "pt", "a4");
+
+          const breakPoints = calculateSmartPageBreaks(reportNode, canvas, pageWidth, pageHeight);
+
+          for (let i = 0; i < breakPoints.length; i++) {
+            const startY = breakPoints[i];
+            const endY = (i < breakPoints.length - 1) ? breakPoints[i + 1] : canvas.height;
+            const sliceHeight = endY - startY;
+
+            if (sliceHeight <= 0) continue;
+
+            const pageCanvas = document.createElement("canvas");
+            pageCanvas.width = canvas.width;
+            pageCanvas.height = sliceHeight;
+            const pctx = pageCanvas.getContext("2d");
+
+            pctx.fillStyle = "#FFFDF6";
+            pctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+
+            pctx.drawImage(
+              canvas,
+              0, startY, canvas.width, sliceHeight,
+              0, 0, canvas.width, sliceHeight
+            );
+
+            const sliceImgData = pageCanvas.toDataURL("image/jpeg", 0.95);
+            const pdfImgHeight = (pageWidth / canvas.width) * sliceHeight;
+
+            if (i > 0) {
+              pdf.addPage();
+            }
+
+            pdf.addImage(sliceImgData, "JPEG", 0, 0, pageWidth, pdfImgHeight);
+          }
+
+          pdf.save(`${studentClean}_${projectClean}_完整诊断报告.pdf`);
+        } else {
+          // 若 jsPDF 加载失败，降级唤起浏览器打印对话框保存为 PDF
+          if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+          } else {
+            window.print();
+          }
+        }
       }
+
+      closeDownloadFormatModal();
     } catch (e) {
-      console.error("生成报告图片失败，唤起打印下载:", e);
+      console.error("生成报告文件失败，唤起打印下载:", e);
+      alert(`生成 ${formatText} 遇到问题，已为您自动唤起系统打印/另存为 PDF 对话框。`);
       if (iframe && iframe.contentWindow) {
         iframe.contentWindow.focus();
         iframe.contentWindow.print();
       } else {
         window.print();
       }
+      closeDownloadFormatModal();
+    } finally {
+      if (elements.downloadLoadingStatus) elements.downloadLoadingStatus.hidden = true;
+      if (elements.choosePdfDownloadBtn) elements.choosePdfDownloadBtn.disabled = false;
+      if (elements.choosePngDownloadBtn) elements.choosePngDownloadBtn.disabled = false;
     }
-  }, (item.projectKey === "learningStyle" || item.projectKey === "motivation") ? 1200 : 300);
+  }, delayMs);
+}
+
+// 保持向下兼容
+async function downloadReportImageOrFile(item) {
+  openDownloadFormatModal(item);
 }
 
 // 直接打印整份报告内容

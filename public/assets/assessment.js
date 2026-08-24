@@ -800,15 +800,17 @@ async function finalSubmit() {
     const reportSession = state.sessionId || String(Date.now());
 
     const advisorToken = token;
+    const formAdvisor = elements?.basicForm?.advisorName?.value?.trim() || "";
     const advisorUserId = pickFirstValid(getParam("userId"), getParam("employeeId"), getParam("advisorUserId"), ctxData?.advisor.userId, localStorage.getItem("advisor_user_id"));
-    const advisorName = pickFirstValid(getParam("employeeName"), getParam("advisorName"), ctxData?.advisor.name, localStorage.getItem("advisor_name"));
+    const advisorName = pickFirstValid(formAdvisor, getParam("employeeName"), getParam("advisorName"), ctxData?.advisor.name, localStorage.getItem("advisor_name"));
     const advisorMobile = pickFirstValid(getParam("advisorMobile"), getParam("employeeMobile"), ctxData?.advisor.mobile, localStorage.getItem("advisor_mobile"));
     const profileId = pickFirstValid(getParam("profileId"), getParam("customerId"), ctxData?.student.profileId, localStorage.getItem("profile_id"));
 
     // 提交测评结果至 FFCRM 后端统一保存接口，并等待调用成功
     let recordId = null;
     try {
-      const backendBase = window.ASSESSMENT_API_BASE || "https://ffcrm-api.1605ai.com";
+      const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "[::1]");
+      const backendBase = window.ASSESSMENT_API_BASE || (isLocal ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
       const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
       const timeoutId = controller ? setTimeout(() => controller.abort(), 8000) : null;
       const response = await fetch(`${backendBase}/api/assessment/submit`, {
@@ -952,12 +954,12 @@ async function createSession(event) {
 
 function bindHomeBackButtons() {
   const goBack = () => {
-    if (typeof window.goBackOrFallback === "function") {
-      window.goBackOrFallback("/portal.html");
-      return;
-    }
     if (typeof window.goBack === "function") {
       window.goBack();
+      return;
+    }
+    if (typeof window.goBackOrFallback === "function") {
+      window.goBackOrFallback("/portal.html");
       return;
     }
     window.history.back();
@@ -972,6 +974,19 @@ function bindHomeBackButtons() {
   })();
   document.querySelectorAll("#homeBackButton, [data-home-back]").forEach((button) => {
     button.addEventListener("click", goBack);
+  });
+  document.querySelectorAll('[data-action="go-learning-center"], .back-learning-center-btn').forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (typeof window.goLearningCenter === "function") {
+        window.goLearningCenter();
+      } else if (window.CommonBridge?.goBack) {
+        window.CommonBridge.goBack();
+      } else if (typeof window.goBackOrFallback === "function") {
+        window.goBackOrFallback("/portal.html");
+      } else {
+        window.history.back();
+      }
+    });
   });
 }
 
@@ -1056,9 +1071,13 @@ function setupQuickFillButton() {
 async function oneClickAutoFillAndAnswer() {
   if (!elements?.basicForm) return;
 
+  const inputName = elements.basicForm.studentName?.value?.trim();
+  const inputPhone = elements.basicForm.phoneNumber?.value?.trim();
+  const currentAdvisor = (elements.basicForm.advisorName?.value || "").trim();
+
   const snapshot = {
-    studentName: "测试学员",
-    phoneNumber: "15765778832",
+    studentName: inputName || "测试学员",
+    phoneNumber: inputPhone || "15765778832",
     grade: "高三",
     specialtyDirection: "美术设计",
     scoreBand: "400至450",
@@ -1066,7 +1085,7 @@ async function oneClickAutoFillAndAnswer() {
     targetSubject: "英语",
     targetSubjectScore: 110,
     learningFocus: "practice",
-    advisorName: (elements.basicForm.advisorName?.value || localStorage.getItem("advisor_name") || "测试顾问").trim()
+    advisorName: currentAdvisor
   };
   applyBasicFormSnapshot(elements.basicForm, snapshot);
   persistBasicProgress();
@@ -1187,9 +1206,13 @@ function setupLearningStyleAdvisorSelector() {
 
   let advisorRecords = [];
 
-  const savedAdvisor = (localStorage.getItem("advisor_name") || "").trim();
-  if (savedAdvisor && savedAdvisor !== "李老师" && !input.value) {
-    input.value = savedAdvisor;
+  // 默认不用填（非必填）：仅当 URL 中明确携带了 advisorName / employeeName 时才自动填入
+  const urlAdvisorName = (params.get("advisorName") || params.get("employeeName") || hashParams.get("advisorName") || hashParams.get("employeeName") || "").trim();
+  if (urlAdvisorName) {
+    input.value = urlAdvisorName;
+    localStorage.setItem("advisor_name", urlAdvisorName);
+  } else {
+    input.value = "";
   }
 
   function normalizeAdvisorRecord(record) {
@@ -1207,35 +1230,60 @@ function setupLearningStyleAdvisorSelector() {
   }
 
   function applyAdvisorSelection(record) {
-    if (!record) return;
-    if (record.employeeName) {
-      input.value = record.employeeName;
-      localStorage.setItem("advisor_name", record.employeeName);
+    if (!record) {
+      input.value = "";
+      localStorage.removeItem("advisor_name");
+      localStorage.removeItem("advisor_user_id");
+      localStorage.removeItem("advisor_token");
+      localStorage.removeItem("advisor_mobile");
+      localStorage.removeItem("feifan_ref");
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+      persistBasicProgress();
+      return;
+    }
+    const empName = (record.employeeName || record.name || "").trim();
+    input.value = empName;
+    if (empName) {
+      localStorage.setItem("advisor_name", empName);
+    } else {
+      localStorage.removeItem("advisor_name");
     }
     if (record.employeeId) {
       localStorage.setItem("advisor_user_id", String(record.employeeId));
+    } else {
+      localStorage.removeItem("advisor_user_id");
     }
     if (record.token) {
       localStorage.setItem("advisor_token", record.token);
       localStorage.setItem("feifan_ref", record.token);
+    } else {
+      localStorage.removeItem("advisor_token");
+      localStorage.removeItem("feifan_ref");
     }
     if (record.mobile) {
       localStorage.setItem("advisor_mobile", record.mobile);
+    } else {
+      localStorage.removeItem("advisor_mobile");
     }
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
     persistBasicProgress();
   }
 
-  const advisorApiBase = window.ASSESSMENT_API_BASE || "https://ffcrm-api.1605ai.com";
+  const isLocalAdvisor = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "[::1]");
+  const advisorApiBase = window.ASSESSMENT_API_BASE || (isLocalAdvisor ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
   fetch(window.buildAdvisorListUrl ? window.buildAdvisorListUrl(advisorApiBase) : `${advisorApiBase}/api/assessment/advisors?roleCode=SALES,MARKET`)
     .then(res => res.json())
     .then(json => {
       const records = Array.isArray(json.data) ? json.data : (json.data?.list || (Array.isArray(json) ? json : []));
+      const excluded = (typeof window !== "undefined" && window.ASSESSMENT_EXCLUDED_ADVISORS) || ["用户", "顾问", "未知", "李老师", "杜雨龙"];
       if (Array.isArray(records) && records.length > 0) {
         advisorRecords = records
           .map(normalizeAdvisorRecord)
-          .filter(item => item.employeeName && !["用户", "未知"].includes(item.employeeName));
+          .filter(item => item.employeeName && !excluded.includes(item.employeeName.trim()));
       }
-      if (input.value.trim() === "李老师") {
+      if (excluded.includes(input.value.trim())) {
         input.value = "";
       }
       if (container.classList.contains("is-open") || input === document.activeElement) {
@@ -1247,10 +1295,14 @@ function setupLearningStyleAdvisorSelector() {
         .then(res => res.json())
         .then(json => {
           const records = Array.isArray(json.data) ? json.data : (json.data?.list || (Array.isArray(json) ? json : []));
+          const excluded = (typeof window !== "undefined" && window.ASSESSMENT_EXCLUDED_ADVISORS) || ["用户", "顾问", "未知", "李老师", "杜雨龙"];
           if (Array.isArray(records) && records.length > 0) {
             advisorRecords = records
               .map(normalizeAdvisorRecord)
-              .filter(item => item.employeeName && !["用户", "未知"].includes(item.employeeName));
+              .filter(item => item.employeeName && !excluded.includes(item.employeeName.trim()));
+          }
+          if (excluded.includes(input.value.trim())) {
+            input.value = "";
           }
           if (container.classList.contains("is-open") || input === document.activeElement) {
             renderItems();
@@ -1260,22 +1312,33 @@ function setupLearningStyleAdvisorSelector() {
     });
 
   function renderItems() {
+    const isNoneSelected = !input.value.trim();
+    const noneItemHtml = `
+      <li class="advisor-item ${isNoneSelected ? "is-selected" : ""}" data-index="-1" data-value="" data-employee-id="">
+        <div class="advisor-item-main">
+          <div class="advisor-avatar-badge" style="background:#F3F4F6;color:#9CA3AF;">无</div>
+          <span class="advisor-name-text" style="color:#6B7280;">暂不指定顾问（选填）</span>
+        </div>
+        <span class="advisor-role-pill" style="background:#F3F4F6;color:#9CA3AF;">选填</span>
+      </li>
+    `;
+
     if (advisorRecords.length === 0) {
-      dropdown.innerHTML = `
+      dropdown.innerHTML = noneItemHtml + `
         <li class="advisor-empty-hint">
-          <div>暂无可选顾问</div>
-          <div style="font-size:12px;color:#9CA3AF;margin-top:4px;">请稍后再试或联系老师协助</div>
+          <div>暂无其他可选顾问</div>
+          <div style="font-size:12px;color:#9CA3AF;margin-top:4px;">可直接跳过此项继续测评</div>
         </li>
       `;
     } else {
-      dropdown.innerHTML = advisorRecords.map(item => {
+      const itemsHtml = advisorRecords.map((item, index) => {
         const name = item.employeeName;
         const initial = name.slice(0, 1) || "顾";
         const isSelected = input.value.trim() === name;
         const employeeId = item.employeeId != null ? String(item.employeeId) : "";
         const roleLabel = name.includes("总监") ? "市场总监" : "指导老师";
         return `
-          <li class="advisor-item ${isSelected ? "is-selected" : ""}" data-value="${name}" data-employee-id="${employeeId}">
+          <li class="advisor-item ${isSelected ? "is-selected" : ""}" data-index="${index}" data-value="${name}" data-employee-id="${employeeId}">
             <div class="advisor-item-main">
               <div class="advisor-avatar-badge">${initial}</div>
               <span class="advisor-name-text">${name}</span>
@@ -1284,6 +1347,7 @@ function setupLearningStyleAdvisorSelector() {
           </li>
         `;
       }).join("");
+      dropdown.innerHTML = noneItemHtml + itemsHtml;
     }
     dropdown.style.display = "block";
     container.classList.add("is-open");
@@ -1377,14 +1441,21 @@ function setupLearningStyleAdvisorSelector() {
   });
 
   dropdown.addEventListener("click", (e) => {
-    const target = e.target.closest("[data-value]");
+    e.stopPropagation();
+    const target = e.target.closest(".advisor-item");
     if (target) {
-      const val = target.dataset.value;
-      const employeeId = target.dataset.employeeId;
-      const matched = advisorRecords.find(item =>
-        (employeeId && String(item.employeeId) === employeeId) || item.employeeName === val
-      );
-      if (matched) {
+      const idxStr = target.dataset.index;
+      const idx = (idxStr !== undefined && idxStr !== "") ? Number(idxStr) : -1;
+      const val = (target.dataset.value || "").trim();
+      let matched = null;
+      if (idx >= 0 && idx < advisorRecords.length) {
+        matched = advisorRecords[idx];
+      } else if (val) {
+        matched = advisorRecords.find(item => item.employeeName === val);
+      }
+      if (idx === -1 || !val) {
+        applyAdvisorSelection(null);
+      } else if (matched) {
         applyAdvisorSelection(matched);
       }
       closeAdvisorDropdown();

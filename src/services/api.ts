@@ -2,7 +2,16 @@ import { AssessmentRecord, CustomTemplate } from "./types";
 import { parseAssessmentContextFromUrl as parseCtx, getFFCRMContextFromUrl as getContext } from "../utils/url";
 import { getAssessmentDataFromCtx as getDataFromCtx } from "../utils/crypto";
 
-export const ASSESSMENT_API_BASE = "https://ceping.1605ai.com";
+function getApiBase(): string {
+  if (typeof window !== "undefined" && (window as any).ASSESSMENT_API_BASE) {
+    return (window as any).ASSESSMENT_API_BASE;
+  }
+  const host = (typeof window !== "undefined" && window.location && window.location.hostname) || "";
+  const isLocal = host === "localhost" || host === "127.0.0.1" || host === "[::1]";
+  return isLocal ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com";
+}
+
+export const ASSESSMENT_API_BASE = getApiBase();
 
 export const parseAssessmentContextFromUrl = parseCtx;
 export const getFFCRMContextFromUrl = getContext;
@@ -200,6 +209,26 @@ export async function submitAssessmentPayload(payload: Record<string, any>) {
     throw new Error(resData.message || "提交测评结果失败");
   }
   return resData.data;
+}
+
+/**
+ * 逻辑删除单条测评记录
+ */
+export async function deleteAssessmentRecord(id: string | number, token?: string): Promise<boolean> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (token) {
+    headers["Admin-Export-Token"] = token;
+  }
+  const response = await fetch(`${ASSESSMENT_API_BASE}/api/assessment/delete?id=${encodeURIComponent(id)}`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ id: Number(id) || id })
+  });
+  const resData = await response.json().catch(() => ({}));
+  if (!response.ok || (resData.code !== 200 && resData.code !== 0)) {
+    throw new Error(resData.message || "删除测评记录失败");
+  }
+  return true;
 }
 
 export async function fetchAssessmentList(token: string): Promise<AssessmentRecord[]> {

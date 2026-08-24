@@ -8,7 +8,7 @@
 
   const host = (global.location && global.location.hostname) || "";
   const isLocal = host === "localhost" || host === "127.0.0.1" || host === "[::1]";
-  const BACKEND_BASE = global.ASSESSMENT_API_BASE || (isLocal ? "http://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
+  const BACKEND_BASE = global.ASSESSMENT_API_BASE || (isLocal ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
   const SUBMIT_ENDPOINT = `${BACKEND_BASE}/api/assessment/submit`;
 
   /**

@@ -82,10 +82,14 @@ export const LearningStyleAssessment: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // 顾问下拉框状态 (当 URL 无 ctx 时展示)
+  // 顾问下拉框状态 (默认不用填，非必填；仅当 URL 携带明确参数时才填入)
   const [advisorName, setAdvisorName] = useState(() => {
-    const raw = (typeof localStorage !== "undefined" ? localStorage.getItem("advisor_name") : "") || "";
-    return (raw.trim() === "李老师" || ["用户", "顾问", "未知"].includes(raw.trim())) ? "" : raw.trim();
+    if (typeof window === "undefined") return "";
+    const params = new URLSearchParams(window.location.search || "");
+    const hash = window.location.hash || "";
+    const hashParams = new URLSearchParams(hash.includes("?") ? hash.split("?")[1] : "");
+    const fromUrl = (params.get("advisorName") || params.get("employeeName") || hashParams.get("advisorName") || hashParams.get("employeeName") || "").trim();
+    return fromUrl;
   });
   const [advisorDropdownOpen, setAdvisorDropdownOpen] = useState(false);
   const [advisorList, setAdvisorList] = useState<string[]>([]);
@@ -106,15 +110,17 @@ export const LearningStyleAssessment: React.FC = () => {
     if (ctx.student.mobile && !phoneNumber) setPhoneNumber(ctx.student.mobile);
 
     if (!hasCtx) {
-      const apiBase = (typeof window !== "undefined" && (window as any).ASSESSMENT_API_BASE) || "https://ffcrm-api.1605ai.com";
+      const isLocalReact = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "[::1]");
+      const apiBase = (typeof window !== "undefined" && (window as any).ASSESSMENT_API_BASE) || (isLocalReact ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
       fetch(`${apiBase}/api/assessment/advisors?roleCode=SALES,MARKET`)
         .then(res => res.json())
         .then(json => {
           const records = Array.isArray(json.data) ? json.data : (json.data?.list || (Array.isArray(json) ? json : []));
           if (Array.isArray(records) && records.length > 0) {
+            const excluded = ((window as any).ASSESSMENT_EXCLUDED_ADVISORS as string[]) || ["用户", "顾问", "未知", "李老师", "杜雨龙"];
             const fetchedNames = records
               .map((r: any) => typeof r === "string" ? r : (r.employeeName || r.name || r.advisorName))
-              .filter((name: any) => name && typeof name === "string" && !["用户", "未知"].includes(name.trim()));
+              .filter((name: any) => name && typeof name === "string" && !excluded.includes(name.trim()));
             if (fetchedNames.length > 0) setAdvisorList(fetchedNames);
           }
         })
@@ -216,6 +222,40 @@ export const LearningStyleAssessment: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+  const handleQuickFill = () => {
+    // 1. 自动填入学员基本信息
+    if (!studentName) setStudentName("测试学员");
+    if (!phoneNumber) setPhoneNumber("15765778832");
+    setGrade("高三");
+    setSpecialtyDirection("美术设计");
+    setScoreBand("400至450");
+    setForeignLanguage("英语");
+    setTargetSubject("英语");
+    setTargetSubjectScore("110");
+    setLearningFocus("practice");
+
+    // 2. 自动填入 42 道题目选项 (均为 4 - 比较符合)
+    const mockAnswers: Record<string, number> = {};
+    STATIC_QUESTIONS.forEach((q) => {
+      mockAnswers[q.id] = 4;
+    });
+    setAnswers(mockAnswers);
+
+    // 3. 直接跳转至答题页最后一页，方便快速提交
+    setCurrentPage(totalPages - 1);
+    setViewStep("questions");
+    setErrorMessage("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    (window as any).oneClickAutoFillAndAnswer = handleQuickFill;
+    return () => {
+      if ((window as any).oneClickAutoFillAndAnswer === handleQuickFill) {
+        delete (window as any).oneClickAutoFillAndAnswer;
+      }
+    };
+  }, [studentName, phoneNumber, advisorName, totalPages]);
 
   return (
     <div className="min-h-screen pb-16">
@@ -456,8 +496,8 @@ export const LearningStyleAssessment: React.FC = () => {
                       <div className="relative">
                         <div className="flex justify-between items-center mb-1.5">
                           <label className="text-xs font-bold text-gray-700">归属顾问</label>
-                          <span className="text-[11px] font-medium text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
-                            请从列表中选择
+                          <span className="text-[11px] font-medium text-gray-500 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-full">
+                            选填
                           </span>
                         </div>
                         <div className="relative">
@@ -476,7 +516,7 @@ export const LearningStyleAssessment: React.FC = () => {
                                 e.preventDefault();
                               }
                             }}
-                            placeholder="请选择归属顾问"
+                            placeholder="请选择归属顾问（选填）"
                             className="w-full px-4 py-3 pr-10 rounded-xl border border-amber-200 focus:border-[#F5C518] focus:ring-2 focus:ring-amber-200 outline-none transition-all text-sm bg-white font-medium cursor-pointer caret-transparent"
                           />
                           <div className={`absolute right-3 top-1/2 -translate-y-1/2 text-amber-600 pointer-events-none transition-transform duration-200 ${advisorDropdownOpen ? 'rotate-180' : ''}`}>
@@ -491,10 +531,36 @@ export const LearningStyleAssessment: React.FC = () => {
                             className="absolute left-0 right-0 top-[calc(100%+4px)] bg-white border border-amber-200/80 rounded-2xl shadow-xl max-h-56 overflow-y-auto z-50 p-1.5 animate-in fade-in duration-150"
                             onMouseDown={(e) => e.preventDefault()}
                           >
+                            {/* 暂不指定顾问选项 */}
+                            <div
+                              onClick={() => {
+                                setAdvisorName("");
+                                localStorage.removeItem("advisor_name");
+                                localStorage.removeItem("advisor_user_id");
+                                localStorage.removeItem("advisor_token");
+                                localStorage.removeItem("advisor_mobile");
+                                localStorage.removeItem("feifan_ref");
+                                setAdvisorDropdownOpen(false);
+                              }}
+                              className={`px-3 py-2.5 rounded-xl cursor-pointer transition-all flex items-center justify-between group mb-0.5 ${
+                                !advisorName.trim() ? "bg-amber-50 text-amber-900" : "hover:bg-gray-50 text-gray-700"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 text-gray-400 font-extrabold text-sm flex items-center justify-center shadow-sm flex-shrink-0">
+                                  无
+                                </div>
+                                <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900">暂不指定顾问（选填）</span>
+                              </div>
+                              <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg">
+                                选填
+                              </span>
+                            </div>
+
                             {advisorList.length === 0 ? (
                               <div className="p-3 text-center bg-gray-50 rounded-xl m-1">
-                                <div className="text-xs text-gray-500 font-medium">暂无可选顾问</div>
-                                <div className="text-[11px] text-gray-400 mt-1">请稍后再试或联系老师协助</div>
+                                <div className="text-xs text-gray-500 font-medium">暂无其他可选顾问</div>
+                                <div className="text-[11px] text-gray-400 mt-1">可直接跳过此项继续测评</div>
                               </div>
                             ) : (
                               advisorList.map((name) => {
@@ -632,6 +698,21 @@ export const LearningStyleAssessment: React.FC = () => {
                       <div className="actions-row">
                         <button
                           type="button"
+                          onClick={() => {
+                            if (typeof (window as any).CommonBridge?.goBack === "function") {
+                              (window as any).CommonBridge.goBack();
+                            } else if (typeof (window as any).goBackOrFallback === "function") {
+                              (window as any).goBackOrFallback("/portal.html");
+                            } else {
+                              window.history.back();
+                            }
+                          }}
+                          className="secondary-button action-btn-half back-learning-center-btn"
+                        >
+                          返回学习中心
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => setViewStep("start")}
                           className="secondary-button action-btn-half"
                         >
@@ -735,6 +816,21 @@ export const LearningStyleAssessment: React.FC = () => {
                   {/* Navigation Actions - Same row display */}
                   <div className="form-actions-wrapper">
                     <div className="actions-row">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (typeof (window as any).CommonBridge?.goBack === "function") {
+                            (window as any).CommonBridge.goBack();
+                          } else if (typeof (window as any).goBackOrFallback === "function") {
+                            (window as any).goBackOrFallback("/portal.html");
+                          } else {
+                            window.history.back();
+                          }
+                        }}
+                        className="secondary-button action-btn-half back-learning-center-btn"
+                      >
+                        返回学习中心
+                      </button>
                       <button
                         type="button"
                         disabled={currentPage === 0 || isSubmitting}

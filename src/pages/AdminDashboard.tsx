@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from "react";
-import { Search, Download, RefreshCw, Eye, ExternalLink, FileText, Layers } from "lucide-react";
+import { Search, Download, RefreshCw, Eye, ExternalLink, FileText, Layers, Trash2 } from "lucide-react";
 import { AssessmentRecord } from "../services/types";
 import { ReportModal } from "../components/ReportModal";
+import { deleteAssessmentRecord } from "../services/api";
 
 interface AdminDashboardProps {
   records: AssessmentRecord[];
@@ -30,6 +31,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [activeTab, setActiveTab] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedRecord, setSelectedRecord] = useState<AssessmentRecord | null>(null);
+  const [deletingId, setDeletingId] = useState<number | string | null>(null);
+
+  const handleDelete = async (item: AssessmentRecord) => {
+    const name = item.studentName || "该学员";
+    const confirmed = window.confirm(`确定要删除【${name}】的测评记录吗？\nID: #${item.id}\n删除后该记录将从后台永久移除。`);
+    if (!confirmed) return;
+
+    setDeletingId(item.id);
+    try {
+      const token = typeof localStorage !== "undefined" ? (localStorage.getItem("adminToken") || "") : "";
+      await deleteAssessmentRecord(item.id, token);
+      alert(`学员【${name}】的测评数据已成功删除！`);
+      onRefresh();
+    } catch (err: any) {
+      console.error("删除记录失败:", err);
+      alert(`删除失败：${err.message || "网络请求异常，请稍后再试"}`);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const handleTemplateTypeChange = (type: string) => {
     setSelectedTemplateType(type);
@@ -323,6 +344,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <span>打开</span>
                           </a>
                         )}
+                        <button
+                          onClick={() => handleDelete(item)}
+                          disabled={deletingId === item.id}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-all disabled:opacity-50"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>{deletingId === item.id ? "删除中..." : "删除"}</span>
+                        </button>
                       </td>
                     </tr>
                   );

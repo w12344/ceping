@@ -18,6 +18,7 @@
       }
     }
   </style>
+  <script src="/assets/api-config.js"></script>
 </head>
 <body class="assessment-page">
   <!-- 统一 Header Bar -->
@@ -90,7 +91,8 @@
         </div>
 
         <div style="display:flex;gap:12px;margin-top:28px">
-          <button type="button" class="secondary-button" onclick="switchView('startView')">返回</button>
+          <button type="button" class="secondary-button back-learning-center-btn" data-action="go-learning-center">返回学习中心</button>
+          <button type="button" class="secondary-button" onclick="switchView('startView')">返回上一步</button>
           <button type="button" class="primary-button" style="flex:1" onclick="validateBasicAndStart()">进入测评</button>
         </div>
         <p id="basicError" style="color:#EF4444;font-size:13px;font-weight:800;margin-top:10px" hidden></p>
@@ -114,6 +116,7 @@
       <p id="pageError" style="color:#EF4444;font-size:13px;font-weight:700;margin-top:12px" hidden>请回答完本页所有题目再继续。</p>
 
       <div style="display:flex;gap:12px;margin-top:20px">
+        <button type="button" class="secondary-button back-learning-center-btn" data-action="go-learning-center">返回学习中心</button>
         <button id="prevBtn" type="button" class="secondary-button" onclick="changePage(-1)">上一页</button>
         <button id="nextBtn" type="button" class="primary-button" style="flex:1" onclick="changePage(1)">下一页</button>
       </div>
