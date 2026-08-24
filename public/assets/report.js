@@ -365,33 +365,89 @@ function buildReportPayloadFromParsedRecord(parsed, item, mobile) {
 
 async function loadReportFromApiById(id) {
   if (!id) return null;
-  try {
-    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-    const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
-    const apiRes = await fetch(`${ASSESSMENT_RESULT_API}/${encodeURIComponent(id)}`, {
-      signal: controller ? controller.signal : undefined
-    });
-    if (timeoutId) clearTimeout(timeoutId);
-    const apiJson = await apiRes.json().catch(() => ({}));
-    if ((apiJson.code === 200 || apiJson.code === 0) && apiJson.data) {
-      const item = apiJson.data;
-      const parsed = item.resultJson ? parseResultJson(item.resultJson) : item;
-      const normAnswers = normalizeAnswersArray(parsed.answers || parsed.resultData?.answers || item.answers);
-      parsed.answers = normAnswers;
-      rememberAssessmentSubmitPayload(parsed, item, item.customerMobile || parsed.contact || parsed.studentMobile);
-      const payload = buildReportPayloadFromParsedRecord(parsed, item, item.customerMobile || parsed.contact || parsed.studentMobile);
-      if (payload?.report?.studentReport) return payload;
+
+  // 增加重试机制（最多 3 次，间隔递增，解决刚提交瞬间后端数据库主从写入延迟）
+  const maxRetries = 3;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+      const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+      let apiRes = await fetch(`${ASSESSMENT_RESULT_API}/${encodeURIComponent(id)}`, {
+        signal: controller ? controller.signal : undefined
+      });
+      let apiJson = await apiRes.json().catch(() => ({}));
+      
+      // 若 /result/:id 404，尝试备用接口 /detail?id=:id
+      if ((!apiJson.data || (apiJson.code !== 200 && apiJson.code !== 0))) {
+        const isLocalRep = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "[::1]");
+        const base = window.ASSESSMENT_API_BASE || (isLocalRep ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
+        apiRes = await fetch(`${base}/api/assessment/detail?id=${encodeURIComponent(id)}`, {
+          signal: controller ? controller.signal : undefined
+        });
+        apiJson = await apiRes.json().catch(() => ({}));
+      }
+
+      if (timeoutId) clearTimeout(timeoutId);
+
+      if ((apiJson.code === 200 || apiJson.code === 0) && apiJson.data) {
+        const item = apiJson.data;
+        const parsed = item.resultJson ? parseResultJson(item.resultJson) : item;
+        const normAnswers = normalizeAnswersArray(parsed.answers || parsed.resultData?.answers || item.answers);
+        parsed.answers = normAnswers;
+        rememberAssessmentSubmitPayload(parsed, item, item.customerMobile || parsed.contact || parsed.studentMobile);
+        const payload = buildReportPayloadFromParsedRecord(parsed, item, item.customerMobile || parsed.contact || parsed.studentMobile);
+        if (payload?.report?.studentReport) return payload;
+      }
+    } catch (e) {
+      console.warn(`第 ${attempt} 次 API ID 查询异常:`, e);
     }
-  } catch (e) {
-    console.warn("API ID 查询异常，尝试本地缓存降级:", e);
+
+    if (attempt < maxRetries) {
+      await new Promise(r => setTimeout(r, attempt * 600));
+    }
   }
 
+  // API 查询 3 次均未返回有效结果时，无缝激活本地 Storage 作答快照
   try {
-    const localStr = localStorage.getItem("lsa_record_" + id) || localStorage.getItem("lsa_session_" + id);
-    if (localStr) {
-      const sessionData = JSON.parse(localStr);
-      rememberAssessmentSubmitPayloadFromSession(sessionData, sessionData.contact || "");
-      return resolveReportPayload(sessionData, sessionData.contact || "");
+    const candidates = [
+      `lsa_record_${id}`,
+      `lsa_session_${id}`,
+      localStorage.getItem("lsa_last_record")
+    ];
+    for (const c of candidates) {
+      if (!c) continue;
+      const raw = localStorage.getItem(c) || c;
+      if (!raw || typeof raw !== "string" || !raw.startsWith("{")) continue;
+      try {
+        const sessionData = JSON.parse(raw);
+        if (sessionData && (sessionData.answers || sessionData.report)) {
+          rememberAssessmentSubmitPayloadFromSession(sessionData, sessionData.contact || "");
+          return resolveReportPayload(sessionData, sessionData.contact || "");
+        }
+      } catch (e) {}
+    }
+
+    // 扫描所有 lsa_session_* 找出最新的
+    let newest = null;
+    let newestTime = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const lk = localStorage.key(i);
+      if (lk && (lk.startsWith("lsa_session_") || lk.startsWith("feifan_report_"))) {
+        const raw = localStorage.getItem(lk);
+        if (!raw) continue;
+        const sessionData = JSON.parse(raw);
+        if (sessionData && (sessionData.answers || sessionData.report)) {
+          const time = new Date(sessionData.completedAt || sessionData.startedAt || 0).getTime() || 0;
+          if (time >= newestTime) {
+            newestTime = time;
+            newest = sessionData;
+          }
+        }
+      }
+    }
+    if (newest) {
+      rememberAssessmentSubmitPayloadFromSession(newest, newest.contact || "");
+      return resolveReportPayload(newest, newest.contact || "");
     }
   } catch (e) {}
 

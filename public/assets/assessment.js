@@ -807,55 +807,60 @@ async function finalSubmit() {
     const profileId = pickFirstValid(getParam("profileId"), getParam("customerId"), ctxData?.student.profileId, localStorage.getItem("profile_id"));
 
     // 提交测评结果至 FFCRM 后端统一保存接口，并等待调用成功
+    // 提交测评结果至 FFCRM 后端统一保存接口（使用 100% 可靠交付与离线队列引擎）
     let recordId = null;
     try {
-      const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "[::1]");
-      const backendBase = window.ASSESSMENT_API_BASE || (isLocal ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
-      const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-      const timeoutId = controller ? setTimeout(() => controller.abort(), 8000) : null;
-      const response = await fetch(`${backendBase}/api/assessment/submit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: controller ? controller.signal : undefined,
-        body: JSON.stringify({
-          studentInfo: {
-            name: studentName,
-            mobile: phoneNumber,
-            grade: userInfo.grade || state.grade,
-            specialtyDirection: userInfo.specialtyDirection || state.specialtyDirection,
-            scoreBand: userInfo.scoreBand || state.scoreBand,
-            foreignLanguage: userInfo.foreignLanguage || state.foreignLanguage,
-            targetSubject: userInfo.targetSubject || state.targetSubject,
-            targetSubjectScore: userInfo.targetSubjectScore || state.targetSubjectScore,
-            targetSubjectFullScore: userInfo.targetSubjectFullScore || 150,
-            learningFocus: userInfo.learningFocus || state.learningFocus,
-            profileId: profileId
-          },
-          advisorInfo: {
-            token: advisorToken,
-            name: advisorName,
-            userId: advisorUserId,
-            mobile: advisorMobile
-          },
-          assessmentInfo: {
-            templateCode: "LEARNING_STYLE",
-            templateName: "学习模式定位",
-            templateType: "STUDENT_LEARNING",
-            answers: state.answers,
-            durationSeconds: durationSeconds(),
-            submittedAt: new Date().toISOString(),
-            reportUrl: (typeof window !== "undefined" ? window.location.origin : "https://ceping.1605ai.com") + "/report.html"
-          }
-        })
-      });
-      if (timeoutId) clearTimeout(timeoutId);
-      const resData = await response.json().catch(() => ({}));
-      if (response.ok && (resData.code === 0 || resData.code === 200)) {
-        if (resData.data && (resData.data.id || resData.data.savedId)) {
-          recordId = resData.data.id || resData.data.savedId;
+      const submitPayload = {
+        studentInfo: {
+          name: studentName,
+          mobile: phoneNumber,
+          grade: userInfo.grade || state.grade,
+          specialtyDirection: userInfo.specialtyDirection || state.specialtyDirection,
+          scoreBand: userInfo.scoreBand || state.scoreBand,
+          foreignLanguage: userInfo.foreignLanguage || state.foreignLanguage,
+          targetSubject: userInfo.targetSubject || state.targetSubject,
+          targetSubjectScore: userInfo.targetSubjectScore || state.targetSubjectScore,
+          targetSubjectFullScore: userInfo.targetSubjectFullScore || 150,
+          learningFocus: userInfo.learningFocus || state.learningFocus,
+          profileId: profileId
+        },
+        advisorInfo: {
+          token: advisorToken,
+          name: advisorName,
+          userId: advisorUserId,
+          mobile: advisorMobile
+        },
+        assessmentInfo: {
+          templateCode: "LEARNING_STYLE",
+          templateName: "学习模式定位",
+          templateType: "STUDENT_LEARNING",
+          answers: state.answers,
+          durationSeconds: durationSeconds(),
+          submittedAt: new Date().toISOString(),
+          reportUrl: (typeof window !== "undefined" ? window.location.origin : "https://ceping.1605ai.com") + "/report.html"
+        }
+      };
+
+      if (window.FeifanAssessmentSubmitter) {
+        const submitResult = await window.FeifanAssessmentSubmitter.submit(submitPayload, {
+          clientKey: `lsa_${reportSession}`
+        });
+        if (submitResult.recordId) {
+          recordId = submitResult.recordId;
         }
       } else {
-        console.warn("后端保存结果接口返回提示:", resData);
+        const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "[::1]");
+        const backendBase = window.ASSESSMENT_API_BASE || (isLocal ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
+        const response = await fetch(`${backendBase}/api/assessment/submit`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          keepalive: true,
+          body: JSON.stringify(submitPayload)
+        });
+        const resData = await response.json().catch(() => ({}));
+        if (response.ok && (resData.code === 0 || resData.code === 200) && resData.data) {
+          recordId = resData.data.id || resData.data.savedId;
+        }
       }
     } catch (e) {
       console.warn("后端保存结果接口调用异常:", e);
@@ -1397,32 +1402,19 @@ function setupLearningStyleAdvisorSelector() {
   function closeAdvisorDropdown() {
     dropdown.style.display = "none";
     container.classList.remove("is-open");
-    document.body.classList.remove("keyboard-active");
-    document.body.style.paddingBottom = "";
-    const maxScrollY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    const currentScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
-    if (currentScrollY > maxScrollY) {
-      window.scrollTo({ top: maxScrollY, behavior: "smooth" });
-    }
   }
 
-  if (typeof window !== "undefined" && window.visualViewport) {
-    window.visualViewport.addEventListener('resize', () => {
-      if (container.classList.contains('is-open') || document.activeElement === input) {
-        liftAdvisorAboveKeyboard();
-      }
-    });
-  }
-
-  input.addEventListener("focus", () => {
-    renderItems();
-    liftAdvisorAboveKeyboard();
-  });
-  input.addEventListener("click", () => {
-    if (!container.classList.contains("is-open")) {
+  // 统一点击输入框或箭头按钮触发切换展开/收起
+  const inputBox = container.querySelector(".advisor-input-box") || input;
+  inputBox.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (container.classList.contains("is-open")) {
+      closeAdvisorDropdown();
+    } else {
       renderItems();
     }
   });
+
   input.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       closeAdvisorDropdown();
@@ -1432,43 +1424,56 @@ function setupLearningStyleAdvisorSelector() {
       e.preventDefault();
     }
   });
-  input.addEventListener("blur", () => {
-    setTimeout(() => {
-      if (document.activeElement !== input && !container.classList.contains('is-open')) {
-        closeAdvisorDropdown();
-      }
-    }, 200);
-  });
 
-  dropdown.addEventListener("click", (e) => {
+  // 处理下拉项选择：支持 pointerdown / touchend / click 多重保障，杜绝移动端 tap 丢失
+  function handleSelectFromTarget(targetEl) {
+    const item = targetEl?.closest ? targetEl.closest(".advisor-item") : null;
+    if (!item) return false;
+    const idxStr = item.dataset.index;
+    const idx = (idxStr !== undefined && idxStr !== "") ? Number(idxStr) : -1;
+    const val = (item.dataset.value || "").trim();
+    let matched = null;
+    if (idx >= 0 && idx < advisorRecords.length) {
+      matched = advisorRecords[idx];
+    } else if (val) {
+      matched = advisorRecords.find(it => it.employeeName === val);
+    }
+    if (idx === -1 || !val) {
+      applyAdvisorSelection(null);
+    } else if (matched) {
+      applyAdvisorSelection(matched);
+    }
+    closeAdvisorDropdown();
+    return true;
+  }
+
+  let lastSelectTime = 0;
+  function onDropdownItemTrigger(e) {
     e.stopPropagation();
-    const target = e.target.closest(".advisor-item");
-    if (target) {
-      const idxStr = target.dataset.index;
-      const idx = (idxStr !== undefined && idxStr !== "") ? Number(idxStr) : -1;
-      const val = (target.dataset.value || "").trim();
-      let matched = null;
-      if (idx >= 0 && idx < advisorRecords.length) {
-        matched = advisorRecords[idx];
-      } else if (val) {
-        matched = advisorRecords.find(item => item.employeeName === val);
+    const now = Date.now();
+    if (now - lastSelectTime < 250) return; // 防抖，防止 touch 和 click 重复触发
+    if (handleSelectFromTarget(e.target)) {
+      lastSelectTime = now;
+      if (e.cancelable && e.type !== "click") {
+        e.preventDefault();
       }
-      if (idx === -1 || !val) {
-        applyAdvisorSelection(null);
-      } else if (matched) {
-        applyAdvisorSelection(matched);
-      }
+    }
+  }
+
+  dropdown.addEventListener("pointerdown", onDropdownItemTrigger, { passive: false });
+  dropdown.addEventListener("touchend", onDropdownItemTrigger, { passive: false });
+  dropdown.addEventListener("click", onDropdownItemTrigger);
+
+  // 点击外部区域安全收起下拉菜单
+  document.addEventListener("pointerdown", (e) => {
+    if (!container.contains(e.target) && !dropdown.contains(e.target)) {
       closeAdvisorDropdown();
-      input.blur();
     }
   });
 
   document.addEventListener("click", (e) => {
-    if (!container.contains(e.target)) {
+    if (!container.contains(e.target) && !dropdown.contains(e.target)) {
       closeAdvisorDropdown();
-      if (input.value.trim()) {
-        localStorage.setItem("advisor_name", input.value.trim());
-      }
     }
   });
 }

@@ -17,19 +17,83 @@ export const AssessmentReport: React.FC = () => {
       const hashParams = new URLSearchParams(hash.includes("?") ? hash.split("?")[1] : "");
 
       const id = params.get("id") || hashParams.get("id");
-      const mobile = params.get("mobile") || hashParams.get("mobile") || params.get("customerMobile");
+      const mobile = params.get("mobile") || hashParams.get("mobile") || params.get("customerMobile") || localStorage.getItem("lsa_last_mobile");
+      const session = params.get("session") || hashParams.get("session");
 
       try {
         let rawRecord: any = null;
 
+        // 1. 如果有 ID，进行最多 3 次带退避的重试查询（处理刚提交主从延迟）
         if (id) {
-          rawRecord = await fetchAssessmentDetail(id);
+          for (let attempt = 1; attempt <= 3; attempt++) {
+            rawRecord = await fetchAssessmentDetail(id);
+            if (rawRecord) break;
+            if (attempt < 3) await new Promise(r => setTimeout(r, attempt * 600));
+          }
         }
 
+        // 2. 如果 ID 查询失败但有手机号，按手机号查最新一条
         if (!rawRecord && mobile) {
           const list = await fetchAssessmentByMobile(mobile);
           if (list && list.length > 0) {
             rawRecord = list[0];
+          }
+        }
+
+        // 3. 如果服务端仍未查到，从本地 Storage 读取刚提交的作答快照兜底
+        if (!rawRecord) {
+          const candidates = [
+            session ? `lsa_session_${session}` : null,
+            id ? `lsa_record_${id}` : null,
+            id ? `lsa_session_${id}` : null,
+            localStorage.getItem("lsa_last_record")
+          ];
+          for (const c of candidates) {
+            if (!c) continue;
+            const localRaw = localStorage.getItem(c) || (c.startsWith("{") ? c : null);
+            if (localRaw) {
+              try {
+                const sessionData = JSON.parse(localRaw);
+                if (sessionData && (sessionData.answers || sessionData.report)) {
+                  rawRecord = {
+                    customerName: sessionData.userInfo?.studentName || sessionData.name || "学员",
+                    customerMobile: sessionData.userInfo?.phoneNumber || sessionData.contact || mobile || "",
+                    resultJson: sessionData
+                  };
+                  break;
+                }
+              } catch (e) {}
+            }
+          }
+
+          // 兜底扫描所有 lsa_session_*
+          if (!rawRecord) {
+            let newest = null;
+            let newestTime = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+              const lk = localStorage.key(i);
+              if (lk && lk.startsWith("lsa_session_")) {
+                const localRaw = localStorage.getItem(lk);
+                if (!localRaw) continue;
+                try {
+                  const sessionData = JSON.parse(localRaw);
+                  if (sessionData && sessionData.answers) {
+                    const time = new Date(sessionData.completedAt || sessionData.startedAt || 0).getTime() || 0;
+                    if (time >= newestTime) {
+                      newestTime = time;
+                      newest = sessionData;
+                    }
+                  }
+                } catch (e) {}
+              }
+            }
+            if (newest) {
+              rawRecord = {
+                customerName: newest.userInfo?.studentName || newest.name || "学员",
+                customerMobile: newest.userInfo?.phoneNumber || newest.contact || mobile || "",
+                resultJson: newest
+              };
+            }
           }
         }
 
@@ -38,25 +102,33 @@ export const AssessmentReport: React.FC = () => {
             ? JSON.parse(rawRecord.resultJson)
             : rawRecord.resultJson || {};
 
-          const answers: QuestionAnswer[] = resultData.answers || [];
-          const userInfo = resultData.userInfo || {};
+          const rawAnswers = resultData.answers || rawRecord.answers || [];
+          const answers: QuestionAnswer[] = Array.isArray(rawAnswers)
+            ? rawAnswers.map((ans: any) => ({
+                questionId: ans.questionId || ans.id,
+                value: Number(ans.value ?? ans.score ?? 3),
+                responseTimeMs: ans.responseTimeMs,
+                answeredAt: ans.answeredAt
+              }))
+            : [];
+          const userInfo = resultData.userInfo || resultData.studentInfo || {};
 
           const report = generateStudentReport(answers, {
-            studentName: rawRecord.customerName || userInfo.studentName || resultData.name || "学员",
-            phoneNumber: rawRecord.customerMobile || userInfo.phoneNumber || resultData.contact || "",
+            studentName: rawRecord.customerName || userInfo.studentName || userInfo.name || resultData.name || "学员",
+            phoneNumber: rawRecord.customerMobile || userInfo.phoneNumber || userInfo.mobile || resultData.contact || "",
             grade: userInfo.grade || resultData.grade || "高三",
-            specialtyDirection: userInfo.specialtyDirection || "美术设计",
-            scoreBand: userInfo.scoreBand || "400至450",
-            foreignLanguage: userInfo.foreignLanguage || "英语",
+            specialtyDirection: userInfo.specialtyDirection || resultData.specialtyDirection || "美术设计",
+            scoreBand: userInfo.scoreBand || resultData.scoreBand || "400至450",
+            foreignLanguage: userInfo.foreignLanguage || resultData.foreignLanguage || "英语",
             targetSubject: userInfo.targetSubject || resultData.targetSubject || "英语",
             targetSubjectScore: userInfo.targetSubjectScore ?? resultData.targetSubjectScore ?? 110,
-            targetSubjectFullScore: userInfo.targetSubjectFullScore ?? 150,
+            targetSubjectFullScore: userInfo.targetSubjectFullScore ?? resultData.targetSubjectFullScore ?? 150,
             learningFocus: userInfo.learningFocus || resultData.learningFocus || "practice"
           });
 
           setReportData(report);
         } else {
-          setErrorMsg("未找到该测评报告记录。请检查报告 ID 或手机号。");
+          setErrorMsg("未找到该测评报告记录。请检查报告链接或重新测评。");
         }
       } catch (err: any) {
         console.error("加载诊断报告失败:", err);

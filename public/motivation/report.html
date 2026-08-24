@@ -230,48 +230,97 @@
     }
 
     function loadSessionSnapshot(sessionKey) {
-      if (!sessionKey) return null;
-      const keys = new Set([String(sessionKey)]);
-      if (sessionKey.startsWith("session_")) keys.add(sessionKey.slice("session_".length));
-      else keys.add(`session_${sessionKey}`);
-      for (const key of keys) {
+      const candidateKeys = [];
+      if (sessionKey) {
+        candidateKeys.push(String(sessionKey));
+        if (sessionKey.startsWith("session_")) candidateKeys.push(sessionKey.slice("session_".length));
+        else candidateKeys.push(`session_${sessionKey}`);
+      }
+
+      // 如果未指定 sessionKey 或未找到，遍历 localStorage 中的所有 motivation_session_* 找出最新的
+      for (const k of candidateKeys) {
         try {
-          const raw = localStorage.getItem(`motivation_session_${key}`);
+          const raw = localStorage.getItem(`motivation_session_${k}`) || localStorage.getItem(k);
           if (!raw) continue;
           const parsed = JSON.parse(raw);
-          if (parsed && parsed.reportData) {
-            return {
-              id: getQueryParam("id") || key,
-              customerName: parsed.name || parsed.reportData.name || "",
-              customerMobile: parsed.contact || parsed.reportData.contact || "",
-              resultJson: {
-                studentInfo: { name: parsed.name || "", mobile: parsed.contact || "" },
-                assessmentInfo: {
-                  resultData: parsed.reportData,
-                  submittedAt: parsed.completedAt || new Date().toISOString()
-                }
-              }
-            };
+          if (parsed && (parsed.reportData || parsed.answers)) {
+            return buildRecordFromSnapshot(parsed, k);
           }
         } catch (e) {}
       }
+
+      // 兜底：扫描所有本地动力探索 session 缓存，取更新时间最近的一条
+      try {
+        let newest = null;
+        let newestTime = 0;
+        for (let i = 0; i < localStorage.length; i++) {
+          const lk = localStorage.key(i);
+          if (lk && lk.startsWith("motivation_session_")) {
+            const raw = localStorage.getItem(lk);
+            if (!raw) continue;
+            const parsed = JSON.parse(raw);
+            if (parsed && (parsed.reportData || parsed.answers)) {
+              const time = new Date(parsed.completedAt || 0).getTime() || 0;
+              if (time >= newestTime) {
+                newestTime = time;
+                newest = { parsed, key: lk };
+              }
+            }
+          }
+        }
+        if (newest) {
+          return buildRecordFromSnapshot(newest.parsed, newest.key);
+        }
+      } catch (e) {}
+
       return null;
     }
 
+    function buildRecordFromSnapshot(parsed, key) {
+      return {
+        id: getQueryParam("id") || key,
+        customerName: parsed.name || parsed.reportData?.name || "",
+        customerMobile: parsed.contact || parsed.reportData?.contact || "",
+        resultJson: {
+          studentInfo: { 
+            name: parsed.name || parsed.reportData?.name || "", 
+            mobile: parsed.contact || parsed.reportData?.contact || "",
+            grade: parsed.basic?.grade || "",
+            specialtyDirection: parsed.basic?.major || ""
+          },
+          advisorInfo: {
+            name: parsed.basic?.advisorName || localStorage.getItem("advisor_name") || ""
+          },
+          assessmentInfo: {
+            resultData: parsed.reportData,
+            answers: parsed.answers,
+            submittedAt: parsed.completedAt || new Date().toISOString()
+          }
+        }
+      };
+    }
+
     async function fetchReportData(id) {
-      try {
-        let res = await fetch(`${BACKEND_BASE}/api/assessment/result/${id}`);
-        let json = await res.json();
-        if ((json.code === 200 || json.code === 0) && json.data) {
-          return json.data;
+      // 增加重试机制（最多 3 次重试，解决刚提交瞬间后端写入延迟）
+      const maxRetries = 3;
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          let res = await fetch(`${BACKEND_BASE}/api/assessment/result/${id}`);
+          let json = await res.json().catch(() => ({}));
+          if ((json.code === 200 || json.code === 0) && json.data) {
+            return json.data;
+          }
+          res = await fetch(`${BACKEND_BASE}/api/assessment/detail?id=${id}`);
+          json = await res.json().catch(() => ({}));
+          if ((json.code === 200 || json.code === 0) && json.data) {
+            return json.data;
+          }
+        } catch (e) {
+          console.warn(`第 ${attempt} 次请求后端报告异常:`, e);
         }
-        res = await fetch(`${BACKEND_BASE}/api/assessment/detail?id=${id}`);
-        json = await res.json();
-        if ((json.code === 200 || json.code === 0) && json.data) {
-          return json.data;
+        if (attempt < maxRetries) {
+          await new Promise(r => setTimeout(r, attempt * 600));
         }
-      } catch (e) {
-        console.warn("请求后端报告失败:", e);
       }
       return null;
     }
@@ -476,16 +525,16 @@
     async function init() {
       const id = getQueryParam('id');
       const session = getQueryParam('session');
-      if (!id && !session) {
-        showReportError('缺少报告 ID 参数，无法渲染诊断报告。');
-        return;
-      }
       let data = null;
       if (id) {
         data = await fetchReportData(id);
       }
-      if (!data && session) {
+      if (!data) {
         data = loadSessionSnapshot(session);
+      }
+      if (!data) {
+        showReportError('未找到对应的测评记录，请检查链接或重新测评。');
+        return;
       }
       renderReport(data);
     }

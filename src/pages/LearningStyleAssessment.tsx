@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { getFFCRMContextFromUrl } from "../utils/url";
 import { submitAssessmentPayload } from "../services/api";
 
@@ -93,6 +93,21 @@ export const LearningStyleAssessment: React.FC = () => {
   });
   const [advisorDropdownOpen, setAdvisorDropdownOpen] = useState(false);
   const [advisorList, setAdvisorList] = useState<string[]>([]);
+  const advisorWrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent | TouchEvent) {
+      if (advisorWrapperRef.current && !advisorWrapperRef.current.contains(e.target as Node)) {
+        setAdvisorDropdownOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("pointerdown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
 
   const hasCtx = useMemo(() => {
     const search = window.location.search || "";
@@ -493,20 +508,24 @@ export const LearningStyleAssessment: React.FC = () => {
 
                     {/* 归属顾问 (链接未带 ctx 时展示) */}
                     {!hasCtx && (
-                      <div className="relative">
+                      <div className="relative" ref={advisorWrapperRef}>
                         <div className="flex justify-between items-center mb-1.5">
                           <label className="text-xs font-bold text-gray-700">归属顾问</label>
                           <span className="text-[11px] font-medium text-gray-500 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-full">
                             选填
                           </span>
                         </div>
-                        <div className="relative">
+                        <div 
+                          className="relative cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setAdvisorDropdownOpen((prev) => !prev);
+                          }}
+                        >
                           <input
                             type="text"
                             readOnly
                             value={advisorName}
-                            onFocus={() => setAdvisorDropdownOpen(true)}
-                            onClick={() => setAdvisorDropdownOpen(true)}
                             onKeyDown={(e) => {
                               if (e.key === "Escape") {
                                 setAdvisorDropdownOpen(false);
@@ -517,7 +536,7 @@ export const LearningStyleAssessment: React.FC = () => {
                               }
                             }}
                             placeholder="请选择归属顾问（选填）"
-                            className="w-full px-4 py-3 pr-10 rounded-xl border border-amber-200 focus:border-[#F5C518] focus:ring-2 focus:ring-amber-200 outline-none transition-all text-sm bg-white font-medium cursor-pointer caret-transparent"
+                            className="w-full px-4 py-3 pr-10 rounded-xl border border-amber-200 focus:border-[#F5C518] focus:ring-2 focus:ring-amber-200 outline-none transition-all text-sm bg-white font-medium cursor-pointer caret-transparent select-none"
                           />
                           <div className={`absolute right-3 top-1/2 -translate-y-1/2 text-amber-600 pointer-events-none transition-transform duration-200 ${advisorDropdownOpen ? 'rotate-180' : ''}`}>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -529,11 +548,12 @@ export const LearningStyleAssessment: React.FC = () => {
                         {advisorDropdownOpen && (
                           <div 
                             className="absolute left-0 right-0 top-[calc(100%+4px)] bg-white border border-amber-200/80 rounded-2xl shadow-xl max-h-56 overflow-y-auto z-50 p-1.5 animate-in fade-in duration-150"
-                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={(e) => e.stopPropagation()}
                           >
                             {/* 暂不指定顾问选项 */}
                             <div
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setAdvisorName("");
                                 localStorage.removeItem("advisor_name");
                                 localStorage.removeItem("advisor_user_id");
@@ -569,7 +589,8 @@ export const LearningStyleAssessment: React.FC = () => {
                                 return (
                                   <div
                                     key={name}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                      e.stopPropagation();
                                       setAdvisorName(name);
                                       localStorage.setItem("advisor_name", name);
                                       setAdvisorDropdownOpen(false);
