@@ -174,7 +174,7 @@ export const AssessmentReport: React.FC = () => {
       </header>
 
       {/* Main Report Body */}
-      <main className="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
+      <main className="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
         {/* Banner */}
         <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/80 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
           <div className="space-y-2 text-center md:text-left">
