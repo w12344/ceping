@@ -512,6 +512,9 @@ async function submitAssessment() {
 
   await new Promise((r) => setTimeout(r, 600));
 
+  const query = recordId
+    ? `id=${encodeURIComponent(recordId)}&session=${encodeURIComponent(reportSession)}`
+    : `session=${encodeURIComponent(reportSession)}`;
   const targetReportPath = (typeof window !== "undefined" && window.location.pathname.includes("/learning/")) ? "/learning/report.html" : "/report.html";
   window.location.assign(`${targetReportPath}?${query}`);
 }

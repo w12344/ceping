@@ -132,7 +132,7 @@ const ASSESSMENTS = [
     tag: "文化课诊断",
     tagClass: "tag-xxfg",
     icon: "🎓",
-    url: "https://ceping.1605ai.com/index.html",
+    url: "/learning/index.html",
     desc: "高中/高复学员感官吸收通道评估，诊断视觉、听觉与动觉倾向。"
   },
   {
@@ -143,7 +143,7 @@ const ASSESSMENTS = [
     tag: "心理动力",
     tagClass: "tag-xxdj",
     icon: "🚀",
-    url: "https://ceping.1605ai.com/motivation/index.html",
+    url: "/motivation/index.html",
     desc: "评估 7 大核心驱动维度，定量诊断学员自我效能感与成就动机。"
   },
   {
@@ -154,7 +154,7 @@ const ASSESSMENTS = [
     tag: "创业者/高管",
     tagClass: "tag-fth",
     icon: "💼",
-    url: "https://ceping.1605ai.com/fthboss/index.html",
+    url: "/fthboss/index.html",
     desc: "24 题评估 Fighter 冲刺、Thinker 思考与 Climber 攻坚型人设。"
   },
   {
@@ -165,7 +165,7 @@ const ASSESSMENTS = [
     tag: "团队人才盘点",
     tagClass: "tag-fth",
     icon: "📱",
-    url: "https://ceping.1605ai.com/fthtalent/index.html",
+    url: "/fthtalent/index.html",
     desc: "16 题微信极速评估，识别团队核心角色定位与行为爆发力。"
   },
   {
@@ -176,7 +176,7 @@ const ASSESSMENTS = [
     tag: "AI/研发交付",
     tagClass: "tag-fth1605",
     icon: "💻",
-    url: "https://ceping.1605ai.com/fth1605/index.html",
+    url: "/fth1605/index.html",
     desc: "AI/研发团队高阶特质分析模型，全量导出 14 页 PPTX 报告。"
   }
 ];
@@ -355,11 +355,10 @@ function parseAssessmentContextFromUrl() {
   }
 }
 
-function getShareableUrl(baseUrl) {
+function getPortalContextParams() {
   const loc = typeof window !== "undefined" ? window.location : { search: "", hash: "" };
   const params = new URLSearchParams(loc.search || "");
 
-  // 支持从 URL Hash 提取 Query 参数
   if (loc.hash && loc.hash.includes("?")) {
     const hashSearch = loc.hash.split("?")[1];
     const hp = new URLSearchParams(hashSearch || "");
@@ -370,47 +369,54 @@ function getShareableUrl(baseUrl) {
     });
   }
 
-  // 1. 如果 URL 中已包含极简加密串 ctx，优先且仅透传 ctx (零冗余明文参数，保持超短规范)
-  const ctx = params.get("ctx");
-  if (ctx) {
-    const sep = baseUrl.includes("?") ? "&" : "?";
-    return `${baseUrl}${sep}ctx=${encodeURIComponent(ctx)}`;
+  return params;
+}
+
+function getPublicShareOrigin() {
+  if (typeof window.ASSESSMENT_PUBLIC_ORIGIN === "string" && window.ASSESSMENT_PUBLIC_ORIGIN) {
+    return window.ASSESSMENT_PUBLIC_ORIGIN;
   }
+  const host = window.location.hostname || "";
+  const isLocal = host === "localhost" || host === "127.0.0.1" || host === "[::1]";
+  return isLocal ? "https://ceping.1605ai.com" : window.location.origin;
+}
 
-  // 2. 无 ctx 时：收集并精简拼接明文/缓存参数
-  const ignoreKeys = new Set(["embed", "feishu_sso", "hide", "pure", "tab", "v", "code", "state"]);
-  const queryObj = new URLSearchParams();
+function normalizeAssessmentBaseUrl(baseUrl) {
+  if (!baseUrl) return baseUrl;
+  try {
+    const origin = getPublicShareOrigin();
+    const parsed = new URL(baseUrl, origin);
+    return `${origin}${parsed.pathname}`;
+  } catch {
+    return baseUrl;
+  }
+}
 
-  params.forEach((val, key) => {
-    if (!ignoreKeys.has(key) && val !== null && val !== undefined && val !== "") {
+function appendPassthroughUiParams(queryObj, sourceParams) {
+  ["embed", "hide", "pure", "simple", "hideHeader", "hideTabs"].forEach((key) => {
+    const val = sourceParams.get(key);
+    if (val && !queryObj.has(key)) {
       queryObj.set(key, val);
     }
   });
+}
 
-  const ctxObj = typeof getFFCRMContextFromUrl === "function" ? getFFCRMContextFromUrl() : null;
-  if (ctxObj) {
-    if (ctxObj.advisor.token && !queryObj.has("token")) {
-      queryObj.set("token", ctxObj.advisor.token);
-    }
-    if (ctxObj.advisor.name && !["用户", "顾问", "未知"].includes(ctxObj.advisor.name.trim()) && !queryObj.has("employeeName") && !queryObj.has("advisorName")) {
-      queryObj.set("employeeName", ctxObj.advisor.name);
-    }
-    if (ctxObj.student.name && !queryObj.has("studentName")) {
-      queryObj.set("studentName", ctxObj.student.name);
-    }
-    if (ctxObj.student.mobile && !queryObj.has("studentMobile") && !queryObj.has("phone")) {
-      queryObj.set("studentMobile", ctxObj.student.mobile);
-    }
-    if (ctxObj.student.profileId && !queryObj.has("profileId") && !queryObj.has("customerId")) {
-      queryObj.set("profileId", ctxObj.student.profileId);
-    }
-  }
+function isEmbedPortalMode() {
+  const params = getPortalContextParams();
+  return ["embed", "hide", "pure", "simple"].some((key) => {
+    const val = params.get(key);
+    return val === "1" || val === "true";
+  });
+}
 
+function getShareableUrl(baseUrl) {
+  const absoluteBase = normalizeAssessmentBaseUrl(baseUrl);
+  const params = getPortalContextParams();
+  const queryObj = new URLSearchParams();
+  appendPassthroughUiParams(queryObj, params);
   const queryString = queryObj.toString();
-  if (!queryString) return baseUrl;
-
-  const sep = baseUrl.includes("?") ? "&" : "?";
-  return `${baseUrl}${sep}${queryString}`;
+  if (!queryString) return absoluteBase;
+  return `${absoluteBase}?${queryString}`;
 }
 
 async function init() {
@@ -453,59 +459,7 @@ async function init() {
     }
   }
 
-  const code = urlParams.get("code") || hashParams?.get("code");
-  const feishuSso = urlParams.get("feishu_sso") || hashParams?.get("feishu_sso");
-
-  if (code) {
-    cleanUrlCodeAndState();
-
-    const realUser = await fetchRealFeishuUserInfo(code);
-    if (realUser && realUser.name) {
-      saveUserSession(realUser);
-      showToast(`🎉 飞书授权成功！欢迎，${realUser.name}`);
-    } else {
-      const existing = loadExistingFeishuSession();
-      if (existing && existing.name) {
-        saveUserSession(existing);
-        showToast(`🎉 飞书授权成功！欢迎，${existing.name}`);
-      } else {
-        const fallbackUser = {
-          name: `飞书已认证用户`,
-          avatar: SVG_DEFAULT_AVATAR,
-          mobile: "",
-          user_id: code,
-          dept: "非凡教育"
-        };
-        saveUserSession(fallbackUser);
-        showToast("🎉 授权成功！直接点击右上角可自定义分发人姓名");
-      }
-    }
-  } else if (feishuSso) {
-    cleanUrlCodeAndState();
-    const existing = loadExistingFeishuSession();
-    if (existing && existing.name) {
-      saveUserSession(existing);
-      showToast(`🎉 飞书扫码成功！欢迎，${existing.name}`);
-    } else {
-      const fallbackUser = {
-        name: "飞书已认证成员",
-        avatar: SVG_DEFAULT_AVATAR,
-        mobile: "",
-        user_id: `fs_${Date.now().toString(36)}`,
-        dept: "非凡教育"
-      };
-      saveUserSession(fallbackUser);
-      showToast("🎉 飞书扫码成功！点击右上角姓名可自定义名片");
-    }
-  } else {
-    loadUserSession();
-  }
-
-  const isInFeishu = /Lark|Feishu/i.test(navigator.userAgent);
-  if (isInFeishu && !state.user) {
-    attemptFeishuInAppAuth();
-  }
-
+  cleanUrlCodeAndState();
   updateAuthUI();
 }
 
@@ -537,9 +491,11 @@ function saveUserSession(userObj) {
 function cleanUrlCodeAndState() {
   if (window.history && window.history.replaceState) {
     const urlParams = new URLSearchParams(window.location.search);
-    urlParams.delete("code");
-    urlParams.delete("state");
-    urlParams.delete("feishu_sso");
+    [
+      "code", "state", "feishu_sso", "token", "ref", "ctx",
+      "employeeName", "advisorName", "studentName", "studentMobile",
+      "phone", "profileId", "customerId", "userId", "employeeId", "advisorUserId"
+    ].forEach((key) => urlParams.delete(key));
     const queryString = urlParams.toString();
     const cleanUrl = window.location.origin + window.location.pathname + (queryString ? "?" + queryString : "");
     window.history.replaceState({}, document.title, cleanUrl);
@@ -575,33 +531,15 @@ function updateAuthUI() {
     }
   }
 
-  if (state.user || shouldHideHeader || shouldHideTabs) {
-    if (!shouldHideHeader && elements.adminHeader) elements.adminHeader.hidden = false;
-    if (elements.feishuLandingGate) elements.feishuLandingGate.hidden = true;
-    if (elements.portalMainContent) elements.portalMainContent.hidden = false;
-    if (elements.authBox) elements.authBox.hidden = false;
-    
-    if (elements.userAvatarImg) {
-      elements.userAvatarImg.src = (state.user && state.user.avatar) || SVG_DEFAULT_AVATAR;
-    }
-    
-    if (elements.userNameBadge) {
-      elements.userNameBadge.textContent = (state.user && state.user.name) || "飞书已认证用户";
-    }
+  if (elements.feishuLandingGate) elements.feishuLandingGate.hidden = true;
+  if (elements.portalMainContent) elements.portalMainContent.hidden = false;
 
-    if (elements.userMobileBadge) {
-      const mobileStr = state.user && state.user.mobile ? `${state.user.mobile} · ` : "";
-      elements.userMobileBadge.textContent = `${mobileStr}${(state.user && state.user.dept) || '非凡教育'}`;
-    }
-
-    renderPortal();
-  } else {
-    if (elements.adminHeader) elements.adminHeader.hidden = true;
-    if (elements.feishuLandingGate) elements.feishuLandingGate.hidden = false;
-    if (elements.portalMainContent) elements.portalMainContent.hidden = true;
-    if (elements.authBox) elements.authBox.hidden = true;
-    renderFeishuSDKQR();
+  if (!shouldHideHeader && elements.adminHeader) {
+    elements.adminHeader.hidden = false;
   }
+  if (elements.authBox) elements.authBox.hidden = true;
+
+  renderPortal();
 }
 
 function renderFeishuSDKQR() {
@@ -755,8 +693,6 @@ function renderPortal() {
   const shouldHideHeader = getURLParam("embed") === "1" || getURLParam("pure") === "1" || getURLParam("hideHeader") === "1";
   const shouldHideTabs = getURLParam("embed") === "1" || getURLParam("pure") === "1" || getURLParam("hideTabs") === "1";
 
-  if (!state.user && !shouldHideHeader && !shouldHideTabs) return;
-
   let list = ASSESSMENTS;
 
   if (state.currentType !== "ALL") {
@@ -788,6 +724,7 @@ function renderPortal() {
 
   elements.portalCardGrid.innerHTML = list.map(item => {
     const shareableUrl = getShareableUrl(item.url);
+    const linkTarget = isEmbedPortalMode() ? "_self" : "_blank";
     const coverSvg = COVER_SVGS[item.key] || COVER_SVGS.learningStyle;
     const isShowingQr = !!state.showingQr[item.key];
 
@@ -829,7 +766,7 @@ function renderPortal() {
 
         <!-- 保持原有 3 大独立按钮样式 100% 不变 -->
         <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid #FEF3C7;padding-top:12px">
-          <a href="${shareableUrl}" target="_blank" class="btn primary-gold-btn" style="padding:8px 12px;font-size:13px;font-weight:800;text-align:center;text-decoration:none;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:6px">
+          <a href="${shareableUrl}" target="${linkTarget}" class="btn primary-gold-btn" style="padding:8px 12px;font-size:13px;font-weight:800;text-align:center;text-decoration:none;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:6px">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
             </svg>

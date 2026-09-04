@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Copy, ExternalLink, QrCode, Sparkles, Check } from "lucide-react";
-import { getCustomTemplates, getFFCRMContextFromUrl } from "../services/api";
+import { getCustomTemplates } from "../services/api";
 
 interface AssessmentPortalProps {
   token: string;
@@ -54,7 +54,7 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
       category: "POST_SALE",
       categoryName: "🎓 成交后 · 进门学情诊断",
       desc: "四大学习通道与目标学科深度匹配",
-      url: "https://ceping.1605ai.com/index.html"
+      url: "/learning/index.html"
     },
     {
       id: "motivation",
@@ -64,7 +64,7 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
       category: "POST_SALE",
       categoryName: "🎓 成交后 · 状态与动机归因",
       desc: "七大维度与自主积极型行为诊断",
-      url: "https://ceping.1605ai.com/motivation/index.html"
+      url: "/motivation/index.html"
     },
     {
       id: "fthBoss",
@@ -74,7 +74,7 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
       category: "PRE_SALE",
       categoryName: "🛒 成交前 · 痛点唤醒与引流",
       desc: "创业者 / 领导者潜能剖析与团队匹配",
-      url: "https://ceping.1605ai.com/fthboss/index.html"
+      url: "/fthboss/index.html"
     },
     {
       id: "fthTalent",
@@ -84,7 +84,7 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
       category: "PRE_SALE",
       categoryName: "🛒 成交前 · 痛点唤醒与引流",
       desc: "轻量卡片化人际与思维模式测评",
-      url: "https://ceping.1605ai.com/fthtalent/index.html"
+      url: "/fthtalent/index.html"
     },
     {
       id: "fth1605",
@@ -94,7 +94,7 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
       category: "POST_SALE",
       categoryName: "🎓 成交后 · 教学方案匹配",
       desc: "1605 强效能力与性格特征建模",
-      url: "https://ceping.1605ai.com/fth1605/index.html"
+      url: "/fth1605/index.html"
     }
   ];
 
@@ -108,7 +108,9 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
       category: t.category,
       categoryName: t.category === "PRE_SALE" ? "🛒 成交前测评" : "🎓 成交后测评",
       desc: `自定义 HTML 测评 (代码: ${t.templateCode})`,
-      url: `https://ceping.1605ai.com/custom/${encodeURIComponent(t.templateCode)}/index.html`
+      url: typeof window !== "undefined"
+        ? `${window.location.origin}/custom/${encodeURIComponent(t.templateCode)}/index.html`
+        : `/custom/${encodeURIComponent(t.templateCode)}/index.html`
     }))
   ];
 
@@ -124,7 +126,7 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
   };
 
   const getShareUrl = (baseUrl: string) => {
-    const loc = typeof window !== "undefined" ? window.location : { search: "", hash: "" };
+    const loc = typeof window !== "undefined" ? window.location : { search: "", hash: "", origin: "https://ceping.1605ai.com" };
     const params = new URLSearchParams(loc.search || "");
 
     if (loc.hash && loc.hash.includes("?")) {
@@ -137,45 +139,42 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
       });
     }
 
-    const ctx = params.get("ctx");
-    if (ctx) {
-      const sep = baseUrl.includes("?") ? "&" : "?";
-      return `${baseUrl}${sep}ctx=${encodeURIComponent(ctx)}`;
-    }
+    const host = typeof window !== "undefined" ? window.location.hostname : "";
+    const isLocal = host === "localhost" || host === "127.0.0.1" || host === "[::1]";
+    const shareOrigin = isLocal
+      ? "https://ceping.1605ai.com"
+      : (typeof window !== "undefined" ? window.location.origin : "https://ceping.1605ai.com");
 
-    const ignoreKeys = new Set(["embed", "feishu_sso", "hide", "pure", "tab", "v", "code", "state"]);
+    const absoluteBase = (() => {
+      try {
+        const parsed = new URL(baseUrl, shareOrigin);
+        return `${shareOrigin}${parsed.pathname}`;
+      } catch {
+        return baseUrl;
+      }
+    })();
+
     const queryObj = new URLSearchParams();
-
-    params.forEach((val, key) => {
-      if (!ignoreKeys.has(key) && val !== null && val !== undefined && val !== "") {
+    ["embed", "hide", "pure", "simple", "hideHeader", "hideTabs"].forEach((key) => {
+      const val = params.get(key);
+      if (val && !queryObj.has(key)) {
         queryObj.set(key, val);
       }
     });
 
-    const ctxObj = getFFCRMContextFromUrl();
-    if (ctxObj) {
-      if (ctxObj.advisor.token && !queryObj.has("token")) {
-        queryObj.set("token", ctxObj.advisor.token);
-      }
-      if (ctxObj.advisor.name && !["用户", "顾问", "未知"].includes(ctxObj.advisor.name.trim()) && !queryObj.has("employeeName") && !queryObj.has("advisorName")) {
-        queryObj.set("employeeName", ctxObj.advisor.name);
-      }
-      if (ctxObj.student.name && !queryObj.has("studentName")) {
-        queryObj.set("studentName", ctxObj.student.name);
-      }
-      if (ctxObj.student.mobile && !queryObj.has("studentMobile") && !queryObj.has("phone")) {
-        queryObj.set("studentMobile", ctxObj.student.mobile);
-      }
-      if (ctxObj.student.profileId && !queryObj.has("profileId") && !queryObj.has("customerId")) {
-        queryObj.set("profileId", ctxObj.student.profileId);
-      }
-    }
-
     const queryString = queryObj.toString();
-    if (!queryString) return baseUrl;
+    if (!queryString) return absoluteBase;
 
-    const sep = baseUrl.includes("?") ? "&" : "?";
-    return `${baseUrl}${sep}${queryString}`;
+    return `${absoluteBase}?${queryString}`;
+  };
+
+  const isEmbedPortalMode = () => {
+    if (typeof window === "undefined") return false;
+    const params = new URLSearchParams(window.location.search || "");
+    return ["embed", "hide", "pure", "simple"].some((key) => {
+      const val = params.get(key);
+      return val === "1" || val === "true";
+    });
   };
 
   return (
@@ -312,7 +311,7 @@ export const AssessmentPortal: React.FC<AssessmentPortalProps> = ({
                   </button>
                   <a
                     href={shareUrl}
-                    target="_blank"
+                    target={isEmbedPortalMode() ? "_self" : "_blank"}
                     rel="noreferrer"
                     className="p-2 text-gray-500 hover:text-amber-700 bg-gray-50 hover:bg-amber-50 rounded-xl border border-gray-200 transition-all"
                     title="在浏览器直接打开"

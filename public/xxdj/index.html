@@ -398,12 +398,13 @@
       };
 
       try {
-        const resp = await fetch('https://ceping.1605ai.com/api/assessment/submit', {
+        const resp = await fetch('https://ffcrm-api.1605ai.com/api/assessment/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          keepalive: true,
           body: JSON.stringify(payload)
         });
-        const resData = await resp.json();
+        const resData = await resp.json().catch(() => ({}));
         const savedId = resData.data?.id || resData.data?.savedId;
         if (savedId) {
           window.location.href = `https://ceping.1605ai.com/report.html?id=${savedId}`;

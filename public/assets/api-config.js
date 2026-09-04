@@ -10,6 +10,14 @@
       : "https://ffcrm-api.1605ai.com";
   }
 
+  if (!global.ASSESSMENT_PUBLIC_ORIGIN) {
+    const host = (global.location && global.location.hostname) || "";
+    const isLocal = host === "localhost" || host === "127.0.0.1" || host === "[::1]";
+    global.ASSESSMENT_PUBLIC_ORIGIN = isLocal
+      ? "https://ceping.1605ai.com"
+      : ((global.location && global.location.origin) || "https://ceping.1605ai.com");
+  }
+
   // 归属顾问下拉：销售 + 市场人员
   if (!global.ASSESSMENT_ADVISOR_ROLE_CODES) {
     global.ASSESSMENT_ADVISOR_ROLE_CODES = "SALES,MARKET";
@@ -270,31 +278,37 @@
 
   async function executeSingleSubmit(payload, timeoutMs = 8000) {
     const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "[::1]");
-    const backendBase = global.ASSESSMENT_API_BASE || (isLocal ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
-    const endpoint = `${backendBase}/api/assessment/submit`;
+    const primaryBase = global.ASSESSMENT_API_BASE || (isLocal ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
+    const secondaryBase = isLocal ? "https://ffcrm-api.1605ai.com" : "https://ffcrm-daily.1605ai.com";
+    const candidateBases = [primaryBase, secondaryBase].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
 
-    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-    const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+    let lastError = "Network Error";
+    for (const backendBase of candidateBases) {
+      const endpoint = `${backendBase}/api/assessment/submit`;
+      const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+      const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
 
-    try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: controller ? controller.signal : undefined,
-        keepalive: true, // 确保页面跳转切页时请求不被浏览器强行终止
-        body: JSON.stringify(payload)
-      });
-      if (timer) clearTimeout(timer);
-      const resJson = await response.json().catch(() => ({}));
-      if (response.ok && (resJson.code === 200 || resJson.code === 0)) {
-        const recordId = resJson.data?.id || resJson.data?.savedId || (typeof resJson.data === "string" || typeof resJson.data === "number" ? String(resJson.data) : null);
-        return { success: true, recordId, data: resJson.data };
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller ? controller.signal : undefined,
+          keepalive: true, // 确保页面跳转切页时请求不被浏览器强行终止
+          body: JSON.stringify(payload)
+        });
+        if (timer) clearTimeout(timer);
+        const resJson = await response.json().catch(() => ({}));
+        if (response.ok && (resJson.code === 200 || resJson.code === 0)) {
+          const recordId = resJson.data?.id || resJson.data?.savedId || (typeof resJson.data === "string" || typeof resJson.data === "number" ? String(resJson.data) : null) || (resJson.id ? String(resJson.id) : null);
+          return { success: true, recordId, data: resJson.data };
+        }
+        lastError = resJson.message || `HTTP ${response.status}`;
+      } catch (err) {
+        if (timer) clearTimeout(timer);
+        lastError = err.message || "Network Error";
       }
-      return { success: false, message: resJson.message || `HTTP ${response.status}` };
-    } catch (err) {
-      if (timer) clearTimeout(timer);
-      return { success: false, message: err.message || "Network Error" };
     }
+    return { success: false, message: lastError };
   }
 
   async function submitWithGuaranteedDelivery(payload, options = {}) {
@@ -344,8 +358,21 @@
         const res = await executeSingleSubmit(item.payload, 10000);
         if (res.success && res.recordId) {
           dequeuePendingSubmit(item.clientKey);
+          // 同步回写本地快照中的 recordId
+          try {
+            const code = (item.payload?.assessmentInfo?.templateCode || item.payload?.templateCode || "fth").toLowerCase();
+            const lastSnapRaw = localStorage.getItem(`${code}_last_record`);
+            if (lastSnapRaw) {
+              const snap = JSON.parse(lastSnapRaw);
+              if (!snap.recordId) {
+                snap.recordId = res.recordId;
+                localStorage.setItem(`${code}_last_record`, JSON.stringify(snap));
+                localStorage.setItem(`${code}_record_${res.recordId}`, JSON.stringify(snap));
+              }
+            }
+          } catch(e) {}
         } else {
-          savePendingQueue(getPendingQueue());
+          savePendingQueue(queue);
         }
       }
     } catch (e) {

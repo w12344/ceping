@@ -47,8 +47,8 @@
 </head>
 <body class="admin-body" style="background:#FFFDF6">
 
-  <!-- 顶部导航 Header (登录后显示) -->
-  <header id="adminHeader" class="admin-header" hidden>
+  <!-- 顶部导航 Header -->
+  <header id="adminHeader" class="admin-header">
     <div class="admin-header-inner">
       <div class="admin-brand">
         <img src="assets/van_school_logo.png" alt="非凡 VAN SCHOOL Logo" class="brand-logo-img" style="height:46px;width:auto;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);vertical-align:middle;object-fit:contain" />
@@ -71,8 +71,8 @@
     </div>
   </header>
 
-  <!-- 1. 飞书扫码登录界面 -->
-  <section id="feishuLandingGate" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 16px;position:relative;background:#FFFDF6;overflow:hidden">
+  <!-- 1. 飞书扫码登录界面（已停用，保留 DOM 供兼容） -->
+  <section id="feishuLandingGate" hidden style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 16px;position:relative;background:#FFFDF6;overflow:hidden">
     <div style="max-width:450px;width:100%;background:#FFFFFF;border:1.5px solid #FDE68A;border-radius:24px;padding:32px 28px;box-shadow:0 12px 36px rgba(45,48,146,0.06);position:relative;z-index:1;text-align:center">
       
       <img src="assets/van_school_logo.png" alt="非凡 VAN SCHOOL Logo" style="height:60px;width:auto;margin:0 auto 16px auto;display:block;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,0.08);object-fit:contain" />
@@ -139,8 +139,8 @@
     </div>
   </section>
 
-  <!-- 2. 登录后解锁的测评分发大厅 -->
-  <main id="portalMainContent" class="admin-main" hidden>
+  <!-- 2. 测评分发大厅 -->
+  <main id="portalMainContent" class="admin-main">
     <section class="admin-card toolbar-card">
       <div class="project-type-filter" id="portalTypeFilter" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px dashed #FDE68A;flex-wrap:wrap">
         <span style="font-size:12px;font-weight:800;color:#D97706;background:#FEF3C7;padding:4px 10px;border-radius:8px">筛选分类</span>
@@ -181,6 +181,6 @@
 
   <div id="toast" style="position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:rgba(30,26,28,0.92);color:#FFE100;padding:10px 20px;border-radius:9999px;font-size:13px;font-weight:800;z-index:2000;box-shadow:0 10px 30px rgba(0,0,0,0.3)" hidden>已复制到剪贴板！</div>
 
-  <script type="module" src="assets/portal.js?v=20260813_v500"></script>
+  <script type="module" src="assets/portal.js?v=20260904_fth_content"></script>
 </body>
 </html>

@@ -3,159 +3,523 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>FTH 1605 职业特质测评｜非凡教育</title>
-  <link rel="stylesheet" href="/assets/styles.css">
+  <meta name="theme-color" content="#fbf7ef">
+  <title>FTH 职业特质测评 · 1605版 | 非凡教育</title>
+  <meta name="description" content="专为研发、极客与AI原生团队打造的职业特质测评，定位敏捷破局、架构规划与团队赋能潜力。">
+  <link rel="stylesheet" href="/assets/styles.css?v=20260819_back2">
+  <script src="/assets/api-config.js"></script>
   <style>
-    .fth-option-grid {
+    /* 页面私有高精微调 (100% 保持 styles.css 统一流光主题) */
+    .fth-radar-box {
+      width: 100%;
+      max-width: 380px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .fth-radar-svg {
+      width: 100%;
+      height: auto;
+      max-height: 360px;
+      filter: drop-shadow(0 8px 24px rgba(217, 119, 6, 0.12));
+    }
+    .fth-option-list {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 8px;
-      margin-top: 12px;
+      gap: 10px;
+      margin-top: 16px;
     }
     @media (max-width: 640px) {
-      .fth-option-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+      .fth-option-list {
+        grid-template-columns: 1fr;
+        gap: 8px;
       }
+    }
+    .dim-score-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+    @media (max-width: 768px) {
+      .dim-score-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .dim-score-card {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(253, 230, 138, 0.6);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .dim-score-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .dim-score-pill {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 9999px;
+    }
+    .dim-score-track {
+      height: 7px;
+      background: #FEF3C7;
+      border-radius: 9999px;
+      overflow: hidden;
+      position: relative;
+    }
+    .dim-score-fill {
+      height: 100%;
+      border-radius: 9999px;
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .dim-score-desc {
+      font-size: 12px;
+      color: #78350F;
+      line-height: 1.5;
+    }
+    .fth-report-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .fth-report-list li {
+      padding: 14px 18px;
+      background: #FFFDF8;
+      border: 1.5px solid rgba(253, 230, 138, 0.85);
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.65;
+      color: #374151;
+    }
+    .fth-report-list.risk-style li {
+      background: #FFFBEB;
+      border-color: #FCD34D;
+    }
+    .scenarios-text-box {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      line-height: 1.65;
+      margin: 0;
+      padding: 16px 20px;
+      background: #FFFDF0;
+      border: 1.5px solid #FDE68A;
+      border-radius: 14px;
     }
   </style>
 </head>
 <body class="assessment-page">
-  <!-- 统一 Header Bar -->
   <header class="brand-bar">
     <div class="brand-lockup">
-      <div style="display:flex;align-items:center;gap:12px">
+      <button type="button" id="homeBackButton" class="brand-back-button" data-home-back aria-label="返回上一页">← 返回</button>
+      <div class="brand-left">
         <div class="brand-badge-box">凡</div>
-        <div>
-          <span class="brand-cn">非凡教育 · FTH 职业特质测评 (1605版)</span>
-          <span class="brand-en">FTH 1605 TALENT ASSESSMENT · AI研发三维特质</span>
+        <div class="brand-text">
+          <span class="brand-cn">非凡教育</span>
+          <span class="brand-sub">FTH 职业特质测评 · 1605版</span>
         </div>
       </div>
+      <button type="button" id="autofillBtn" class="test-autofill-btn" data-action="autofill-test" title="仅在 type=test 模式下展示">⚡ 快速填入</button>
     </div>
   </header>
 
-  <main class="page-shell" style="max-width:760px;margin:24px auto;padding:0 16px 40px">
-    <!-- Step 1: 封面介绍页 -->
-    <section id="startView" class="view is-active">
-      <div class="panel" style="text-align:center;padding:36px 20px">
-        <div class="pill-badge" style="margin-bottom:12px">✨ 非凡教育 · 研发人才特质评估模型</div>
-        <h1 style="font-size:28px;font-weight:900;color:#1E1A1C;margin-bottom:12px">FTH 1605 职业特质测评</h1>
-        <p style="color:#4B5563;font-size:15px;line-height:1.7;max-width:540px;margin:0 auto 24px">
-          从<strong>攻坚开拓能力 (A)</strong>、<strong>系统思维与工匠标准 (M)</strong>、<strong>业务同理与生态赋能 (E)</strong> 三大维度，精准诊断你的核心技术与研发特质。
-        </p>
-        <div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:12px;max-width:540px;margin:0 auto 28px;text-align:center">
-          <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:16px;padding:12px">
-            <strong style="color:#D97706;display:block;font-size:16px">30 题</strong>
-            <span style="font-size:12px;color:#6B7280">量表题目总数</span>
+  <main class="page-shell">
+    <!-- View 0: 引导页 (Start View) -->
+    <section id="startView" class="view is-active" aria-labelledby="startTitle">
+      <div class="hero-panel">
+        <div class="hero-panel-topbar">
+          <button type="button" class="hero-back-button" data-home-back aria-label="返回上一页">← 返回</button>
+        </div>
+        <div class="hero-top-grid">
+          <div class="hero-intro-col">
+            <div class="hero-header-tag">
+              <span class="pill-badge">✨ 非凡教育 · 1605 极客特质诊断</span>
+            </div>
+            <h1 id="startTitle" class="hero-main-title">FTH 职业特质<span class="title-highlight">测评</span>(1605版)</h1>
+            <p class="hero-lead">专为研发、极客与AI原生团队打造的职业特质测评，定位敏捷破局、架构规划与团队赋能潜力。</p>
           </div>
-          <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:16px;padding:12px">
-            <strong style="color:#D97706;display:block;font-size:16px">5-8 分钟</strong>
-            <span style="font-size:12px;color:#6B7280">预计完成时间</span>
-          </div>
-          <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:16px;padding:12px">
-            <strong style="color:#D97706;display:block;font-size:16px">多维雷达</strong>
-            <span style="font-size:12px;color:#6B7280">即时生成诊断报告</span>
+          <div class="hero-visual-col">
+            <div class="hero-visual-wrapper">
+              <img src="/assets/images/hero-podium.png" alt="FTH 1605 职业特质测评" class="hero-podium-img">
+            </div>
           </div>
         </div>
-        <button type="button" class="primary-button hero-start-btn" style="width:100%;max-width:320px;margin:0 auto" onclick="switchView('basicView')">开始测评 ➔</button>
+
+        <div class="fact-row" aria-label="测评概况">
+          <div class="fact-card fact-card-time">
+            <img src="/assets/images/icon-timer.png" alt="时间" class="fact-icon-img">
+            <div class="fact-text">
+              <strong>8–10 分钟</strong>
+              <span>预计完成时间</span>
+            </div>
+          </div>
+          <div class="fact-card fact-card-count">
+            <img src="/assets/images/icon-paper-pencil.png" alt="题量" class="fact-icon-img">
+            <div class="fact-text">
+              <strong>30 题</strong>
+              <span>情境化单选</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="notice-block-wrapper">
+          <div class="notice-block">
+            <div class="notice-header">
+              <span class="notice-badge-dot">◇</span>
+              <h2>作答前请知道</h2>
+            </div>
+            <div class="notice-item">
+              <img src="/assets/images/icon-shield-check.png" alt="规则" class="notice-bullet-icon">
+              <p><strong>按第一直觉选择</strong>：每题选一个最符合你自然做法的选项，没有标准答案。</p>
+            </div>
+            <div class="notice-item">
+              <img src="/assets/images/icon-bulb.png" alt="说明" class="notice-bullet-icon">
+              <p><strong>客观看待结果</strong>：结果描述的是当前特质倾向，不评价能力高低。</p>
+            </div>
+          </div>
+          <div class="notice-mascot">
+            <img src="/assets/images/mascot-owl.png" alt="非凡猫头鹰" class="mascot-img">
+          </div>
+        </div>
+
+        <div class="hero-action-buttons">
+          <button id="startButton" class="primary-button hero-start-btn" type="button">开始定位我的特质 →</button>
+        </div>
+
+        <div class="hero-trust-badges">
+          <div class="trust-badge-item">
+            <img src="/assets/images/icon-shield-check.png" alt="科学诊断" class="trust-icon">
+            <div class="trust-info">
+              <strong>科学诊断</strong>
+              <span>30 道情境化量表，真实反映特质</span>
+            </div>
+          </div>
+          <div class="trust-badge-item">
+            <img src="/assets/images/icon-lock.png" alt="严格保密" class="trust-icon">
+            <div class="trust-info">
+              <strong>严格保密</strong>
+              <span>数据加密处理，严守隐私</span>
+            </div>
+          </div>
+          <div class="trust-badge-item">
+            <img src="/assets/images/icon-check-circle.png" alt="专属报告" class="trust-icon">
+            <div class="trust-info">
+              <strong>专属画像</strong>
+              <span>全景六维雷达，精准指引</span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Step 2: 基本信息页 -->
-    <section id="basicView" class="view">
-      <div class="panel" style="padding:28px 20px">
-        <h2 style="font-size:22px;font-weight:900;color:#1E1A1C;margin-bottom:6px">基本信息登记</h2>
-        <p style="font-size:13px;color:#6B7280;margin-bottom:20px">用于生成专属人才诊断报告与档案存档。</p>
-
-        <div style="display:flex;flex-direction:column;gap:16px">
-          <div>
-            <label style="display:block;font-size:14px;font-weight:800;color:#1E1A1C;margin-bottom:6px">姓名 <span style="color:#EF4444">*</span></label>
-            <input id="userName" type="text" placeholder="请输入你的姓名" class="text-field" style="width:100%;box-sizing:border-box">
-          </div>
-          <div>
-            <label style="display:block;font-size:14px;font-weight:800;color:#1E1A1C;margin-bottom:6px">手机号 <span style="color:#EF4444">*</span></label>
-            <input id="userPhone" type="tel" placeholder="请输入手机号" maxlength="11" class="text-field" style="width:100%;box-sizing:border-box">
-          </div>
-          <div>
-            <label style="display:block;font-size:14px;font-weight:800;color:#1E1A1C;margin-bottom:6px">目标研发方向</label>
-            <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:8px" id="directionGroup">
-              <label class="pill-radio-label is-checked"><input type="radio" name="devDirection" value="AI算法/大模型" checked><span>AI算法/大模型</span></label>
-              <label class="pill-radio-label"><input type="radio" name="devDirection" value="全栈/架构"><span>全栈/架构</span></label>
-              <label class="pill-radio-label"><input type="radio" name="devDirection" value="产品/交互"><span>产品/交互</span></label>
-              <label class="pill-radio-label"><input type="radio" name="devDirection" value="数据/增长"><span>数据/增长</span></label>
+    <!-- Two-Column Flow for Basic Info, Assessment & Report -->
+    <div id="contentLayoutWrapper" class="content-two-col-layout" style="display:none;">
+      <!-- Left Sidebar (PC) -->
+      <aside class="assessment-sidebar print-hidden">
+        <div class="sidebar-step-card">
+          <div class="sidebar-step-list">
+            <div class="sidebar-step-item is-active" data-step="1">
+              <span class="step-num-badge">01</span>
+              <div class="step-label-group">
+                <strong>基本信息</strong>
+                <span>确定身份与背景</span>
+              </div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="sidebar-step-item" data-step="2">
+              <span class="step-num-badge">02</span>
+              <div class="step-label-group">
+                <strong>特质诊断</strong>
+                <span>30道量表情境选择</span>
+              </div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="sidebar-step-item" data-step="3">
+              <span class="step-num-badge">03</span>
+              <div class="step-label-group">
+                <strong>诊断报告</strong>
+                <span>全景雷达与专属画像</span>
+              </div>
             </div>
           </div>
 
-          <div style="display:flex;gap:12px;margin-top:28px">
-            <button type="button" class="secondary-button back-learning-center-btn" data-action="go-learning-center">返回学习中心</button>
-            <button type="button" class="secondary-button" onclick="switchView('startView')">返回上一步</button>
-            <button type="button" class="primary-button" style="flex:1" onclick="validateBasicAndStart()">进入测评</button>
+          <div class="sidebar-mascot-box">
+            <div class="sidebar-speech-bubble">
+              按平时的第一直觉选择<br>选最符合你自然做法的选项哦！
+            </div>
+            <img src="/assets/images/mascot-pencil-owl.png" alt="非凡猫头鹰助教" class="sidebar-owl-img">
           </div>
-          <p id="basicError" style="color:#EF4444;font-size:13px;font-weight:800;margin-top:10px" hidden></p>
         </div>
-      </div>
-    </section>
+      </aside>
 
-    <!-- Step 3: 答题页 -->
-    <section id="questionsView" class="view">
-      <div class="progress-panel" style="padding:16px;margin-bottom:16px">
-        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;margin-bottom:6px">
-          <span id="pageProgressText">第 1 / 5 页</span>
-          <span id="completedCountText">已完成 0 / 30 题</span>
+      <!-- Right Main Content Area -->
+      <div class="assessment-content-area">
+        <!-- Mobile Horizontal Step Indicator -->
+        <div class="mobile-step-indicator print-hidden" id="mobileStepIndicator">
+          <div class="mobile-step-item is-active" data-step="1">
+            <span class="mobile-step-badge">01</span>
+            <span class="mobile-step-text">基本信息</span>
+          </div>
+          <div class="mobile-step-line" data-step-line="1"></div>
+          <div class="mobile-step-item" data-step="2">
+            <span class="mobile-step-badge">02</span>
+            <span class="mobile-step-text">特质诊断</span>
+          </div>
+          <div class="mobile-step-line" data-step-line="2"></div>
+          <div class="mobile-step-item" data-step="3">
+            <span class="mobile-step-badge">03</span>
+            <span class="mobile-step-text">诊断报告</span>
+          </div>
         </div>
-        <div style="height:8px;background:#FEF3C7;border-radius:999px;overflow:hidden">
-          <div id="progressFill" style="height:100%;background:linear-gradient(135deg, #FFE600 0%, #F5C518 100%);width:0%;transition:all 0.3s"></div>
-        </div>
+
+        <!-- View 1: 基本信息录入 (Basic Info) -->
+        <section id="basicView" class="view" aria-labelledby="basicTitle" hidden>
+          <div class="section-heading-card">
+            <div class="heading-left-content">
+              <span class="section-number-pill">01</span>
+              <div class="heading-titles">
+                <h1 id="basicTitle">1605 团队成员信息</h1>
+                <p>请填写受测成员姓名与联系方式，系统将生成专属于 1605 极客团队的技术特质全景报告。</p>
+              </div>
+            </div>
+            <div class="heading-right-visual">
+              <img src="/assets/images/icon-id-card.png" alt="基本信息" class="heading-id-card-img">
+            </div>
+          </div>
+
+          <form id="basicForm" novalidate>
+            <div class="form-panel identity-panel">
+              <label class="text-field" for="studentName">
+                <span class="field-title">姓名 / 称呼</span>
+                <input id="studentName" name="studentName" type="text" placeholder="请填写您的真实姓名或称呼" autocomplete="name" maxlength="30" required>
+              </label>
+              <label class="text-field" for="studentMobile">
+                <span class="field-title">联系方式 (手机或微信)</span>
+                <input id="studentMobile" name="studentMobile" type="tel" placeholder="用于调取历史报告，严格保密" autocomplete="tel" maxlength="30" required>
+              </label>
+            </div>
+
+            <div class="form-panel choice-panel" role="group" aria-labelledby="rdRoleLabel">
+              <h2 id="rdRoleLabel" class="panel-label"><span>✨</span> 技术与研发方向</h2>
+              <div class="choice-grid grid-2x2">
+                <label><input type="radio" name="rdRole" value="AI算法/全栈工程师" checked required><span>AI算法/全栈工程师</span></label>
+                <label><input type="radio" name="rdRole" value="系统架构师/Tech Lead"><span>系统架构师/Tech Lead</span></label>
+                <label><input type="radio" name="rdRole" value="产品经理/技术操盘手"><span>产品经理/技术操盘手</span></label>
+                <label><input type="radio" name="rdRole" value="测试质量/效能工程师"><span>测试质量/效能工程师</span></label>
+              </div>
+            </div>
+
+            <p id="basicError" class="form-error" role="alert" hidden></p>
+            <div class="form-actions-wrapper">
+              <div class="actions-row">
+                <button class="secondary-button action-btn-half back-learning-center-btn" type="button" data-action="go-learning-center">返回学习中心</button>
+                <button id="basicBackButton" class="secondary-button action-btn-half" type="button">返回上一步</button>
+                <button id="startAssessmentBtn" class="primary-button hero-start-btn action-btn-half" type="button">进入特质诊断 ➔</button>
+              </div>
+              <div class="form-security-note">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span>个人信息受非凡教育隐私安全系统保护，仅用于本次测评诊断报告生成</span>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <!-- View 2: 特质答题 (Assessment View) -->
+        <section id="assessmentView" class="view" aria-labelledby="assessmentTitle" hidden>
+          <div class="sticky-progress-top">
+            <div class="progress-info-split">
+              <div class="progress-left-status">
+                <span class="status-pulse-dot"></span>
+                <span>正在进行特质诊断 · 第 <strong id="questionIndexBadge" class="gold-num">1</strong> / 30 题</span>
+              </div>
+              <span id="progressPercentage" class="progress-pct-badge">3%</span>
+            </div>
+            <div class="progress-streamer-track">
+              <div id="streamerBar" class="progress-streamer-fill" style="width: 3%;"></div>
+            </div>
+          </div>
+
+          <div class="question-card" id="questionCard">
+            <div class="question-meta-bar">
+              <span id="questionTag" class="question-chip-tag">Q01</span>
+              <span class="question-tip-text">请按你的日常第一直觉判断符合程度</span>
+            </div>
+            <h2 id="questionPrompt" class="question-prompt-text">题目加载中...</h2>
+
+            <div class="fth-option-list" id="optionsContainer">
+              <!-- 动态生成 5 点李克特量表 -->
+            </div>
+          </div>
+
+          <p id="pageError" class="form-error" role="alert" hidden></p>
+
+          <div class="form-actions-wrapper">
+            <div class="actions-row">
+              <button class="secondary-button action-btn-half back-learning-center-btn" type="button" data-action="go-learning-center">返回学习中心</button>
+              <button id="previousButton" class="secondary-button action-btn-half" type="button" disabled>上一题</button>
+              <button id="nextButton" class="primary-button hero-start-btn action-btn-half" type="button">下一题 ➔</button>
+            </div>
+            <div class="form-security-note">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <span>信息仅用于测评分析，我们将严格保密</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 3: 诊断报告 (Report View) -->
+        <section id="resultView" class="view" aria-labelledby="resultTitle" hidden>
+          <div class="report-main-container">
+            <section class="report-hero-card">
+              <div class="report-hero-info">
+                <span class="report-hero-pill">FTH 1605 R&D TALENT REPORT</span>
+                <p class="report-hero-eyebrow">非凡教育 · 职业特质测评(1605版)</p>
+                <h1 id="resArchetypeTitle" class="report-hero-title">特质分析中...</h1>
+                <p class="report-hero-desc" id="resDominantBadge">主导属性分析中</p>
+              </div>
+              <div class="report-hero-visual-wrap">
+                <img src="/assets/images/report-hero-visual.png" alt="FTH 1605 职业特质报告" class="report-hero-3d-img">
+              </div>
+            </section>
+
+            <section class="report-card report-info-card">
+              <h2 class="report-card-heading">基本信息</h2>
+              <div class="report-meta-grid" id="resMetaChips"></div>
+            </section>
+
+            <section class="report-card report-section-card">
+              <div class="section-card-header">
+                <span class="section-order-badge">01</span>
+                <div class="section-card-titles">
+                  <h2>全景六维特质雷达</h2>
+                  <p>绿色为内核深度（核心稳态特质），黄色为外延广度（情境表现特质）</p>
+                </div>
+              </div>
+              <div class="fth-radar-box">
+                <svg id="fthRadarSvg" class="fth-radar-svg" viewBox="0 0 360 360"></svg>
+              </div>
+            </section>
+
+            <section class="report-card report-section-card">
+              <div class="section-card-header">
+                <span class="section-order-badge">02</span>
+                <div class="section-card-titles">
+                  <h2>三大主导属性分布</h2>
+                </div>
+              </div>
+              <div class="dim-score-grid" id="dimScoresContainer"></div>
+            </section>
+
+            <section class="report-card report-section-card">
+              <div class="section-card-header">
+                <span class="section-order-badge">03</span>
+                <div class="section-card-titles">
+                  <h2>核心定位与综合特质</h2>
+                </div>
+              </div>
+              <div class="judgment-highlight-box">
+                <p id="resArchetypeSummary" class="judgment-text">正在生成专属特质综述...</p>
+              </div>
+            </section>
+
+            <section class="report-card report-section-card">
+              <div class="section-card-header">
+                <span class="section-order-badge">04</span>
+                <div class="section-card-titles">
+                  <h2>核心优势特质清单</h2>
+                </div>
+              </div>
+              <ul id="resStrengthsList" class="fth-report-list"></ul>
+            </section>
+
+            <section class="report-card report-section-card">
+              <div class="section-card-header">
+                <span class="section-order-badge">05</span>
+                <div class="section-card-titles">
+                  <h2>潜在风险与发展盲区</h2>
+                </div>
+              </div>
+              <ul id="resRisksList" class="fth-report-list risk-style"></ul>
+            </section>
+
+            <section class="report-card report-section-card">
+              <div class="section-card-header">
+                <span class="section-order-badge">06</span>
+                <div class="section-card-titles">
+                  <h2>最适岗位与业务场景</h2>
+                </div>
+              </div>
+              <p id="resScenariosText" class="scenarios-text-box">分析中...</p>
+            </section>
+
+            <section class="report-card report-section-card" id="teamManualCard">
+              <div class="section-card-header">
+                <span class="section-order-badge">07</span>
+                <div class="section-card-titles">
+                  <h2>团队使用说明书</h2>
+                </div>
+              </div>
+              <ul id="resTeamManualList" class="fth-report-list"></ul>
+            </section>
+
+            <section class="report-card report-section-card">
+              <div class="section-card-header">
+                <span class="section-order-badge">08</span>
+                <div class="section-card-titles">
+                  <h2>互补型搭档建议</h2>
+                </div>
+              </div>
+              <ul id="resPartnerList" class="fth-report-list"></ul>
+            </section>
+
+            <section class="report-card print-hidden">
+              <div class="form-actions-wrapper">
+                <div class="actions-row">
+                  <button id="restartBtn" class="secondary-button action-btn-half" type="button" onclick="restartAssessment()">重新测评</button>
+                  <button id="printBtn" class="primary-button hero-start-btn action-btn-half" type="button" onclick="window.print()">打印报告</button>
+                </div>
+                <div class="form-security-note">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  <span>诊断数据已安全持久化同步至云端</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
       </div>
-
-      <div id="questionsContainer" style="display:flex;flex-direction:column;gap:16px"></div>
-
-      <p id="pageError" style="color:#EF4444;font-size:13px;font-weight:700;margin-top:12px" hidden>请回答完本页所有题目再继续。</p>
-
-      <div style="display:flex;gap:12px;margin-top:20px">
-        <button type="button" class="secondary-button back-learning-center-btn" data-action="go-learning-center">返回学习中心</button>
-        <button id="prevBtn" type="button" class="secondary-button" onclick="changePage(-1)">上一页</button>
-        <button id="nextBtn" type="button" class="primary-button" style="flex:1" onclick="changePage(1)">下一页</button>
-      </div>
-    </section>
+    </div>
   </main>
 
+  <!-- 全局 Loading 遮罩 -->
+  <div id="loadingOverlay" class="loading-overlay" role="status" aria-live="polite" hidden>
+    <div class="loading-box">
+      <div class="loading-spinner"></div>
+      <p id="loadingText" class="loading-text">正在分析作答并生成专属诊断报告...</p>
+    </div>
+  </div>
+
   <script>
-    const FTH_1605_QUESTIONS = [
-      { id: "A01", prompt: "面对全新未知的技术或业务领域，我能快速切入试错并拿到破局结果。" },
-      { id: "A02", prompt: "在系统出现严重宕机故障或紧急危机时，我能果断当机立断止损。" },
-      { id: "A03", prompt: "我喜欢挑战高难度的攻坚任务，即使前人没有现成答案。" },
-      { id: "A04", prompt: "面对极具挑战性的高指标，我能展现出强大的突破韧性与胜负欲。" },
-      { id: "A05", prompt: "我习惯推动团队快速迭代落地，避免陷入长期的空谈探讨。" },
-      { id: "A06", prompt: "我敢于质疑传统架构，探索效率更高的技术路线。" },
-      { id: "A07", prompt: "在没有完美方案时，我宁愿先推出原型（MVP）验证市场表现。" },
-      { id: "A08", prompt: "我具备强大的自我驱动力，不需要别人监督就能高效产出。" },
-      { id: "A09", prompt: "遇到技术壁垒时，我能保持越挫越勇的好胜心态。" },
-      { id: "A10", prompt: "我善于把宏大想法快速转化为可落地的第 1 步行动。" },
+    // -------------------------------------------------------------
+    // 核心常量与题库 (100% 忠于原版)
+    // -------------------------------------------------------------
+    const TEMPLATE_CODE = "FTH_1605";
+    const TEMPLATE_NAME = "FTH 职业特质测评(1605版)";
+    const DIM_FIGHTER_KEY = "fighter";
+    const DIM_THINKER_KEY = "thinker";
+    const DIM_HELPER_KEY = "helper";
 
-      { id: "M01", prompt: "构建技术系统前，我必须先看清清晰的系统架构与数据模型。" },
-      { id: "M02", prompt: "我极度看重代码质量、范式规范与系统扩展性。" },
-      { id: "M03", prompt: "分析问题时，我习惯从数学推导、数据指标与客观事实出发。" },
-      { id: "M04", prompt: "我擅长将复杂业务解耦为高可用、可复用的模块化组件。" },
-      { id: "M05", prompt: "评估技术方案时，我会优先寻找死锁、单点故障与性能瓶颈。" },
-      { id: "M06", prompt: "我做事讲究方法论与复盘机制，绝不靠盲目拍脑袋决定。" },
-      { id: "M07", prompt: "我习惯用逻辑严密的手册与文档来规范团队协作路径。" },
-      { id: "M08", prompt: "面对Bug归因，我能冷静客观追溯根因，不迁怒情绪。" },
-      { id: "M09", prompt: "我注重长远的技术债治理与可维护性设计。" },
-      { id: "M10", prompt: "我善于把成功经验抽象整理为沉淀资产与自动化工具。" },
-
-      { id: "P01", prompt: "我能敏锐捕捉到团队伙伴的学习瓶颈与情绪起伏。" },
-      { id: "P02", prompt: "我非常看重开放共享的技术文化与平等互信的氛围。" },
-      { id: "P03", prompt: "当技术方案发生分歧时，我习惯倾听各方理由并促成共识。" },
-      { id: "P04", prompt: "我乐于做技术 Code Review，耐心地指导新人成长。" },
-      { id: "P05", prompt: "在跨部门协作时，我善于站在业务方视角理解真实需求。" },
-      { id: "P06", prompt: "我注重给予团队伙伴认可与鼓励，营造积极正面气场。" },
-      { id: "P07", prompt: "面对批评建议，我能虚心接受并感谢对方的坦诚。" },
-      { id: "P08", prompt: "我善于营造有安全感的技术讨论氛围，鼓励大家提出异议。" },
-      { id: "P09", prompt: "当成员遇到技术难题时，我愿意抽出时间帮他 pair programming。" },
-      { id: "P10", prompt: "比起个人表现，我更看重整个团队的高效协作与共赢。" }
-    ];
-
-    const LIKERT_LABELS = [
+    const LIKERT_OPTIONS = [
       { val: 1, text: "非常不符合" },
       { val: 2, text: "较不符合" },
       { val: 3, text: "一般" },
@@ -163,245 +527,845 @@
       { val: 5, text: "非常符合" }
     ];
 
-    let currentPage = 0;
-    const pageSize = 6;
-    const totalPages = Math.ceil(FTH_1605_QUESTIONS.length / pageSize);
-    const answers = {};
+    const QUESTIONS = [{"id":"A01","facet":"runner","prompt":"面对全新未知的技术或业务领域，我能快速切入试错并拿到破局结果。"},{"id":"A02","facet":"runner","prompt":"在系统出现严重宕机故障或紧急危机时，我能果断当机立断止损。"},{"id":"A03","facet":"runner","prompt":"我喜欢挑战高难度的攻坚任务，即使前人没有现成答案。"},{"id":"A04","facet":"runner","prompt":"面对极具挑战性的高指标，我能展现出强大的突破韧性与胜负欲。"},{"id":"A05","facet":"runner","prompt":"我习惯推动团队快速迭代落地，避免陷入长期的空谈探讨。"},{"id":"A06","facet":"climber","prompt":"我敢于质疑传统架构，探索效率更高的技术路线。"},{"id":"A07","facet":"climber","prompt":"在没有完美方案时，我宁愿先推出原型（MVP）验证市场表现。"},{"id":"A08","facet":"climber","prompt":"我具备强大的自我驱动力，不需要别人监督就能高效产出。"},{"id":"A09","facet":"climber","prompt":"遇到技术壁垒时，我能保持越挫越勇的好胜心态。"},{"id":"A10","facet":"climber","prompt":"我善于把宏大想法快速转化为可落地的第 1 步行动。"},{"id":"M01","facet":"analyzer","prompt":"构建技术系统前，我必须先看清清晰的系统架构与数据模型。"},{"id":"M02","facet":"analyzer","prompt":"我极度看重代码质量、范式规范与系统扩展性。"},{"id":"M03","facet":"analyzer","prompt":"分析问题时，我习惯从数学推导、数据指标与客观事实出发。"},{"id":"M04","facet":"analyzer","prompt":"我擅长将复杂业务解耦为高可用、可复用的模块化组件。"},{"id":"M05","facet":"analyzer","prompt":"评估技术方案时，我会优先寻找死锁、单点故障与性能瓶颈。"},{"id":"M06","facet":"builder","prompt":"我做事讲究方法论与复盘机制，绝不靠盲目拍脑袋决定。"},{"id":"M07","facet":"builder","prompt":"我习惯用逻辑严密的手册与文档来规范团队协作路径。"},{"id":"M08","facet":"builder","prompt":"面对Bug归因，我能冷静客观追溯根因，不迁怒情绪。"},{"id":"M09","facet":"builder","prompt":"我注重长远的技术债治理与可维护性设计。"},{"id":"M10","facet":"builder","prompt":"我善于把成功经验抽象整理为沉淀资产与自动化工具。"},{"id":"P01","facet":"socializer","prompt":"我能敏锐捕捉到团队伙伴的学习瓶颈与情绪起伏。"},{"id":"P02","facet":"socializer","prompt":"我非常看重开放共享的技术文化与平等互信的氛围。"},{"id":"P03","facet":"socializer","prompt":"当技术方案发生分歧时，我习惯倾听各方理由并促成共识。"},{"id":"P04","facet":"socializer","prompt":"我乐于做技术 Code Review，耐心地指导新人成长。"},{"id":"P05","facet":"socializer","prompt":"在跨部门协作时，我善于站在业务方视角理解真实需求。"},{"id":"P06","facet":"keeper","prompt":"我注重给予团队伙伴认可与鼓励，营造积极正面气场。"},{"id":"P07","facet":"keeper","prompt":"面对批评建议，我能虚心接受并感谢对方的坦诚。"},{"id":"P08","facet":"keeper","prompt":"我善于营造有安全感的技术讨论氛围，鼓励大家提出异议。"},{"id":"P09","facet":"keeper","prompt":"当成员遇到技术难题时，我愿意抽出时间帮他 pair programming。"},{"id":"P10","facet":"keeper","prompt":"比起个人表现，我更看重整个团队的高效协作与共赢。"}];
+    const types = {"runner":{"cn":"敏捷破局者","en":"Agile Disruptor","attr":"fighter","color":"#F97316","one":"技术前沿探索的尖刀，面对未知领域以极快速度试错并拿到 MVP 结果。","strengths":["超强技术敏锐度与快速试错破局力","极高抗压韧性，直面系统危机","驱动团队敏捷迭代"],"risks":["可能对长期架构演进耐心不足","易忽视局部代码规范","需搭档协助长远技术债治理"],"fit":"AI 原生应用探索、技术预研攻坚、紧急故障抢修、0到1技术产品孵化。","teamManual":["在技术方向未定时，给予充分的原型试错权限；","搭配架构规划者协助梳理长期扩展性与合规性；","定期复盘原型代码，做好工程化改造交接。"]},"climber":{"cn":"卓越攻坚者","en":"Extreme Builder","attr":"fighter","color":"#EA580C","one":"硬核攻坚担当，专啃高并发、高可用与高算法壁垒的硬骨头。","strengths":["深度技术钻研力与好胜心","极致性能调优能力","重大战役抗压抗挫"],"risks":["面对非技术阻力时容易产生摩擦","有时可能过度工程化","需学会平衡商业投入产出比"],"fit":"底层系统重构、核心算法攻坚、高并发吞吐优化、高可用架构容灾。","teamManual":["在攻坚攻关阶段给予充分专注时间，减少非必要打扰；","设定清晰客观的性能度量标准（如 TPS、P99 等）；","攻坚胜利后及时安排技术复盘与代码沉淀。"]},"analyzer":{"cn":"架构规划者","en":"System Architect","attr":"thinker","color":"#0284C7","one":"全局系统架构师，擅长宏观领域建模与解耦，搭建可维护的长效系统体系。","strengths":["卓越领域驱动设计与抽象建模能力","前瞻性系统扩展与风控推演","严谨数据架构"],"risks":["在缺乏确定性时可能推迟方案敲定","可能被敏捷团队认为推进节奏偏稳","需警惕过度抽象"],"fit":"企业级多租户架构设计、分布式数据中台、复杂业务解耦、系统技术底座规划。","teamManual":["在大型项目启动前预留充分的系统建模与接口契约评审周期；","与敏捷破局者搭档，确保宏观架构能经受实战高频迭代验证；","在架构决策文档中详细记录方案取舍背后的原因。"]},"builder":{"cn":"严谨度量者","en":"Precision Optimizer","attr":"thinker","color":"#0369A1","one":"工程质量与自动化守护者，以严谨的数据度量、CI/CD 与规范驱动研发效能。","strengths":["极致代码规范把控度与测试覆盖意识","系统化研发效能工具链沉淀","深入根因排查"],"risks":["在应对突发紧急变通时偶尔略显保守","需防止机械化的考核指标压制灵活性","需平衡规范与交付速度"],"fit":"研发效能工程、DevOps 体系搭建、系统安全与合规审计、核心质量保障中台。","teamManual":["充分赋能其自动化工具与门禁规则的制定权限；","在紧急上线通道与日常严格标准之间建立弹性分级机制；","以数据事实说话，推动团队工程素养持续进化。"]},"socializer":{"cn":"团队赋能者","en":"Team Enabler","attr":"helper","color":"#16A34A","one":"技术团队的灵魂导师，善于挖掘成员潜力、开展深度 Code Review 并促进共创。","strengths":["敏锐的人才长板识别力","建设性技术反馈与倾听习惯","卓越跨团队沟通协同桥梁"],"risks":["面对不符合要求的产出偶尔难以做出强硬打回","需建立客观的工程底线","防止精力被碎片沟通耗尽"],"fit":"技术团队梯队建设、跨业务线联合攻坚沟通、技术人才带教、敏捷教练与组织协同。","teamManual":["鼓励其承担技术人才培养与团队氛围营造的关键责任；","搭配严谨度量者共同把好工程质量关口；","为其留出专注的个人深潜时间。"]},"keeper":{"cn":"文化共建者","en":"Culture Catalyst","attr":"helper","color":"#15803D","one":"打造开放、心理安全与高透明度技术极客文化的催化剂，驱动团队共生共赢。","strengths":["营造高心理安全感的技术交流氛围","促进开源精神与无私技术分享","化解团队隐性内耗"],"risks":["在需要雷厉风行决断时可能陷入过多讨论","偶尔可能低估外部竞争紧迫感","需强化以结果说话的导向"],"fit":"工程文化与极客社区运营、技术品牌影响力塑造、长期稳定性守护、新人融入加速器。","teamManual":["充分利用其亲和力化解架构与业务团队之间的沟通壁垒；","设立定期的技术交流与复盘沙龙，由其主导共创流程；","是高压攻坚团队最不可或缺的“心理安全气垫”。"]}};
+    const attributes = {"fighter":{"cn":"敏捷破局","en":"Agile","copy":"展现出强悍的技术拓荒冲劲与直面危机的攻坚意志。"},"thinker":{"cn":"架构逻辑","en":"Architecture","copy":"追求严谨的领域建模、系统解耦与高可用工程规范。"},"helper":{"cn":"共创赋能","en":"Partnership","copy":"深谙人才成长与团队协同规律，以开放文化激活组织潜能。"}};
+    const partnerGuides = {"fighter":["搭配【架构逻辑型（架构规划者/严谨度量者）】：帮你评估长期架构死锁与性能瓶颈，守住高可用底线；","搭配【共创赋能型（团队赋能者）】：在攻坚战中保持团队心理安全感与长效士气。"],"thinker":["搭配【敏捷破局型（敏捷破局者/卓越攻坚者）】：将优雅系统设计以最快速度在业务实战中验证拿到 MVP；","搭配【共创赋能型（文化共建者）】：将深奥的架构哲学转译为团队乐于遵循的极客工程文化。"],"helper":["搭配【敏捷破局型（卓越攻坚者）】：在硬核战役中提供强大坚挺的技术后盾；","搭配【架构逻辑型（严谨度量者）】：以自动化度量指标协助把控客观考核底线。"]};
+    const comboPhrases = {};
 
-    function switchView(viewId) {
-      document.querySelectorAll('.view').forEach(v => v.classList.remove('is-active'));
-      document.getElementById(viewId).classList.add('is-active');
-      window.scrollTo(0, 0);
+    // 运行期状态
+    const state = {
+      currentIndex: 0,
+      answers: {},
+      startedAt: Date.now(),
+      submitting: false,
+      userInfo: {
+        studentName: '',
+        studentMobile: '',
+        role: 'AI算法/全栈工程师'
+      }
+    };
+
+    const els = {
+      startView: document.getElementById('startView'),
+      basicView: document.getElementById('basicView'),
+      assessmentView: document.getElementById('assessmentView'),
+      resultView: document.getElementById('resultView'),
+      contentLayoutWrapper: document.getElementById('contentLayoutWrapper'),
+      loadingOverlay: document.getElementById('loadingOverlay'),
+      loadingText: document.getElementById('loadingText'),
+      questionCard: document.getElementById('questionCard'),
+      questionTag: document.getElementById('questionTag'),
+      questionPrompt: document.getElementById('questionPrompt'),
+      optionsContainer: document.getElementById('optionsContainer'),
+      questionIndexBadge: document.getElementById('questionIndexBadge'),
+      progressPercentage: document.getElementById('progressPercentage'),
+      streamerBar: document.getElementById('streamerBar'),
+      previousButton: document.getElementById('previousButton'),
+      nextButton: document.getElementById('nextButton'),
+      basicError: document.getElementById('basicError'),
+      pageError: document.getElementById('pageError')
+    };
+
+    function showView(targetView) {
+      const views = [els.startView, els.basicView, els.assessmentView, els.resultView];
+      views.forEach(v => {
+        if (!v) return;
+        if (v === targetView) {
+          v.hidden = false;
+          v.classList.add('is-active');
+        } else {
+          v.hidden = true;
+          v.classList.remove('is-active');
+        }
+      });
+
+      if (targetView === els.startView) {
+        if (els.contentLayoutWrapper) els.contentLayoutWrapper.style.display = 'none';
+      } else {
+        if (els.contentLayoutWrapper) els.contentLayoutWrapper.style.display = 'grid';
+      }
+
+      // 同步高亮进度侧边栏与移动端步进器
+      let step = 1;
+      if (targetView === els.basicView) step = 1;
+      else if (targetView === els.assessmentView) step = 2;
+      else if (targetView === els.resultView) step = 3;
+
+      document.querySelectorAll('.sidebar-step-item').forEach(item => {
+        const s = Number(item.getAttribute('data-step'));
+        item.classList.toggle('is-active', s === step);
+        item.classList.toggle('is-completed', s < step);
+      });
+      document.querySelectorAll('.mobile-step-item').forEach(item => {
+        const s = Number(item.getAttribute('data-step'));
+        item.classList.toggle('is-active', s === step);
+        item.classList.toggle('is-completed', s < step);
+      });
+      document.querySelectorAll('.mobile-step-line').forEach(line => {
+        const l = Number(line.getAttribute('data-step-line'));
+        line.classList.toggle('is-completed', l < step);
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function getFFCRMContext() {
-      const loc = window.location;
-      const searchParams = new URLSearchParams(loc.search || '');
-      const hashParams = loc.hash && loc.hash.includes('?') ? new URLSearchParams(loc.hash.split('?')[1]) : null;
-      const getParam = (k) => searchParams.get(k) || hashParams?.get(k) || '';
+    function setLoading(show, text) {
+      if (!els.loadingOverlay) return;
+      if (show) {
+        if (text && els.loadingText) els.loadingText.textContent = text;
+        els.loadingOverlay.hidden = false;
+      } else {
+        els.loadingOverlay.hidden = true;
+      }
+    }
 
-      let ctxData = null;
-      const ctx = getParam('ctx');
+    function renderCurrentQuestion() {
+      const q = QUESTIONS[state.currentIndex];
+      if (!q) return;
+
+      const idx1 = state.currentIndex + 1;
+      const total = QUESTIONS.length;
+      const pct = Math.round((idx1 / total) * 100);
+
+      if (els.questionTag) els.questionTag.textContent = q.id;
+      if (els.questionPrompt) els.questionPrompt.textContent = q.prompt;
+      if (els.questionIndexBadge) els.questionIndexBadge.textContent = idx1;
+      if (els.progressPercentage) els.progressPercentage.textContent = pct + '%';
+      if (els.streamerBar) els.streamerBar.style.width = pct + '%';
+
+      if (els.previousButton) {
+        els.previousButton.disabled = state.currentIndex === 0;
+      }
+      if (els.nextButton) {
+        els.nextButton.textContent = state.currentIndex === total - 1 ? '查看测评结果 ›' : '下一题 ›';
+      }
+
+      // 渲染李克特量表卡片
+      const curVal = state.answers[q.id];
+      if (els.optionsContainer) {
+        els.optionsContainer.innerHTML = LIKERT_OPTIONS.map(opt => {
+          const isChecked = curVal === opt.val;
+          return `
+            <label class="scale-option ${isChecked ? 'is-checked' : ''}" onclick="selectAnswer('${q.id}', ${opt.val}, this)">
+              <input type="radio" name="q_${q.id}" value="${opt.val}" ${isChecked ? 'checked' : ''}>
+              <span class="scale-val-badge">${opt.val}</span>
+              <span class="scale-text">${opt.text}</span>
+            </label>
+          `;
+        }).join('');
+      }
+    }
+
+    function selectAnswer(qid, val, labelEl) {
+      state.answers[qid] = val;
+      if (els.optionsContainer) {
+        els.optionsContainer.querySelectorAll('.scale-option').forEach(el => el.classList.remove('is-checked'));
+      }
+      if (labelEl) labelEl.classList.add('is-checked');
+      if (els.pageError) els.pageError.hidden = true;
+
+      // 自动切入下一题（丝滑延迟）
+      setTimeout(() => {
+        if (state.currentIndex < QUESTIONS.length - 1) {
+          state.currentIndex += 1;
+          renderCurrentQuestion();
+        }
+      }, 260);
+    }
+
+    function nextQuestion() {
+      const q = QUESTIONS[state.currentIndex];
+      if (!state.answers[q.id]) {
+        if (els.pageError) {
+          els.pageError.textContent = "请先选择一项符合您真实情况的选项再继续。";
+          els.pageError.hidden = false;
+        }
+        return;
+      }
+      if (els.pageError) els.pageError.hidden = true;
+
+      if (state.currentIndex < QUESTIONS.length - 1) {
+        state.currentIndex += 1;
+        renderCurrentQuestion();
+      } else {
+        const unAnsweredIdx = QUESTIONS.findIndex(item => !state.answers[item.id]);
+        if (unAnsweredIdx !== -1) {
+          state.currentIndex = unAnsweredIdx;
+          renderCurrentQuestion();
+          if (els.pageError) {
+            els.pageError.textContent = `第 ${unAnsweredIdx + 1} 题尚未作答，请完成后生成报告。`;
+            els.pageError.hidden = false;
+          }
+          return;
+        }
+        submitAssessment();
+      }
+    }
+
+    function previousQuestion() {
+      if (state.currentIndex > 0) {
+        state.currentIndex -= 1;
+        renderCurrentQuestion();
+      }
+    }
+
+    // 智能提取顾问上下文与渠道参数
+    function getContext() {
+      const sp = new URLSearchParams(window.location.search);
+      const hp = window.location.hash && window.location.hash.includes('?') ? new URLSearchParams(window.location.hash.split('?')[1]) : null;
+      const pick = (k) => sp.get(k) || hp?.get(k) || '';
+
+      let ctxObj = {};
+      const ctx = pick('ctx');
       if (ctx) {
         try {
           let b64 = ctx.replace(/-/g, '+').replace(/_/g, '/');
           while (b64.length % 4) b64 += '=';
           const jsonStr = decodeURIComponent(atob(b64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-          ctxData = JSON.parse(jsonStr);
+          ctxObj = JSON.parse(jsonStr);
         } catch(e) {}
       }
 
-      const pick = (...vals) => {
-        const invalid = new Set(['', 'null', 'undefined', '用户', '顾问', '未知']);
-        for (const v of vals) {
-          if (v && typeof v === 'string' && v.trim() && !invalid.has(v.trim())) {
-            return v.trim();
-          }
-        }
-        return '';
+      return {
+        token: pick('token') || pick('ref') || ctxObj.at || localStorage.getItem('advisor_token') || '',
+        advisorUserId: pick('userId') || pick('advisorUserId') || ctxObj.au || localStorage.getItem('advisor_user_id') || '',
+        advisorName: pick('advisorName') || pick('employeeName') || ctxObj.an || localStorage.getItem('advisor_name') || '',
+        advisorMobile: pick('advisorMobile') || ctxObj.am || localStorage.getItem('advisor_mobile') || '',
+        studentName: pick('studentName') || pick('name') || ctxObj.sn || localStorage.getItem('student_name') || '',
+        studentMobile: pick('studentMobile') || pick('mobile') || pick('phone') || ctxObj.sm || localStorage.getItem('student_mobile') || '',
+        profileId: pick('profileId') || pick('customerId') || ctxObj.sp || localStorage.getItem('profile_id') || ''
       };
+    }
 
-      const token = pick(getParam('token'), getParam('ref'), getParam('advisorToken'), ctxData?.at, localStorage.getItem('advisor_token'), localStorage.getItem('feifan_ref'));
-      const advisorUserId = pick(getParam('userId'), getParam('employeeId'), getParam('advisorUserId'), ctxData?.au, localStorage.getItem('advisor_user_id'));
-      const advisorName = pick(getParam('employeeName'), getParam('advisorName'), ctxData?.an, localStorage.getItem('advisor_name'));
-      const advisorMobile = pick(getParam('advisorMobile'), getParam('employeeMobile'), ctxData?.am, localStorage.getItem('advisor_mobile'));
+    // 计算分型与雷达数据（严格遵循 FTH 官方计分规则）
+    function calculateReportData() {
+      const facetScores = { runner: 0, climber: 0, analyzer: 0, builder: 0, socializer: 0, keeper: 0 };
+      
+      QUESTIONS.forEach(q => {
+        const val = Number(state.answers[q.id] || 3);
+        const f = q.facet || 'runner';
+        facetScores[f] = (facetScores[f] || 0) + val;
+      });
 
-      const studentName = pick(getParam('studentName'), getParam('name'), ctxData?.sn, localStorage.getItem('student_name'));
-      const studentMobile = pick(getParam('studentMobile'), getParam('mobile'), getParam('phone'), ctxData?.sm, localStorage.getItem('student_mobile'));
-      const profileId = pick(getParam('profileId'), getParam('customerId'), ctxData?.sp, localStorage.getItem('profile_id'));
+      // 主属性总分
+      const fighterScore = (facetScores.runner || 0) + (facetScores.climber || 0);
+      const thinkerScore = (facetScores.analyzer || 0) + (facetScores.builder || 0);
+      const helperScore = (facetScores.socializer || 0) + (facetScores.keeper || 0);
 
-      try {
-        if (token) {
-          localStorage.setItem('advisor_token', token);
-          localStorage.setItem('feifan_ref', token);
-        }
-        if (advisorUserId) localStorage.setItem('advisor_user_id', advisorUserId);
-        if (advisorName) localStorage.setItem('advisor_name', advisorName);
-        if (advisorMobile) localStorage.setItem('advisor_mobile', advisorMobile);
-        if (studentName) localStorage.setItem('student_name', studentName);
-        if (studentMobile) localStorage.setItem('student_mobile', studentMobile);
-        if (profileId) localStorage.setItem('profile_id', profileId);
-      } catch(e) {}
+      const dimScores = {};
+      dimScores[DIM_FIGHTER_KEY] = fighterScore;
+      dimScores[DIM_THINKER_KEY] = thinkerScore;
+      dimScores[DIM_HELPER_KEY] = helperScore;
+
+      // 确定主属性
+      let primaryAttr = 'fighter';
+      let maxScore = fighterScore;
+      if (thinkerScore > maxScore) { primaryAttr = 'thinker'; maxScore = thinkerScore; }
+      if (helperScore > maxScore) { primaryAttr = 'helper'; maxScore = helperScore; }
+
+      // 排序分型
+      const sortedFacetKeys = Object.keys(facetScores).sort((a, b) => facetScores[b] - facetScores[a]);
+      // 主分型优先在主属性中选最高的
+      let primaryTypeKey = sortedFacetKeys.find(k => types[k]?.attr === primaryAttr) || sortedFacetKeys[0];
+      let secondaryTypeKey = sortedFacetKeys.find(k => k !== primaryTypeKey) || sortedFacetKeys[1];
+
+      const primaryType = types[primaryTypeKey] || types.runner;
+      const secondaryType = types[secondaryTypeKey] || types.climber;
+      const primaryAttribute = attributes[primaryAttr] || attributes.fighter;
+
+      // 组合语
+      let comboSummary = "";
+      if (comboPhrases && comboPhrases[primaryTypeKey] && comboPhrases[primaryTypeKey][secondaryTypeKey]) {
+        comboSummary = comboPhrases[primaryTypeKey][secondaryTypeKey];
+      }
 
       return {
-        token,
-        advisorToken: token,
-        advisorUserId,
-        advisorName,
-        advisorMobile,
-        studentName,
-        studentMobile,
-        profileId,
-        customerId: profileId
+        facetScores,
+        dimScores,
+        primaryAttr,
+        primaryAttribute,
+        primaryTypeKey,
+        primaryType,
+        secondaryTypeKey,
+        secondaryType,
+        comboSummary
       };
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const crmCtx = getFFCRMContext();
-      if (crmCtx.studentName && !document.getElementById('studentName').value) {
-        document.getElementById('studentName').value = crmCtx.studentName;
-      }
-      if (crmCtx.studentMobile && !document.getElementById('studentMobile').value) {
-        document.getElementById('studentMobile').value = crmCtx.studentMobile;
+    // 绘制高清六边形 SVG 雷达图
+    function drawRadarSvg(facetScores) {
+      const svg = document.getElementById('fthRadarSvg');
+      if (!svg) return;
+
+      const cx = 180, cy = 180, r = 110;
+      const facetKeys = ['runner', 'climber', 'analyzer', 'builder', 'socializer', 'keeper'];
+      const total = facetKeys.length;
+
+      // 绘制背景网格
+      let gridHtml = '';
+      [0.33, 0.66, 1.0].forEach((ratio, gridIdx) => {
+        const pts = [];
+        for (let i = 0; i < total; i++) {
+          const angle = -Math.PI / 2 + (i * 2 * Math.PI) / total;
+          const x = cx + r * ratio * Math.cos(angle);
+          const y = cy + r * ratio * Math.sin(angle);
+          pts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+        }
+        gridHtml += `<polygon points="${pts.join(' ')}" fill="${gridIdx === 2 ? 'rgba(254, 243, 199, 0.25)' : 'none'}" stroke="#FDE68A" stroke-width="1.2" stroke-dasharray="${gridIdx < 2 ? '3,3' : 'none'}" />`;
+      });
+
+      // 轴线与文字标签
+      let axesHtml = '';
+      let labelsHtml = '';
+      for (let i = 0; i < total; i++) {
+        const angle = -Math.PI / 2 + (i * 2 * Math.PI) / total;
+        const x = cx + r * Math.cos(angle);
+        const y = cy + r * Math.sin(angle);
+        axesHtml += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#FDE68A" stroke-width="1" />`;
+
+        const lx = cx + (r + 26) * Math.cos(angle);
+        const ly = cy + (r + 26) * Math.sin(angle);
+        const tObj = types[facetKeys[i]] || { cn: facetKeys[i], en: "" };
+        labelsHtml += `
+          <text x="${lx.toFixed(1)}" y="${(ly + 4).toFixed(1)}" text-anchor="middle" font-size="11.5" font-weight="800" fill="#78350F">
+            ${tObj.cn} ${tObj.en}
+          </text>
+        `;
       }
 
-      document.querySelectorAll('.pill-radio-label').forEach(label => {
-        label.addEventListener('click', function() {
-          const radio = this.querySelector('input[type="radio"]');
-          if (radio) {
-            const name = radio.name;
-            document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
-              r.parentElement.classList.remove('is-checked');
+      // 数据点
+      const outerPts = [];
+      const innerPts = [];
+      facetKeys.forEach((k, i) => {
+        const angle = -Math.PI / 2 + (i * 2 * Math.PI) / total;
+        const raw = facetScores[k] || 15;
+        const normOuter = Math.min(1.0, Math.max(0.2, raw / 25));
+        const ox = cx + r * normOuter * Math.cos(angle);
+        const oy = cy + r * normOuter * Math.sin(angle);
+        outerPts.push(`${ox.toFixed(1)},${oy.toFixed(1)}`);
+
+        const normInner = Math.min(1.0, Math.max(0.15, (raw >= 20 ? raw / 25 : raw / 35)));
+        const ix = cx + r * normInner * Math.cos(angle);
+        const iy = cy + r * normInner * Math.sin(angle);
+        innerPts.push(`${ix.toFixed(1)},${iy.toFixed(1)}`);
+      });
+
+      svg.innerHTML = `
+        ${gridHtml}
+        ${axesHtml}
+        <!-- 外延黄色图层 -->
+        <polygon points="${outerPts.join(' ')}" fill="rgba(245, 158, 11, 0.28)" stroke="#F59E0B" stroke-width="2.5" stroke-linejoin="round" />
+        <!-- 内核绿色图层 -->
+        <polygon points="${innerPts.join(' ')}" fill="rgba(34, 197, 94, 0.32)" stroke="#22C55E" stroke-width="2" stroke-linejoin="round" />
+        ${outerPts.map(p => `<circle cx="${p.split(',')[0]}" cy="${p.split(',')[1]}" r="3.5" fill="#F59E0B" stroke="#FFFFFF" stroke-width="1.5" />`).join('')}
+        ${innerPts.map(p => `<circle cx="${p.split(',')[0]}" cy="${p.split(',')[1]}" r="3" fill="#22C55E" stroke="#FFFFFF" stroke-width="1" />`).join('')}
+        ${labelsHtml}
+      `;
+    }
+
+    // 渲染三大主属性得分柱
+    function renderDimScores(dimScores) {
+      const container = document.getElementById('dimScoresContainer');
+      if (!container) return;
+
+      const list = [
+        { key: DIM_FIGHTER_KEY, name: "敏捷破局 (破局力)", color: "#F97316", desc: attributes.fighter?.copy || "" },
+        { key: DIM_THINKER_KEY, name: "架构逻辑 (系统力)", color: "#0284C7", desc: attributes.thinker?.copy || "" },
+        { key: DIM_HELPER_KEY, name: "共创赋能 (赋能力)", color: "#16A34A", desc: attributes.helper?.copy || "" }
+      ];
+
+      container.innerHTML = list.map(d => {
+        const score = dimScores[d.key] || 30;
+        const pct = Math.round((score / 50) * 100);
+        let levelText = "发展中";
+        let levelBg = "#F3F4F6";
+        let levelColor = "#4B5563";
+        if (pct >= 85) { levelText = "卓越高潜"; levelBg = "#DCFCE7"; levelColor = "#166534"; }
+        else if (pct >= 70) { levelText = "优势特质"; levelBg = "#FEF3C7"; levelColor = "#92400E"; }
+        else if (pct >= 55) { levelText = "良好平衡"; levelBg = "#E0E7FF"; levelColor = "#3730A3"; }
+
+        return `
+          <div class="dim-score-card">
+            <div class="dim-score-header">
+              <span class="dim-score-title">
+                <span style="color:${d.color}">●</span> ${d.name}
+              </span>
+              <span class="dim-score-pill" style="background:${levelBg};color:${levelColor}">
+                ${score}分 / ${levelText}
+              </span>
+            </div>
+            <div class="dim-score-track">
+              <div class="dim-score-fill" style="width:${pct}%;background:${d.color}"></div>
+            </div>
+            <div class="dim-score-desc">${d.desc}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 渲染报告 UI（纯数据驱动，供提交后渲染或通过 ID 查询后渲染使用）
+    function renderReportUI(reportData, userInfo = {}, recordId = null) {
+      const pType = reportData.primaryType || { cn: "创业者", en: "Founder" };
+      const sType = reportData.secondaryType || {};
+      const pAttr = reportData.primaryAttribute || { cn: "行动力", en: "Drive" };
+
+      const titleEl = document.getElementById('resArchetypeTitle');
+      if (titleEl) titleEl.textContent = `${pType.cn} ${pType.en || ''}`.trim();
+
+      const badgeEl = document.getElementById('resDominantBadge');
+      if (badgeEl) badgeEl.textContent = `主导属性：${pAttr.cn}`;
+
+      let summaryText = pType.one || "";
+      if (reportData.comboSummary) {
+        summaryText = `${summaryText} ${reportData.comboSummary}`;
+      }
+      const sumEl = document.getElementById('resArchetypeSummary');
+      if (sumEl) sumEl.textContent = summaryText;
+
+      const metaChips = document.getElementById('resMetaChips');
+      if (metaChips) {
+        const studentName = userInfo.studentName || userInfo.name || '本人';
+        const studentMobile = userInfo.studentMobile || userInfo.mobile || userInfo.contact || '保密';
+        const role = userInfo.role || 'AI算法/全栈工程师';
+        const dateStr = reportData.completedAt ? new Date(reportData.completedAt).toLocaleDateString('zh-CN') : new Date().toLocaleDateString('zh-CN');
+        metaChips.innerHTML = `
+          <div class="meta-field-item">
+            <span class="meta-field-label">测评对象</span>
+            <strong class="meta-field-value">${studentName}</strong>
+          </div>
+          <div class="meta-field-item">
+            <span class="meta-field-label">联系方式</span>
+            <strong class="meta-field-value">${studentMobile}</strong>
+          </div>
+          <div class="meta-field-item">
+            <span class="meta-field-label">角色方向</span>
+            <strong class="meta-field-value">${role}</strong>
+          </div>
+          <div class="meta-field-item">
+            <span class="meta-field-label">测评时间</span>
+            <strong class="meta-field-value">${dateStr}</strong>
+          </div>
+          ${recordId ? `<div class="meta-field-item"><span class="meta-field-label">报告档案</span><strong class="meta-field-value">#${recordId}</strong></div>` : ''}
+        `;
+      }
+
+      // 优势
+      const strList = document.getElementById('resStrengthsList');
+      if (strList && pType.strengths) {
+        strList.innerHTML = pType.strengths.map(s => `<li><strong>优势：</strong>${s}</li>`).join('');
+      }
+      // 风险
+      const riskList = document.getElementById('resRisksList');
+      if (riskList && pType.risks) {
+        riskList.innerHTML = pType.risks.map(r => `<li><strong>注意：</strong>${r}</li>`).join('');
+      }
+      // 场景 / 适合岗位
+      const scenText = document.getElementById('resScenariosText');
+      if (scenText) {
+        scenText.textContent = pType.fit || pType.carry || (pType.jobs ? `适合岗位：${pType.jobs}` : "");
+      }
+      // 搭档
+      const partList = document.getElementById('resPartnerList');
+      if (partList && partnerGuides[reportData.primaryAttr]) {
+        partList.innerHTML = partnerGuides[reportData.primaryAttr].map(p => `<li>${p}</li>`).join('');
+      }
+      // 团队使用说明书
+      const teamCard = document.getElementById('teamManualCard');
+      const teamList = document.getElementById('resTeamManualList');
+      if (teamList && pType.teamManual) {
+        teamList.innerHTML = pType.teamManual.map(m => `<li>${m}</li>`).join('');
+        if (teamCard) teamCard.hidden = false;
+      } else if (teamCard) {
+        teamCard.hidden = true;
+      }
+
+      if (reportData.facetScores) drawRadarSvg(reportData.facetScores);
+      if (reportData.dimScores) renderDimScores(reportData.dimScores);
+    }
+
+    // 提交测评并展示诊断报告 (完全对齐学习风格测评高可用架构：Outbox预写 + 指数退避 + 候选端点多重容灾 + 本地快照持久化)
+    async function submitAssessment() {
+      if (state.submitting) return;
+      state.submitting = true;
+      setLoading(true, "正在分析作答并生成专属诊断报告...");
+
+      const ctx = getContext();
+      const reportData = calculateReportData();
+      const reportSession = "fth_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
+      const reportCompletedAt = new Date().toISOString();
+      reportData.completedAt = reportCompletedAt;
+
+      const formattedAnswers = Object.entries(state.answers).map(([qid, val]) => ({
+        questionId: qid,
+        value: val,
+        optionIds: [String(val)],
+        responseTimeMs: 600
+      }));
+
+      const pageReportUrl = (typeof window !== "undefined" ? window.location.origin : "https://ceping.1605ai.com") + (typeof window !== "undefined" ? window.location.pathname : "/fth1605/index.html");
+      const studentName = state.userInfo.studentName || "学员";
+      const studentMobile = state.userInfo.studentMobile || "";
+      const userRole = state.userInfo.role || "AI算法/全栈工程师";
+
+      const submitPayload = {
+        // 顶层兼容模式（兼顾各类老版本接口及扁平化持久层）
+        templateCode: TEMPLATE_CODE,
+        templateName: TEMPLATE_NAME,
+        templateType: "CAREER_TALENT",
+        studentName: studentName,
+        studentMobile: studentMobile,
+        name: studentName,
+        mobile: studentMobile,
+        contact: studentMobile,
+        token: ctx.token,
+        advisorToken: ctx.token,
+        advisorName: ctx.advisorName,
+        advisorUserId: ctx.advisorUserId,
+        advisorMobile: ctx.advisorMobile,
+        answers: formattedAnswers,
+        scores: reportData.dimScores,
+        resultData: {
+          primaryType: reportData.primaryType,
+          secondaryType: reportData.secondaryType,
+          facetScores: reportData.facetScores,
+          dimScores: reportData.dimScores,
+          primaryAttr: reportData.primaryAttr,
+          primaryAttribute: reportData.primaryAttribute,
+          comboSummary: reportData.comboSummary || "",
+          answers: state.answers,
+          completedAt: reportCompletedAt
+        },
+        durationSeconds: Math.max(30, Math.round((Date.now() - state.startedAt) / 1000)),
+        submittedAt: reportCompletedAt,
+        reportUrl: pageReportUrl,
+
+        // 结构化层（100% 严格对齐 AssessmentSubmitReqDTO）
+        studentInfo: {
+          name: studentName,
+          mobile: studentMobile,
+          role: userRole,
+          specialtyDirection: userRole,
+          profileId: ctx.profileId
+        },
+        advisorInfo: {
+          token: ctx.token,
+          name: ctx.advisorName,
+          userId: ctx.advisorUserId,
+          mobile: ctx.advisorMobile
+        },
+        assessmentInfo: {
+          templateCode: TEMPLATE_CODE,
+          templateName: TEMPLATE_NAME,
+          templateType: "CAREER_TALENT",
+          answers: formattedAnswers,
+          scores: reportData.dimScores,
+          dimensionScores: reportData.dimScores,
+          resultData: {
+            primaryType: reportData.primaryType,
+            secondaryType: reportData.secondaryType,
+            facetScores: reportData.facetScores,
+            dimScores: reportData.dimScores,
+            primaryAttr: reportData.primaryAttr,
+            primaryAttribute: reportData.primaryAttribute,
+            comboSummary: reportData.comboSummary || "",
+            answers: state.answers,
+            completedAt: reportCompletedAt
+          },
+          durationSeconds: Math.max(30, Math.round((Date.now() - state.startedAt) / 1000)),
+          submittedAt: reportCompletedAt,
+          reportUrl: pageReportUrl
+        }
+      };
+
+      let recordId = null;
+      try {
+        if (window.FeifanAssessmentSubmitter) {
+          const submitRes = await window.FeifanAssessmentSubmitter.submit(submitPayload, {
+            clientKey: `${TEMPLATE_CODE.toLowerCase()}_${reportSession}`
+          });
+          if (submitRes && submitRes.recordId) recordId = submitRes.recordId;
+        } else {
+          const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "[::1]");
+          const primaryBase = window.ASSESSMENT_API_BASE || (isLocal ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
+          const backupBase = isLocal ? "https://ffcrm-api.1605ai.com" : "https://ffcrm-daily.1605ai.com";
+          const candidateBases = [primaryBase, backupBase].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
+
+          for (const base of candidateBases) {
+            try {
+              const res = await fetch(`${base}/api/assessment/submit`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                keepalive: true,
+                body: JSON.stringify(submitPayload)
+              });
+              if (res && res.ok) {
+                const resData = await res.json().catch(() => ({}));
+                if ((resData.code === 0 || resData.code === 200) && resData.data) {
+                  recordId = resData.data.id || resData.data.savedId || (typeof resData.data === 'string' || typeof resData.data === 'number' ? String(resData.data) : null) || (resData.id ? String(resData.id) : null);
+                  if (recordId) break;
+                }
+              }
+            } catch(errFetch) {
+              console.warn(`提交至端点 ${base} 异常:`, errFetch);
+            }
+          }
+        }
+      } catch(e) {
+        console.warn("测评提交已由本地安全持久化接管 (静默重试同步):", e);
+      }
+
+      // 如果成功拿到 recordId，静默更新浏览器 URL 参数，保持分享一致性
+      if (recordId && typeof window !== "undefined" && window.history && window.history.replaceState) {
+        try {
+          const u = new URL(window.location.href);
+          u.searchParams.set("id", recordId);
+          window.history.replaceState(null, "", u.toString());
+        } catch(e) {}
+      }
+
+      // 本地报告快照持久化 (双键存储：last_record + session + recordId + 历史数组)
+      try {
+        const snapshot = {
+          session: reportSession,
+          recordId: recordId,
+          userInfo: state.userInfo,
+          answers: state.answers,
+          reportData: reportData,
+          completedAt: reportCompletedAt
+        };
+        localStorage.setItem(`${TEMPLATE_CODE.toLowerCase()}_last_record`, JSON.stringify(snapshot));
+        localStorage.setItem(`${TEMPLATE_CODE.toLowerCase()}_session_${reportSession}`, JSON.stringify(snapshot));
+        if (recordId) {
+          localStorage.setItem(`${TEMPLATE_CODE.toLowerCase()}_record_${recordId}`, JSON.stringify(snapshot));
+        }
+        if (studentMobile) {
+          localStorage.setItem(`${TEMPLATE_CODE.toLowerCase()}_last_mobile`, studentMobile);
+          try {
+            const histKey = `${TEMPLATE_CODE.toLowerCase()}_history_${studentMobile}`;
+            let list = JSON.parse(localStorage.getItem(histKey) || "[]");
+            if (!Array.isArray(list)) list = [];
+            list.unshift({
+              id: recordId,
+              session: reportSession,
+              createdAt: reportCompletedAt,
+              name: studentName,
+              contact: studentMobile,
+              primaryType: reportData.primaryType,
+              secondType: reportData.secondaryType,
+              secondaryType: reportData.secondaryType,
+              summary: reportData.comboSummary || (reportData.primaryType ? reportData.primaryType.one : ""),
+              scores: reportData.dimScores,
+              dimScores: reportData.dimScores,
+              facetScores: reportData.facetScores,
+              answers: state.answers
             });
-            this.classList.add('is-checked');
-            radio.checked = true;
+            localStorage.setItem(histKey, JSON.stringify(list.slice(0, 30)));
+          } catch(e) {}
+        }
+      } catch(e) {}
+
+      // 渲染报告 UI
+      renderReportUI(reportData, state.userInfo, recordId);
+
+      await new Promise(r => setTimeout(r, 600));
+      setLoading(false);
+      state.submitting = false;
+      showView(els.resultView);
+    }
+
+    // 根据 URL ?id=xxx 或 ?session=xxx 调取历史/外部报告
+    async function loadExistingReport(id, session) {
+      setLoading(true, "正在加载专属诊断报告...");
+      
+      // 1. 尝试从本地缓存读取
+      let localSnap = null;
+      try {
+        if (id) localSnap = JSON.parse(localStorage.getItem(`${TEMPLATE_CODE.toLowerCase()}_record_${id}`) || "null");
+        if (!localSnap && session) localSnap = JSON.parse(localStorage.getItem(`${TEMPLATE_CODE.toLowerCase()}_session_${session}`) || "null");
+        if (!localSnap && (id === "last" || !id)) localSnap = JSON.parse(localStorage.getItem(`${TEMPLATE_CODE.toLowerCase()}_last_record`) || "null");
+      } catch(e) {}
+
+      // 2. 如果存在外部 ID，发起 API 请求（双端点重试容灾防止主从延迟）
+      if (id && id !== "last") {
+        const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "[::1]");
+        const primaryBase = window.ASSESSMENT_API_BASE || (isLocal ? "https://ffcrm-daily.1605ai.com" : "https://ffcrm-api.1605ai.com");
+        const secondaryBase = isLocal ? "https://ffcrm-api.1605ai.com" : "https://ffcrm-daily.1605ai.com";
+        const candidateBases = [primaryBase, secondaryBase].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
+
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          for (const backendBase of candidateBases) {
+            try {
+              let res = await fetch(`${backendBase}/api/assessment/result/${encodeURIComponent(id)}`);
+              let json = await res.json().catch(() => ({}));
+              if (!res.ok || (json.code !== 200 && json.code !== 0)) {
+                res = await fetch(`${backendBase}/api/assessment/detail?id=${encodeURIComponent(id)}`);
+                json = await res.json().catch(() => ({}));
+              }
+              if ((json.code === 200 || json.code === 0) && json.data) {
+                const item = json.data;
+                let parsedResult = {};
+                try {
+                  parsedResult = typeof item.resultJson === 'string' ? JSON.parse(item.resultJson) : (item.resultJson || {});
+                } catch(e) {}
+
+                const repInfo = parsedResult.assessmentInfo || {};
+                const repData = repInfo.resultData || parsedResult.resultData || parsedResult;
+                const stuInfo = parsedResult.studentInfo || {
+                  studentName: item.customerName,
+                  studentMobile: item.customerMobile
+                };
+
+                if (repData) {
+                  repData.primaryType = repData.primaryType || { cn: "战略破局型", en: "Strategic Breakthrough" };
+                  repData.secondaryType = repData.secondaryType || repData.secondType || {};
+                  repData.facetScores = repData.facetScores || repData.scores || {};
+                  renderReportUI(repData, stuInfo, id);
+                  try {
+                    localStorage.setItem(`${TEMPLATE_CODE.toLowerCase()}_record_${id}`, JSON.stringify({
+                      recordId: id,
+                      reportData: repData,
+                      userInfo: stuInfo
+                    }));
+                  } catch(e) {}
+                  setLoading(false);
+                  showView(els.resultView);
+                  return;
+                }
+              }
+            } catch(e) {
+              console.warn(`调取端点 ${backendBase} 报告异常:`, e);
+            }
+          }
+          if (attempt < 3) await new Promise(r => setTimeout(r, attempt * 400));
+        }
+      }
+
+      // 3. 远端未调取成功但本地有快照时回退呈现
+      if (localSnap && localSnap.reportData) {
+        renderReportUI(localSnap.reportData, localSnap.userInfo || {}, localSnap.recordId || id);
+        setLoading(false);
+        showView(els.resultView);
+        return;
+      }
+
+      // 4. 若均无数据，回到引导页
+      setLoading(false);
+      showView(els.startView);
+    }
+
+    function restartAssessment() {
+      state.currentIndex = 0;
+      state.answers = {};
+      state.startedAt = Date.now();
+      showView(els.startView);
+    }
+
+    window.oneClickAutoFillAndAnswer = function () {
+      if (els.startView && (els.startView.classList.contains('is-active') || !els.startView.hidden)) {
+        showView(els.basicView);
+      }
+
+      if (els.basicView && (els.basicView.classList.contains('is-active') || !els.basicView.hidden)) {
+        const nameEl = document.getElementById('studentName');
+        const mobileEl = document.getElementById('studentMobile');
+        if (nameEl && !nameEl.value) nameEl.value = '测试研发人才';
+        if (mobileEl && !mobileEl.value) mobileEl.value = '15765778832';
+        const roleRadio = document.querySelector('input[name="rdRole"]:checked') || document.querySelector('input[name="rdRole"]');
+        if (roleRadio) roleRadio.checked = true;
+        document.getElementById('startAssessmentBtn')?.click();
+      }
+
+      if (els.assessmentView && (els.assessmentView.classList.contains('is-active') || !els.assessmentView.hidden)) {
+        QUESTIONS.forEach((q) => { state.answers[q.id] = 4; });
+        state.currentIndex = QUESTIONS.length - 1;
+        renderCurrentQuestion();
+      }
+    };
+
+    function initPage() {
+      const ctx = getContext();
+      if (ctx.studentName && document.getElementById('studentName')) {
+        document.getElementById('studentName').value = ctx.studentName;
+      }
+      if (ctx.studentMobile && document.getElementById('studentMobile')) {
+        document.getElementById('studentMobile').value = ctx.studentMobile;
+      }
+
+      document.getElementById('startButton')?.addEventListener('click', () => showView(els.basicView));
+      document.getElementById('basicBackButton')?.addEventListener('click', () => showView(els.startView));
+      document.querySelectorAll('[data-home-back], #homeBackButton').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (window.goLearningCenter) window.goLearningCenter();
+          else if (window.goBackOrFallback) window.goBackOrFallback('/portal.html');
+          else window.history.back();
+        });
+      });
+
+      document.querySelectorAll(`input[name="rdRole"]`).forEach(radio => {
+        radio.addEventListener('change', function () {
+          state.userInfo.role = this.value;
+        });
+      });
+
+      document.getElementById('startAssessmentBtn')?.addEventListener('click', () => {
+        const name = document.getElementById('studentName')?.value?.trim();
+        const mobile = document.getElementById('studentMobile')?.value?.trim();
+        const role = document.querySelector(`input[name="rdRole"]:checked`)?.value;
+
+        if (!name) {
+          if (els.basicError) {
+            els.basicError.textContent = "请填写您的姓名或称呼。";
+            els.basicError.hidden = false;
+          }
+          return;
+        }
+        if (!mobile || !/^(?:1\d{10}|[a-zA-Z0-9_-]{5,20})$/.test(mobile)) {
+          if (els.basicError) {
+            els.basicError.textContent = "请填写正确的手机号或微信号。";
+            els.basicError.hidden = false;
+          }
+          return;
+        }
+        if (els.basicError) els.basicError.hidden = true;
+
+        state.userInfo.studentName = name;
+        state.userInfo.studentMobile = mobile;
+        state.userInfo.role = role || "AI算法/全栈工程师";
+
+        showView(els.assessmentView);
+        state.currentIndex = 0;
+        renderCurrentQuestion();
+      });
+
+      els.previousButton?.addEventListener('click', previousQuestion);
+      els.nextButton?.addEventListener('click', nextQuestion);
+
+      document.querySelectorAll('[data-action="autofill-test"], #autofillBtn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (typeof window.oneClickAutoFillAndAnswer === 'function') {
+            window.oneClickAutoFillAndAnswer();
           }
         });
       });
-    });
 
-    function validateBasicAndStart() {
-      const name = document.getElementById('studentName').value.trim();
-      const mobile = document.getElementById('studentMobile').value.trim();
-      const err = document.getElementById('basicError');
-      if (!name || !mobile) {
-        err.textContent = '请完整填写姓名与手机号。';
-        err.hidden = false;
-        return;
-      }
-      err.hidden = true;
-      renderQuestions();
-      switchView('questionsView');
-    }
+      // 检查 URL 是否直接携带 id 或 session 参数（如顾问或家长点开微信/飞书报告链接）
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryId = urlParams.get("id") || urlParams.get("recordId");
+      const querySession = urlParams.get("session") || urlParams.get("sessionId");
 
-    function renderQuestions() {
-      const container = document.getElementById('questionsContainer');
-      container.innerHTML = '';
-      const start = currentPage * pageSize;
-      const pageQuestions = FTH_1605_QUESTIONS.slice(start, start + pageSize);
-
-      pageQuestions.forEach((q, idx) => {
-        const qIndex = start + idx + 1;
-        const card = document.createElement('div');
-        card.className = 'question-card';
-        card.style.padding = '20px';
-        
-        card.innerHTML = `
-          <div style="display:flex;align-items:flex-start;gap:10px">
-            <span style="background:#FEF3C7;color:#B45309;font-weight:900;font-size:12px;padding:3px 8px;border-radius:6px">Q${qIndex}</span>
-            <p style="font-weight:800;font-size:15px;color:#1E1A1C;margin:0">${q.prompt}</p>
-          </div>
-          <div class="fth-option-grid">
-            ${LIKERT_LABELS.map(opt => `
-              <label class="scale-option ${answers[q.id] === opt.val ? 'is-checked' : ''}" onclick="selectAnswer('${q.id}', ${opt.val}, this)">
-                <input type="radio" name="q_${q.id}" value="${opt.val}" ${answers[q.id] === opt.val ? 'checked' : ''}>
-                <span>${opt.val}. ${opt.text}</span>
-              </label>
-            `).join('')}
-          </div>
-        `;
-        container.appendChild(card);
-      });
-
-      document.getElementById('pageProgressText').textContent = `第 ${currentPage + 1} / ${totalPages} 页`;
-      document.getElementById('completedCountText').textContent = `已完成 ${Object.keys(answers).length} / ${FTH_1605_QUESTIONS.length} 题`;
-      document.getElementById('progressFill').style.width = `${Math.min(100, (Object.keys(answers).length / FTH_1605_QUESTIONS.length) * 100)}%`;
-      document.getElementById('prevBtn').disabled = currentPage === 0;
-      document.getElementById('nextBtn').textContent = currentPage === totalPages - 1 ? '提交生成诊断报告' : '下一页';
-    }
-
-    function selectAnswer(qid, val, labelEl) {
-      answers[qid] = val;
-      const parent = labelEl.parentElement;
-      parent.querySelectorAll('.scale-option').forEach(l => l.classList.remove('is-checked'));
-      labelEl.classList.add('is-checked');
-      document.getElementById('completedCountText').textContent = `已完成 ${Object.keys(answers).length} / ${FTH_1605_QUESTIONS.length} 题`;
-      document.getElementById('progressFill').style.width = `${Math.min(100, (Object.keys(answers).length / FTH_1605_QUESTIONS.length) * 100)}%`;
-      document.getElementById('pageError').hidden = true;
-    }
-
-    function changePage(delta) {
-      if (delta > 0) {
-        const start = currentPage * pageSize;
-        const pageQuestions = FTH_1605_QUESTIONS.slice(start, start + pageSize);
-        const unAnswered = pageQuestions.some(q => !answers[q.id]);
-        if (unAnswered) {
-          document.getElementById('pageError').hidden = false;
-          return;
-        }
-      }
-      document.getElementById('pageError').hidden = true;
-
-      if (currentPage + delta >= totalPages) {
-        submitAssessment();
-        return;
-      }
-
-      currentPage += delta;
-      renderQuestions();
-      window.scrollTo(0, 0);
-    }
-
-    async function submitAssessment() {
-      const nextBtn = document.getElementById('nextBtn');
-      nextBtn.disabled = true;
-      nextBtn.textContent = '提交诊断中...';
-
-      const name = document.getElementById('studentName').value.trim();
-      const mobile = document.getElementById('studentMobile').value.trim();
-      const devDirection = document.querySelector('input[name="devDirection"]:checked')?.value || 'AI算法/大模型';
-
-      const formattedAnswers = Object.entries(answers).map(([qid, val]) => ({
-        questionId: qid,
-        value: val,
-        responseTimeMs: 350
-      }));
-
-      const crmCtx = getFFCRMContext();
-      const session = `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-
-      const payload = {
-        studentInfo: {
-          name: name,
-          mobile: mobile,
-          profileId: crmCtx.profileId,
-          specialtyDirection: devDirection
-        },
-        advisorInfo: {
-          token: crmCtx.token,
-          name: crmCtx.advisorName,
-          userId: crmCtx.advisorUserId,
-          mobile: crmCtx.advisorMobile
-        },
-        assessmentInfo: {
-          templateCode: "FTH_1605",
-          templateName: "FTH 职业特质测评(1605版)",
-          templateType: "CAREER_TALENT",
-          answers: formattedAnswers,
-          submittedAt: new Date().toISOString()
-        }
-      };
-
-      try {
-        const resp = await fetch('https://ceping.1605ai.com/api/assessment/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const resData = await resp.json();
-        const savedId = resData.data?.id || resData.data?.savedId;
-        if (savedId) {
-          window.location.href = `https://ceping.1605ai.com/report.html?id=${savedId}`;
-        } else {
-          window.location.href = `https://ceping.1605ai.com/report.html?mobile=${encodeURIComponent(mobile)}`;
-        }
-      } catch (err) {
-        alert('提交失败，请检查网络后重试。');
-        nextBtn.disabled = false;
-        nextBtn.textContent = '提交生成诊断报告';
+      if (queryId || querySession) {
+        loadExistingReport(queryId, querySession);
+      } else {
+        showView(els.startView);
       }
     }
 
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPage);
+    } else {
+      initPage();
+    }
   </script>
 </body>
 </html>

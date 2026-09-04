@@ -6115,7 +6115,7 @@ body.report-page {
    测评开始页 / 内容页 / 报告页统一平板适配
    ========================================================================== */
 @media (min-width: 680px) and (max-width: 1024px) {
-  body.assessment-page .brand-bar {
+  body.assessment-page:not(.fth-assessment-page) .brand-bar {
     position: fixed;
     top: 0;
     left: 0;
@@ -6131,7 +6131,7 @@ body.report-page {
     z-index: 200;
   }
 
-  body.assessment-page .brand-lockup {
+  body.assessment-page:not(.fth-assessment-page) .brand-lockup {
     width: 100%;
     min-height: 0;
     padding: max(10px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
@@ -6147,11 +6147,11 @@ body.report-page {
     pointer-events: auto;
   }
 
-  body.assessment-page .brand-left {
+  body.assessment-page:not(.fth-assessment-page) .brand-left {
     display: none !important;
   }
 
-  body.assessment-page .brand-right {
+  body.assessment-page:not(.fth-assessment-page) .brand-right {
     display: none !important;
   }
 
@@ -6212,7 +6212,7 @@ body.report-page {
     padding-top: 8px;
   }
 
-  body.assessment-page .assessment-sidebar {
+  body.assessment-page:not(.fth-assessment-page) .assessment-sidebar {
     top: 0;
   }
 }
@@ -7493,6 +7493,31 @@ html.is-test-mode .test-autofill-btn {
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
   background: linear-gradient(135deg, #FDE68A 0%, #FCD34D 100%);
+}
+
+.autofill-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  padding: 5px 14px !important;
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%) !important;
+  border: 1.5px solid #F59E0B !important;
+  border-radius: 999px !important;
+  color: #92400E !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+
+.autofill-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35) !important;
+  background: linear-gradient(135deg, #FDE68A 0%, #FCD34D 100%) !important;
 }
 
 
