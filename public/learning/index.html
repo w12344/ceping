@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fbf7ef">
+  <title>学习模式定位｜非凡教育</title>
+  <link rel="stylesheet" href="/assets/styles.css?v=20260819_back2">
+  <script src="/assets/api-config.js"></script>
+
+  <script type="module" src="/assets/assessment.js?v=20260815_v722"></script>
+</head>
+<body class="assessment-page">
+  <header class="brand-bar">
+    <div class="brand-lockup">
+      <button type="button" id="homeBackButton" class="brand-back-button" aria-label="返回上一页">← 返回</button>
+      <div class="brand-left">
+        <div class="brand-badge-box">凡</div>
+        <div class="brand-text">
+          <span class="brand-cn">非凡教育</span>
+          <span class="brand-sub">点亮每一个孩子的未来</span>
+        </div>
+      </div>
+      <button type="button" id="autofillBtn" class="test-autofill-btn" data-action="autofill-test" title="仅在 type=test 模式下展示">⚡ 快速填入</button>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <!-- View 0: Start Hero Page -->
+    <section id="startView" class="view is-active" aria-labelledby="startTitle">
+      <div class="hero-panel">
+        <div class="hero-panel-topbar">
+          <button type="button" class="hero-back-button" data-home-back aria-label="返回上一页">← 返回</button>
+        </div>
+        <div class="hero-top-grid">
+          <div class="hero-intro-col">
+            <div class="hero-header-tag">
+              <span class="pill-badge">✨ 非凡教育 · 官方科学诊断量表</span>
+            </div>
+            <h1 id="startTitle" class="hero-main-title">学习模式<span class="title-highlight">定位</span></h1>
+            <p class="hero-lead">回顾真实学习场景，看清你通常怎样接收、整理和运用信息，并获得目标学科的具体建议。</p>
+          </div>
+          <div class="hero-visual-col">
+            <div class="hero-visual-wrapper">
+              <img src="/assets/images/hero-podium.png" alt="非凡教育学习模式定位" class="hero-podium-img">
+            </div>
+          </div>
+        </div>
+
+        <div class="fact-row" aria-label="测评概况">
+          <div class="fact-card fact-card-time">
+            <img src="/assets/images/icon-timer.png" alt="时间" class="fact-icon-img">
+            <div class="fact-text">
+              <strong>6–8 分钟</strong>
+              <span>预计完成时间</span>
+            </div>
+          </div>
+          <div class="fact-card fact-card-count">
+            <img src="/assets/images/icon-paper-pencil.png" alt="题量" class="fact-icon-img">
+            <div class="fact-text">
+              <strong>20 题</strong>
+              <span>每题可多选</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="notice-block-wrapper">
+          <div class="notice-block">
+            <div class="notice-header">
+              <span class="notice-badge-dot">◇</span>
+              <h2>作答前请知道</h2>
+            </div>
+            <div class="notice-item">
+              <img src="/assets/images/icon-shield-check.png" alt="规则" class="notice-bullet-icon">
+              <p><strong>没有标准答案</strong>：每题可以选一个，也可以选几个。选最贴近你平时会做的。</p>
+            </div>
+            <div class="notice-item">
+              <img src="/assets/images/icon-bulb.png" alt="说明" class="notice-bullet-icon">
+              <p><strong>客观看待结果</strong>：结果描述的是当前学习入口与信息偏好，不评价学习能力的高低。</p>
+            </div>
+          </div>
+          <div class="notice-mascot">
+            <img src="/assets/images/mascot-owl.png" alt="非凡猫头鹰" class="mascot-img">
+          </div>
+        </div>
+
+        <div class="hero-action-buttons">
+          <button id="startButton" class="primary-button hero-start-btn" type="button">开始测评 →</button>
+          <button id="resumeButton" class="secondary-button hero-resume-btn" type="button" hidden>继续上次作答</button>
+        </div>
+
+        <div class="hero-trust-badges">
+          <div class="trust-badge-item">
+            <img src="/assets/images/icon-shield-check.png" alt="科学量表" class="trust-icon">
+            <div class="trust-info">
+              <strong>科学诊断</strong>
+              <span>情境化量表，真实反映</span>
+            </div>
+          </div>
+          <div class="trust-badge-item">
+            <img src="/assets/images/icon-lock.png" alt="严格保密" class="trust-icon">
+            <div class="trust-info">
+              <strong>严格保密</strong>
+              <span>数据加密，隐私保护</span>
+            </div>
+          </div>
+          <div class="trust-badge-item">
+            <img src="/assets/images/icon-check-circle.png" alt="个性化报告" class="trust-icon">
+            <div class="trust-info">
+              <strong>专属方案</strong>
+              <span>学科行动卡，精准起步</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Two Column Flow for Form & Assessment Views -->
+    <div id="contentLayoutWrapper" class="content-two-col-layout" style="display:none;">
+      <!-- Left Sidebar (PC) -->
+      <aside class="assessment-sidebar">
+        <div class="sidebar-step-card">
+          <div class="sidebar-step-list">
+            <div class="sidebar-step-item is-active" data-step="1">
+              <span class="step-num-badge">01</span>
+              <div class="step-label-group">
+                <strong>基本信息</strong>
+                <span>确定目标学科与阶段</span>
+              </div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="sidebar-step-item" data-step="2">
+              <span class="step-num-badge">02</span>
+              <div class="step-label-group">
+                <strong>学习模式诊断</strong>
+                <span>20道情境选择</span>
+              </div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="sidebar-step-item" data-step="3">
+              <span class="step-num-badge">03</span>
+              <div class="step-label-group">
+                <strong>生成报告</strong>
+                <span>专属学习入口与行动卡</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-mascot-box">
+            <div class="sidebar-speech-bubble">
+              每题可选1个或多个<br>选最符合你平时的做法哦！
+            </div>
+            <img src="/assets/images/mascot-pencil-owl.png" alt="非凡猫头鹰助教" class="sidebar-owl-img">
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right Main Content Area -->
+      <div class="assessment-content-area">
+        <!-- Mobile Horizontal Step Indicator -->
+        <div class="mobile-step-indicator" id="mobileStepIndicator">
+          <div class="mobile-step-item is-active" data-step="1">
+            <span class="mobile-step-badge">01</span>
+            <span class="mobile-step-text">基本信息</span>
+          </div>
+          <div class="mobile-step-line" data-step-line="1"></div>
+          <div class="mobile-step-item" data-step="2">
+            <span class="mobile-step-badge">02</span>
+            <span class="mobile-step-text">模式诊断</span>
+          </div>
+          <div class="mobile-step-line" data-step-line="2"></div>
+          <div class="mobile-step-item" data-step="3">
+            <span class="mobile-step-badge">03</span>
+            <span class="mobile-step-text">诊断报告</span>
+          </div>
+        </div>
+
+        <!-- View 1: Basic Information -->
+        <section id="basicView" class="view" aria-labelledby="basicTitle" hidden>
+          <div class="section-heading-card">
+            <div class="heading-left-content">
+              <span class="section-number-pill">01</span>
+              <div class="heading-titles">
+                <h1 id="basicTitle">先确定这次要解决什么</h1>
+                <p>一次只生成一门学科的报告，为您量身定制行动建议。</p>
+              </div>
+            </div>
+            <div class="heading-right-visual">
+              <img src="/assets/images/icon-id-card.png" alt="基本信息" class="heading-id-card-img">
+            </div>
+          </div>
+
+          <form id="basicForm" novalidate>
+            <div class="form-panel identity-panel">
+              <label class="text-field" for="studentName">
+                <span class="field-title">姓名</span>
+                <input id="studentName" name="studentName" type="text" placeholder="请输入你的姓名" autocomplete="name" maxlength="30" required>
+              </label>
+              <label class="text-field" for="phoneNumber">
+                <span class="field-title">联系方式</span>
+                <input id="phoneNumber" name="phoneNumber" type="tel" placeholder="请输入手机号或微信号" autocomplete="tel" maxlength="30" required>
+              </label>
+
+              <div id="advisorContainer" class="advisor-select-wrapper">
+                <div class="advisor-field-header">
+                  <span class="field-title">归属顾问</span>
+                  <span class="advisor-field-tag" style="background:#F3F4F6;color:#6B7280;border:1px solid #E5E7EB;">选填</span>
+                </div>
+                <div class="advisor-input-box">
+                  <input id="advisorInput" name="advisorName" type="text" placeholder="请选择归属顾问（选填）" autocomplete="off" readonly>
+                  <div id="advisorToggleBtn" class="advisor-arrow-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                </div>
+                <ul id="advisorDropdownList" class="advisor-dropdown-panel" style="display:none;">
+                </ul>
+              </div>
+            </div>
+
+            <div class="form-panel choice-panel" role="group" aria-labelledby="gradeLabel">
+              <h2 id="gradeLabel" class="panel-label"><span>✨</span> 你目前所在年级？</h2>
+              <div class="choice-grid grid-2x2">
+                <label><input type="radio" name="grade" value="高一" required><span>高一</span></label>
+                <label><input type="radio" name="grade" value="高二"><span>高二</span></label>
+                <label><input type="radio" name="grade" value="高三"><span>高三</span></label>
+                <label><input type="radio" name="grade" value="高复"><span>高复</span></label>
+              </div>
+            </div>
+
+            <div class="form-panel choice-panel" role="group" aria-labelledby="specialtyLabel">
+              <h2 id="specialtyLabel" class="panel-label"><span>✨</span> 你的专业方向？</h2>
+              <div class="choice-grid compact">
+                <label><input type="radio" name="specialtyDirection" value="美术设计" required><span>美术设计</span></label>
+                <label><input type="radio" name="specialtyDirection" value="音乐"><span>音乐</span></label>
+                <label><input type="radio" name="specialtyDirection" value="舞蹈"><span>舞蹈</span></label>
+                <label><input type="radio" name="specialtyDirection" value="播音表演"><span>播音表演</span></label>
+                <label><input type="radio" name="specialtyDirection" value="书法"><span>书法</span></label>
+                <label><input type="radio" name="specialtyDirection" value="体育"><span>体育</span></label>
+                <label><input type="radio" name="specialtyDirection" value="其他"><span>其他</span></label>
+              </div>
+            </div>
+
+            <div class="form-panel choice-panel" role="group" aria-labelledby="foreignLanguageLabel">
+              <h2 id="foreignLanguageLabel" class="panel-label"><span>✨</span> 你的外语科目？</h2>
+              <div class="choice-grid compact">
+                <label><input type="radio" name="foreignLanguage" value="英语" required><span>英语</span></label>
+                <label><input type="radio" name="foreignLanguage" value="日语"><span>日语</span></label>
+                <label><input type="radio" name="foreignLanguage" value="其他"><span>其他</span></label>
+              </div>
+            </div>
+
+            <div class="form-panel">
+              <label class="select-label" for="targetSubject">这次最想解决哪一门学科？</label>
+              <p class="field-help">这次报告只会围绕你选的这一门学科给建议。</p>
+              <select id="targetSubject" name="targetSubject" required>
+                <option value="">请先选择外语科目</option>
+              </select>
+            </div>
+
+            <div class="form-panel choice-panel" role="group" aria-labelledby="learningLevelLabel">
+              <h2 id="learningLevelLabel" class="panel-label"><span>✨</span> 这门学科现在处于哪个阶段？</h2>
+              <div class="choice-grid level-grid">
+                <label><input type="radio" name="learningLevel" value="基础巩固" required><span><strong>基础巩固</strong><small>基础知识还有缺口，基础题容易丢分</small></span></label>
+                <label><input type="radio" name="learningLevel" value="稳定提升"><span><strong>稳定提升</strong><small>基础题大多会做，想减少错误、突破中档题</small></span></label>
+                <label><input type="radio" name="learningLevel" value="冲刺提高"><span><strong>冲刺提高</strong><small>基础和中档题较稳定，想提升速度和综合题得分</small></span></label>
+              </div>
+            </div>
+
+            <p id="basicError" class="form-error" role="alert" hidden></p>
+            <div class="form-actions-wrapper">
+              <div class="actions-row">
+                <button class="secondary-button action-btn-half back-learning-center-btn" type="button" data-action="go-learning-center">返回学习中心</button>
+                <button id="basicBackButton" class="secondary-button action-btn-half" type="button">返回上一步</button>
+                <button id="createSessionButton" class="primary-button hero-start-btn action-btn-half" type="submit">进入测评 ➔</button>
+              </div>
+              <div class="form-security-note">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span>信息仅用于测评分析，我们将严格保密</span>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <!-- View 2: Assessment Questions -->
+        <section id="assessmentView" class="view" aria-labelledby="assessmentTitle" hidden>
+          <div id="assessmentHeadingCard" class="section-heading-card">
+            <div class="heading-left-content">
+              <span id="assessmentStepBadge" class="section-number-pill">02</span>
+              <div class="heading-titles">
+                <h1 id="assessmentViewTitle">学习模式定位题目</h1>
+                <p id="assessmentViewSubtitle">可以选一个，也可以选几个。选最贴近你平时会做的。</p>
+              </div>
+            </div>
+            <div class="heading-right-visual">
+              <img src="/assets/images/icon-id-card.png" alt="学习模式定位" class="heading-id-card-img">
+            </div>
+          </div>
+
+          <div class="progress-panel">
+            <div class="progress-copy">
+              <span id="pageText">第 1 题 / 共 20 题</span>
+            </div>
+          </div>
+
+          <div id="questionList" class="question-list" aria-live="polite"></div>
+
+          <p id="pageError" class="form-error" role="alert" hidden>请至少选一项最像你平时做法的选项。</p>
+          <div class="form-actions-wrapper">
+            <div class="actions-row">
+              <button class="secondary-button action-btn-half back-learning-center-btn" type="button" data-action="go-learning-center">返回学习中心</button>
+              <button id="previousButton" class="secondary-button action-btn-half" type="button">上一题</button>
+              <button id="nextButton" class="primary-button hero-start-btn action-btn-half" type="button">下一题 ➔</button>
+            </div>
+            <div class="form-security-note">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <span>信息仅用于测评分析，我们将严格保密</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 3: Submit Error View -->
+        <section id="submitErrorView" class="view" aria-labelledby="submitErrorTitle" hidden>
+          <div class="hero-panel compact-hero">
+            <p class="eyebrow coral">SUBMISSION PAUSED</p>
+            <h1 id="submitErrorTitle">报告暂时没有生成</h1>
+            <p class="hero-lead">你的作答已经保存在本机。请检查网络后重新提交，不需要再次答题。</p>
+            <button id="retryButton" class="primary-button" type="button">重新提交</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div id="loadingOverlay" class="loading-overlay" role="status" aria-live="polite" hidden>
+    <div class="loading-box">
+      <span class="spinner" aria-hidden="true"></span>
+      <p id="loadingText">正在准备测评...</p>
+    </div>
+  </div>
+
+  <noscript>请开启浏览器 JavaScript 后完成测评。</noscript>
+</body>
+</html>
