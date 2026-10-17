@@ -803,28 +803,36 @@ body.motivation-report .score-card .score-sub {
 }
 
 /* 雷达与维度条 */
-body.motivation-report #radar {
+body.motivation-report #radar,
+.motivation-page #radar {
   margin: 4px 0 8px;
+  text-align: center;
 }
 
-body.motivation-report #radar svg {
+body.motivation-report #radar svg,
+.motivation-page #radar svg {
   display: block;
   max-width: 360px;
   margin: 0 auto;
 }
 
-body.motivation-report .emotion-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: 10px auto 0;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: #FFF7ED;
-  border: 1.5px solid #FED7AA;
-  font-size: 13px;
-  font-weight: 700;
-  color: #9A3412;
+body.motivation-report .emotion-pill,
+.motivation-page .emotion-pill {
+  display: flex !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  margin: 12px auto 0 !important;
+  padding: 8px 16px !important;
+  border-radius: 999px !important;
+  background: #FFF7ED !important;
+  border: 1.5px solid #FED7AA !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #9A3412 !important;
+  box-sizing: border-box !important;
 }
 
 body.motivation-report .radar-legend {
@@ -860,53 +868,88 @@ body.motivation-report .radar-note {
 }
 
 body.motivation-report .bar-row,
-body.motivation-report .state-bar-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+body.motivation-report .state-bar-row,
+.motivation-page .bar-row,
+.motivation-page .state-bar-row,
+#bars .bar-row,
+#bars .state-bar-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-bottom: 12px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 body.motivation-report .bar-row:last-child,
-body.motivation-report .state-bar-row:last-child {
-  margin-bottom: 0;
+body.motivation-report .state-bar-row:last-child,
+.motivation-page .bar-row:last-child,
+.motivation-page .state-bar-row:last-child,
+#bars .bar-row:last-child,
+#bars .state-bar-row:last-child {
+  margin-bottom: 0 !important;
 }
 
 body.motivation-report .bar-row > b:first-child,
-body.motivation-report .state-bar-label {
-  width: 92px;
-  flex-shrink: 0;
-  font-size: 13px;
-  font-weight: 800;
-  color: #1E1A1C;
-  line-height: 1.35;
+body.motivation-report .state-bar-label,
+.motivation-page .bar-row > b:first-child,
+.motivation-page .state-bar-label,
+#bars .bar-row > b:first-child,
+#bars .state-bar-label {
+  width: 92px !important;
+  min-width: 92px !important;
+  flex-shrink: 0 !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: #1E1A1C !important;
+  line-height: 1.35 !important;
+  text-align: left !important;
 }
 
 body.motivation-report .bar-track,
-body.motivation-report .state-bar-track {
-  flex: 1;
-  height: 12px;
-  background: #FEF3C7;
-  border-radius: 999px;
-  overflow: hidden;
+body.motivation-report .state-bar-track,
+.motivation-page .bar-track,
+.motivation-page .state-bar-track,
+#bars .bar-track,
+#bars .state-bar-track {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 60px !important;
+  height: 12px !important;
+  background: #FEF3C7 !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+  position: relative !important;
+  display: block !important;
+  box-sizing: border-box !important;
 }
 
 body.motivation-report .bar-fill,
-body.motivation-report .state-bar-fill {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #FFE600 0%, #F5C518 100%);
+body.motivation-report .state-bar-fill,
+.motivation-page .bar-fill,
+.motivation-page .state-bar-fill,
+#bars .bar-fill,
+#bars .state-bar-fill {
+  display: block !important;
+  height: 100% !important;
+  border-radius: 999px !important;
+  transition: width 0.4s ease !important;
 }
 
 body.motivation-report .bar-row > b:last-child,
-body.motivation-report .state-bar-value {
-  width: 52px;
-  flex-shrink: 0;
-  text-align: right;
-  font-size: 13px;
-  font-weight: 900;
-  color: #1E1A1C;
+body.motivation-report .state-bar-value,
+.motivation-page .bar-row > b:last-child,
+.motivation-page .state-bar-value,
+#bars .bar-row > b:last-child,
+#bars .state-bar-value {
+  width: 52px !important;
+  min-width: 52px !important;
+  flex-shrink: 0 !important;
+  text-align: right !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  color: #1E1A1C !important;
 }
 
 body.motivation-report .tag-list {
@@ -952,12 +995,19 @@ body.motivation-report .summary-box h3 {
 }
 
 body.motivation-report .summary-box p,
-body.motivation-report .report-result-note {
+body.motivation-report .report-result-note,
+.motivation-page .summary-box p,
+.motivation-page .report-result-note {
   margin: 0;
   font-size: 14px;
   line-height: 1.7;
   color: #374151;
   font-weight: 600;
+}
+
+body.motivation-report .summary-box p + p,
+.motivation-page .summary-box p + p {
+  margin-top: 10px;
 }
 
 body.motivation-report #judgement .judgment-highlight-box,
@@ -1041,7 +1091,16 @@ body.motivation-report .detail-label {
   letter-spacing: 0.02em;
 }
 
-body.motivation-report .score-type em {
+body.motivation-report .score-type,
+.motivation-page .score-type {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+body.motivation-report .score-type em,
+.motivation-page .score-type em {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1053,6 +1112,31 @@ body.motivation-report .score-type em {
   font-style: normal;
   font-size: 14px;
   font-weight: 900;
+}
+
+body.motivation-report .score-type span,
+.motivation-page .score-type span {
+  font-size: 14px;
+  font-weight: 700;
+  color: #4B5563;
+}
+
+body.motivation-report .advice-path,
+.motivation-page .advice-path {
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 8px;
+}
+
+body.motivation-report .advice-path p,
+.motivation-page .advice-path p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #166534;
+  font-weight: 600;
 }
 
 body.motivation-report .detail-section > p {
@@ -1145,9 +1229,16 @@ body.motivation-report .motivation-bottleneck-block {
   margin-top: 0;
 }
 
-body.motivation-report #actionPlan .summary-box {
-  background: #EFF6FF;
-  border-color: #BFDBFE;
+body.motivation-report #actionPlan .summary-box,
+.motivation-page #actionPlan .summary-box {
+  background: #EFF6FF !important;
+  border-color: #BFDBFE !important;
+}
+
+body.motivation-report #actionPlan .summary-box p b,
+.motivation-page #actionPlan .summary-box p b {
+  color: #1E3A8A;
+  font-weight: 800;
 }
 
 @media (max-width: 767px) {
@@ -1180,13 +1271,217 @@ body.motivation-report #actionPlan .summary-box {
   }
 
   body.motivation-report .bar-row > b:first-child,
-  body.motivation-report .state-bar-label {
-    width: 76px;
-    font-size: 12px;
+  body.motivation-report .state-bar-label,
+  .motivation-page .bar-row > b:first-child,
+  .motivation-page .state-bar-label,
+  #bars .bar-row > b:first-child,
+  #bars .state-bar-label {
+    width: 76px !important;
+    min-width: 76px !important;
+    font-size: 12px !important;
   }
 }
 
-/* 打印与 PDF 导出分页防截断优化：仅对原子级条目防截断，大卡片允许自然跨页排版 */
+/* ========================================================
+ * 动力系统探索与行动报告 A4 专业打印与 PDF 分页防截断优化 (100% 保持报告原版样式与自然排版)
+ * ======================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm 10mm 10mm;
+  }
+
+  /* 打印颜色强效保留，确保背景色、渐变与边框完全显色，并清除干扰排版阴影 */
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  body.motivation-report,
+  body.motivation-page {
+    background: #FFFFFF !important;
+    color: #1E1A1C !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* 隐藏所有屏幕导航、按钮、侧边栏与无关组件 */
+  body.motivation-report .brand-bar,
+  body.motivation-report .mobile-report-header,
+  body.motivation-report .report-sidebar,
+  body.motivation-report .print-btn-pill,
+  body.motivation-report .mobile-print-btn,
+  body.motivation-report #printReport,
+  body.motivation-report #mobilePrintBtn,
+  .motivation-page .brand-bar,
+  .motivation-page .report-header button,
+  .motivation-page .nav button {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 容器解除 Flex/Grid 约束，恢复纯 Block 正常自然分页流 */
+  body.motivation-report .report-shell,
+  body.motivation-report .report-document,
+  body.motivation-report .report-two-col-layout,
+  body.motivation-report .report-content-area,
+  .motivation-page #report {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    float: none !important;
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  body.motivation-report .report-content-area > section,
+  body.motivation-report .report-content-area > div,
+  .motivation-page #report > .panel,
+  .motivation-page #report > .score-grid {
+    margin-bottom: 20px !important;
+  }
+
+  /* 大区块卡片：允许自然跨页排版，保持原版金框与背景，清除阴影 */
+  body.motivation-report .report-card,
+  body.motivation-report .report-section-card,
+  .motivation-page .panel {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  /* 七大维度与画像容器解除 Grid，转为标准 Block 顺畅分页 */
+  body.motivation-report #dimensionDetails,
+  .motivation-page #dimensionDetails,
+  body.motivation-report .portrait-grid,
+  body.motivation-report .strength-grid {
+    display: block !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+
+  /* 每一个维度卡片：设置为 inline-block 单体原子块 (Monolithic)，绝对防跨页撕裂，保持原版背景、金边与内边距 */
+  body.motivation-report #dimensionDetails .dimension-card,
+  .motivation-page #dimensionDetails .dimension-card,
+  .dimension-card {
+    /* 维度卡片内容可能超过一页，允许卡片自然跨页，避免浏览器产生整页空白 */
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    vertical-align: top !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+    break-before: auto !important;
+    page-break-before: auto !important;
+    margin-bottom: 16px !important;
+    box-shadow: none !important;
+    -webkit-box-decoration-break: slice !important;
+    box-decoration-break: slice !important;
+  }
+
+  /* 卡片内部分段与重要组件：防断开 */
+  body.motivation-report .detail-section,
+  .detail-section,
+  body.motivation-report .score-type,
+  body.motivation-report .mechanism,
+  .mechanism {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* 原子级子卡片与组件：100% 防跨页撕裂与文字被切，全部采用单体不可拆分流 */
+  body.motivation-report .portrait-item,
+  .portrait-item,
+  body.motivation-report .strength-card,
+  .strength-card,
+  body.motivation-report .motivation-bottleneck-block .summary-box,
+  body.motivation-report #actionPlan .summary-box,
+  body.motivation-report .advice-path,
+  .advice-path,
+  body.motivation-report .score-card,
+  .score-card,
+  body.motivation-report .state-bar-row,
+  .state-bar-row,
+  body.motivation-report .bar-row,
+  .bar-row,
+  body.motivation-report .emotion-pill,
+  body.motivation-report .radar-legend,
+  body.motivation-report .radar-note,
+  body.motivation-report .motivation-radar-wrapper {
+    display: inline-block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    vertical-align: top !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    margin-bottom: 14px !important;
+    box-shadow: none !important;
+    -webkit-box-decoration-break: clone !important;
+    box-decoration-break: clone !important;
+  }
+
+  /* 长文本段落按行流转，避免整段被推到下一页造成大面积留白 */
+  body.motivation-report .dimension-card p,
+  body.motivation-report .dimension-card .detail-section,
+  body.motivation-report .dimension-card .mechanism,
+  body.motivation-report .dimension-card .score-type {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  /* 卡片标题与紧随内容保持在同一页 */
+  body.motivation-report .dimension-card h3,
+  body.motivation-report .dimension-card h4,
+  body.motivation-report .dimension-card .detail-label {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  /* 标题与标签绝对禁止与后续内容孤立截断 */
+  body.motivation-report h1,
+  body.motivation-report h2,
+  body.motivation-report h3,
+  body.motivation-report h4,
+  body.motivation-report .section-card-header,
+  body.motivation-report .motivation-report-subheading,
+  body.motivation-report .detail-label,
+  .detail-label {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  /* 段落防止单行孤立 */
+  body.motivation-report p,
+  body.motivation-report li,
+  body.motivation-report span,
+  body.motivation-report em,
+  body.motivation-report b {
+    orphans: 4 !important;
+    widows: 4 !important;
+  }
+}
+
+/* 全局防撕裂基础声明 */
 .detail-section,
 .portrait-item,
 .strength-card,
@@ -1194,8 +1489,8 @@ body.motivation-report #actionPlan .summary-box {
 .mechanism,
 .state-bar-row,
 .bar-row,
-.score-card {
+.score-card,
+.dimension-card {
   break-inside: avoid !important;
   page-break-inside: avoid !important;
 }
-

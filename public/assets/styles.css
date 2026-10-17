@@ -4306,98 +4306,7 @@ body.report-page .report-kicker {
   }
 }
 
-/* ====================================================
-   🖨️ A4 打印/保存 PDF 专属布局与优雅分页防截断
-   ==================================================== */
-@media print {
-  /* 隐藏顶部导航栏、按钮、反馈组件 */
-  body.report-page header,
-  body.report-page nav,
-  body.report-page button,
-  body.report-page .header-actions,
-  body.report-page .print-btn,
-  body.report-page #feedbackDrawer,
-  body.report-page .feedback-trigger {
-    display: none !important;
-  }
 
-  /* 打印基准：紧凑干净的 A4 白底 */
-  body.report-page {
-    background: #FFFFFF !important;
-    color: #111827 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    font-size: 12px !important;
-  }
-
-  body.report-page .report-shell {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  /* 主 Section 大卡片：允许跨页自然流转，严禁整张大卡片强行推下一页导致大量空白！ */
-  body.report-page .report-sheet,
-  body.report-page .report-overview,
-  body.report-page .feedback-section {
-    border: 1px solid #E5E7EB !important;
-    border-radius: 10px !important;
-    box-shadow: none !important;
-    padding: 14px 18px !important;
-    margin-bottom: 14px !important;
-    break-inside: auto !important;
-    page-break-inside: auto !important;
-  }
-
-  /* 精细防分页截断：仅针对原子级小卡片，防止小卡片内部文字被裁切 */
-  body.report-page .dimension-card,
-  body.report-page .mechanism-detail-group,
-  body.report-page .strength-card,
-  body.report-page .overview-primary-result,
-  body.report-page .summary-block,
-  body.report-page .statement,
-  body.report-page .report-meta {
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-    padding: 10px 14px !important;
-    margin-top: 8px !important;
-  }
-
-  /* 标题与描述：紧凑行距 */
-  body.report-page .page-section-heading,
-  body.report-page .overview-state-heading {
-    padding-bottom: 10px !important;
-    margin-bottom: 12px !important;
-  }
-
-  body.report-page .page-section-heading h2,
-  body.report-page .overview-state-heading h2 {
-    font-size: 18px !important;
-    margin: 4px 0 2px !important;
-  }
-
-  /* 数据对比与网格：保持双列对齐，规范尺寸 */
-  body.report-page .overview-data-grid,
-  body.report-page .dimension-detail-grid {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 12px !important;
-    break-inside: auto !important;
-    page-break-inside: auto !important;
-  }
-
-  body.report-page canvas {
-    max-width: 100% !important;
-    max-height: 200px !important;
-  }
-
-  /* 保留背景与边框颜色 */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-}
 
 /* ==========================================================================
    Advisor Selector Dropdown (顾问下拉选择组件优化)
@@ -4491,6 +4400,16 @@ body.report-page .report-kicker {
   z-index: 1000;
 }
 
+.advisor-select-wrapper.is-open .advisor-dropdown-panel {
+  position: fixed;
+  z-index: 10050;
+}
+
+.advisor-item,
+.advisor-item * {
+  touch-action: manipulation;
+}
+
 .advisor-select-wrapper.is-open .advisor-arrow-btn {
   transform: translateY(-50%) rotate(180deg);
 }
@@ -4505,7 +4424,7 @@ body.report-page .report-kicker {
   border: 1px solid rgba(245, 197, 24, 0.35);
   border-radius: 16px;
   box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.04);
-  max-height: 240px;
+  max-height: 360px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: 6px;
@@ -7610,7 +7529,7 @@ html.is-test-mode .test-autofill-btn {
   width: 100% !important;
 }
 
-.state-bar-row {
+.state-bars-container > .state-bar-row {
   display: flex !important;
   flex-direction: column !important;
   gap: 6px !important;
@@ -7646,7 +7565,7 @@ html.is-test-mode .test-autofill-btn {
   margin-left: 4px !important;
 }
 
-.bar-track {
+.state-bars-container .bar-track {
   width: 100% !important;
   height: 9px !important;
   background: #F3F4F6 !important;
@@ -7655,7 +7574,7 @@ html.is-test-mode .test-autofill-btn {
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05) !important;
 }
 
-.bar-fill {
+.state-bars-container .bar-fill {
   height: 100% !important;
   border-radius: 999px !important;
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -8078,7 +7997,7 @@ html.is-test-mode .test-autofill-btn {
   width: 100% !important;
 }
 
-.state-bar-row {
+.state-bars-container > .state-bar-row {
   display: flex !important;
   flex-direction: column !important;
   gap: 6px !important;
@@ -8114,7 +8033,7 @@ html.is-test-mode .test-autofill-btn {
   color: #6B7280 !important;
 }
 
-.bar-track {
+.state-bars-container .bar-track {
   width: 100% !important;
   height: 8px !important;
   background: #F3F4F6 !important;
@@ -8122,7 +8041,7 @@ html.is-test-mode .test-autofill-btn {
   overflow: hidden !important;
 }
 
-.bar-fill {
+.state-bars-container .bar-fill {
   height: 100% !important;
   border-radius: 999px !important;
   transition: width 0.6s ease !important;
@@ -8585,25 +8504,35 @@ html.is-test-mode .test-autofill-btn {
     margin: 8mm 10mm 10mm 10mm;
   }
 
+  /* 打印颜色强效保留，确保背景色、渐变与边框完全显色，并清除干扰排版阴影 */
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
   html,
   body,
   body.report-page {
     background: #FFFFFF !important;
-    color: #111827 !important;
-    font-size: 13px !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+    color: #1E1A1C !important;
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
   }
 
-  /* 强力隐藏所有屏幕顶栏、打印按钮和无关元素 */
+  /* 强力隐藏所有屏幕顶栏、打印按钮和无关交互元素 */
   .print-hidden,
   .brand-bar,
   .mobile-report-header,
+  .report-sidebar,
   body.report-page .brand-bar,
   body.report-page .mobile-report-header,
+  body.report-page .report-sidebar,
   #printReport,
   #mobilePrintBtn,
   .print-btn-pill,
@@ -8619,102 +8548,108 @@ html.is-test-mode .test-autofill-btn {
     padding: 0 !important;
   }
 
-  .report-shell {
+  /* 跨页容器解除 Flex/Grid 约束，转为标准 Block 流，恢复正常自然排版流转 */
+  .report-shell,
+  .report-document,
+  .report-main-container,
+  .report-two-col-layout,
+  .report-content-area {
+    display: block !important;
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+    float: none !important;
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
-  .report-main-container {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 14px !important;
+  .report-main-container > section,
+  .report-main-container > div,
+  .report-content-area > section,
+  .report-content-area > div {
+    margin-bottom: 20px !important;
   }
 
-  /* 防止卡片与关键信息跨页被撕裂 */
+  /* 大区块卡片：允许内容跨页自然排版，不人为强插分页，保持连贯性与金框背景 */
   .report-card,
+  .report-section-card {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  /* 模式卡片容器解除 Grid，转为标准 Block 流 */
+  .mode-card-grid,
+  #modeCards,
+  .action-details-grid {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  /* 原子级子卡片与关键组件：设置为 inline-block 单体不可裁切块 (Monolithic)，100% 杜绝文字和卡片横向剖半 */
   .report-hero-card,
-  .report-section-card,
+  .report-info-card,
   .mode-card,
+  .mode-detail-card,
   .judgment-highlight-box,
   .state-data-layout,
   .learning-path-box,
-  .action-plan-card {
-    background: #FFFFFF !important;
-    border: 1px solid #E5E7EB !important;
-    border-radius: 12px !important;
-    padding: 16px 20px !important;
-    box-shadow: none !important;
+  .task-card-wrapper,
+  .task-header-box,
+  .action-plan-card,
+  .action-item-card,
+  .mechanism-item,
+  .dim-score-card,
+  .fth-report-list li,
+  .scenarios-text-box,
+  .score-card,
+  .dimension-card,
+  .portrait-item,
+  .strength-card,
+  .advice-path,
+  .summary-box,
+  .state-bar-row,
+  .bar-row,
+  .emotion-pill,
+  .radar-legend,
+  .radar-note,
+  .motivation-radar-wrapper {
+    display: inline-block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    vertical-align: top !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;
+    break-before: auto !important;
+    page-break-before: auto !important;
+    margin-bottom: 16px !important;
+    box-shadow: none !important;
+    -webkit-box-decoration-break: clone !important;
+    box-decoration-break: clone !important;
   }
 
-  .section-card-header {
+  /* 标题与描述防孤行，紧贴其后内容 */
+  h1, h2, h3, h4,
+  .section-card-header,
+  .report-card-heading,
+  .detail-label,
+  .action-item-label {
     break-after: avoid !important;
     page-break-after: avoid !important;
   }
 
-  .report-hero-card {
-    border-color: #FDE68A !important;
-    background: #FFFEFA !important;
-    padding: 16px 20px !important;
-  }
-
-  .report-hero-3d-img {
-    width: 100px !important;
-    height: auto !important;
-  }
-
-  /* 雷达图与进度条并排 */
-  .state-data-layout {
-    display: grid !important;
-    grid-template-columns: 240px 1fr !important;
-    gap: 24px !important;
-    align-items: center !important;
-    border: 1px solid #F3F4F6 !important;
-    padding: 14px !important;
-  }
-
-  /* 四大模式卡片双列紧凑排布 */
-  .mode-card-grid {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px !important;
-  }
-
-  .mode-card {
-    padding: 12px 14px !important;
-    border-radius: 10px !important;
-    border: 1px solid #E5E7EB !important;
-  }
-
-  .mechanism-list {
-    gap: 8px !important;
-    margin-top: 6px !important;
-  }
-
-  .mechanism-item {
-    padding: 8px 10px !important;
-    border-radius: 8px !important;
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-  }
-
-  .mechanism-definition,
-  .mechanism-example {
-    font-size: 11.5px !important;
-    line-height: 1.45 !important;
-  }
-
-  .action-details-grid {
-    gap: 8px !important;
-  }
-
-  .action-item-card {
-    padding: 8px 12px !important;
-    border-radius: 8px !important;
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
+  p, li, b, strong, span, em {
+    orphans: 4 !important;
+    widows: 4 !important;
   }
 }

@@ -6,10 +6,10 @@
   <meta name="color-scheme" content="light">
   <meta name="robots" content="noindex, nofollow">
   <title>动力系统探索与行动报告｜非凡教育</title>
-  <link rel="stylesheet" href="/assets/styles.css?v=20260815_v722">
-  <link rel="stylesheet" href="/assets/motivation.css?v=20260821_v801">
+  <link rel="stylesheet" href="/assets/styles.css?v=20260905_v807">
+  <link rel="stylesheet" href="/assets/motivation.css?v=20260905_v807">
   <script src="/assets/api-config.js"></script>
-  <script src="/assets/motivation-report-engine.js?v=20260821_v801"></script>
+  <script src="/assets/motivation-report-engine.js?v=20260905_v807"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body class="report-page motivation-report">
@@ -100,7 +100,7 @@
             </div>
           </section>
 
-          <section class="report-card report-info-card">
+          <section class="report-card report-info-card" id="motivationInfoCard">
             <h2 class="report-card-heading">你的信息</h2>
             <div class="report-meta-grid">
               <div class="meta-field-item">
@@ -122,7 +122,7 @@
             </div>
           </section>
 
-          <section class="report-card report-section-card">
+          <section class="report-card report-section-card" id="motivationSec01">
             <div class="section-card-header">
               <span class="section-order-badge">01</span>
               <div class="section-card-titles">
@@ -133,7 +133,7 @@
             <div class="score-grid" id="scoreGrid"></div>
           </section>
 
-          <section class="report-card report-section-card">
+          <section class="report-card report-section-card" id="motivationSec02">
             <div class="section-card-header">
               <span class="section-order-badge">02</span>
               <div class="section-card-titles">
@@ -148,7 +148,7 @@
             <div id="tags" class="tag-list"></div>
           </section>
 
-          <section class="report-card report-section-card">
+          <section class="report-card report-section-card" id="motivationSec03">
             <div class="section-card-header">
               <span class="section-order-badge">03</span>
               <div class="section-card-titles">
@@ -159,7 +159,7 @@
             <div id="judgement"></div>
           </section>
 
-          <section class="report-card report-section-card">
+          <section class="report-card report-section-card" id="motivationSec04">
             <div class="section-card-header">
               <span class="section-order-badge">04</span>
               <div class="section-card-titles">
@@ -170,7 +170,7 @@
             <div id="summary"></div>
           </section>
 
-          <section class="report-card report-section-card">
+          <section class="report-card report-section-card" id="motivationSec05">
             <div class="section-card-header">
               <span class="section-order-badge">05</span>
               <div class="section-card-titles">
@@ -181,7 +181,7 @@
             <div id="dimensionDetails"></div>
           </section>
 
-          <section class="report-card report-section-card">
+          <section class="report-card report-section-card" id="motivationSec06">
             <div class="section-card-header">
               <span class="section-order-badge">06</span>
               <div class="section-card-titles">
@@ -192,7 +192,7 @@
             <div id="strengths"></div>
           </section>
 
-          <section class="report-card report-section-card">
+          <section class="report-card report-section-card" id="motivationSec07">
             <div class="section-card-header">
               <span class="section-order-badge">07</span>
               <div class="section-card-titles">
@@ -203,7 +203,7 @@
             <div id="bottleneck" class="motivation-bottleneck-block"></div>
           </section>
 
-          <section class="report-card report-section-card">
+          <section class="report-card report-section-card" id="motivationSec08">
             <div class="section-card-header">
               <span class="section-order-badge">08</span>
               <div class="section-card-titles">
@@ -486,7 +486,12 @@
       }
 
       const radarScores = reportData.rawScores || assessment.rawScores || reportData.scores || assessment.scores || {};
-      const radarProfiles = reportData.radarProfiles || assessment.radarProfiles || {};
+      let radarProfiles = reportData.radarProfiles || assessment.radarProfiles || null;
+      if (!radarProfiles || !radarProfiles.core || !radarProfiles.extension || Object.keys(radarProfiles.core).length === 0) {
+        if (window.MotivationReportEngine && typeof window.MotivationReportEngine.deriveRadarProfilesFromScores === "function") {
+          radarProfiles = window.MotivationReportEngine.deriveRadarProfilesFromScores(radarScores);
+        }
+      }
       if (Object.keys(radarScores).length > 0 && window.MotivationReportEngine && typeof window.MotivationReportEngine.radar === "function") {
         $('radar').innerHTML = window.MotivationReportEngine.radar(radarScores, radarProfiles);
       } else if (reportData.radarHTML) {

@@ -24,13 +24,24 @@ export function App() {
       const hash = window.location.hash.toLowerCase();
       const search = window.location.search;
 
-      if (hash.includes("#/assessment") || hash.includes("#/xxfg") || path.includes("index.html")) {
+      if (path.includes("admin.html") || hash.includes("#/admin") || path === "/admin") {
+        window.location.replace("/admin.html");
+        return;
+      }
+      if (path.includes("portal.html") || path === "/portal") {
+        window.location.replace("/portal.html");
+        return;
+      }
+      if (path.includes("report.html")) {
+        window.location.replace(`/report.html${search}`);
+        return;
+      }
+
+      if (hash.includes("#/assessment") || hash.includes("#/xxfg")) {
         setRoute("assessment");
-      } else if (hash.includes("#/report") || path.includes("report.html")) {
+      } else if (hash.includes("#/report")) {
         setRoute("report");
-      } else if (hash.includes("#/admin") || path.includes("admin.html")) {
-        setRoute("admin");
-      } else if (hash.includes("#/portal") || path.includes("portal.html")) {
+      } else if (hash.includes("#/portal")) {
         setRoute("portal");
       } else {
         // 默认根据参数智能选择

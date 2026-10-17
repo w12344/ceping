@@ -10,6 +10,7 @@
   <script src="/assets/api-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </head>
 <body class="admin-body">
   <!-- 顶部导航条 -->
@@ -105,6 +106,10 @@
         </div>
 
         <div class="toolbar-actions">
+          <button id="batchExportBtn" class="btn outline-gold-btn batch-export-btn" disabled title="请先在下方勾选需要导出的测评记录">
+            <span class="btn-icon">📦</span> 批量导出报告
+            <span id="batchCountBadge" class="batch-badge" style="display:none">0</span>
+          </button>
           <button id="exportCsvBtn" class="btn primary-gold-btn">
             导出 CSV
           </button>
@@ -124,7 +129,7 @@
           </thead>
           <tbody id="sessionTableBody">
             <tr>
-              <td colspan="8" class="table-empty">正在加载测评数据...</td>
+              <td colspan="10" class="table-empty">正在加载测评数据...</td>
             </tr>
           </tbody>
         </table>
@@ -240,6 +245,119 @@
     </div>
   </div>
 
-  <script type="module" src="assets/admin.js?v=20260813_v500"></script>
+  <!-- 底部吸附浮动操作栏 (苹果流光晶态毛玻璃样式) -->
+  <aside id="batchActionBar" class="batch-action-bar" hidden>
+    <div class="batch-action-inner">
+      <div class="batch-action-info">
+        <span class="batch-pill-icon">📋</span>
+        <span class="batch-pill-text">已选中 <strong id="batchSelectedCount" class="batch-highlight-num">0</strong> 份测评报告</span>
+      </div>
+      <div class="batch-action-btns">
+        <button type="button" id="batchBarZipBtn" class="batch-act-btn batch-act-primary">
+          <span>📦</span> 打包 ZIP 下载
+        </button>
+        <button type="button" id="batchBarCsvBtn" class="batch-act-btn batch-act-subtle">
+          <span>📊</span> 导出选中数据 (CSV)
+        </button>
+        <button type="button" id="batchClearSelectionBtn" class="batch-act-btn batch-act-link">
+          取消全选
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 批量导出控制与进度模态框 -->
+  <div id="batchExportModal" class="modal-overlay" hidden>
+    <div class="modal-content batch-export-modal-card">
+      <!-- 1. 模式与格式选择面板 -->
+      <div id="batchExportOptionsView">
+        <div class="modal-header">
+          <div class="modal-header-left">
+            <h2>批量导出测评诊断报告</h2>
+            <span id="batchModalTargetCount" class="tag-badge" style="background:#FEF3C7;color:#92400E;font-weight:700">已选 0 份报告</span>
+          </div>
+          <button id="closeBatchExportModalBtn" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body batch-export-body">
+          <p class="download-format-desc">请选择批量导出的文件形式：</p>
+          <div class="format-options-grid">
+            <button type="button" class="format-option-card" id="batchOptionZipPdfBtn">
+              <div class="format-icon pdf-icon">📦</div>
+              <div class="format-info">
+                <div class="format-title-row">
+                  <strong class="format-title">打包为 ZIP 压缩包 (PDF 诊断报告)</strong>
+                  <span class="format-badge pdf-badge">首选推荐 · 免拦截</span>
+                </div>
+                <p class="format-sub">将选中的所有学员 PDF 智能分页报告归档为一个压缩包，一键高速下载，不触发浏览器多弹窗限制。</p>
+              </div>
+              <span class="format-arrow">➔</span>
+            </button>
+
+            <button type="button" class="format-option-card" id="batchOptionCsvBtn">
+              <div class="format-icon" style="background:#F0FDF4;color:#16A34A;font-size:24px;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center">📊</div>
+              <div class="format-info">
+                <div class="format-title-row">
+                  <strong class="format-title">导出选中学员数据明细 (CSV)</strong>
+                  <span class="format-badge" style="background:#DCFCE7;color:#15803D">Excel / 数据分析</span>
+                </div>
+                <p class="format-sub">仅提取所选学员的详细得分、维度分析与提交记录，导出为标准 UTF-8 CSV 报表。</p>
+              </div>
+              <span class="format-arrow">➔</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. 导出进行中实时进度面板 -->
+      <div id="batchExportProgressView" hidden>
+        <div class="modal-header">
+          <div class="modal-header-left">
+            <h2>正在批量生成报告...</h2>
+            <span class="status-pill online">后台离屏渲染中</span>
+          </div>
+        </div>
+        <div class="modal-body batch-progress-body">
+          <div class="batch-progress-header">
+            <span id="batchProgressPercentText" class="batch-progress-percent">0%</span>
+            <span id="batchProgressCounterText" class="batch-progress-counter">0 / 0</span>
+          </div>
+          <div class="batch-progress-track">
+            <div id="batchProgressBarFill" class="batch-progress-fill" style="width: 0%"></div>
+          </div>
+          <div class="batch-progress-details">
+            <div class="batch-current-target">
+              <span class="batch-spinner"></span>
+              <span id="batchCurrentStudentText">准备开始...</span>
+            </div>
+            <p id="batchCurrentStepText" class="batch-step-desc">正在初始化渲染沙箱并加载图表数据...</p>
+          </div>
+          <div class="batch-progress-tip">
+            <span class="tip-icon">💡</span>
+            <span>温馨提示：系统正在进行 2x Retina 高清渲染与 DOM 防截断计算，批量导出过程中请勿关闭或刷新此页面。</span>
+          </div>
+          <div class="batch-progress-actions">
+            <button type="button" id="batchCancelExportBtn" class="btn text-btn" style="color:#DC2626">中止导出</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 导出完成提示面板 -->
+      <div id="batchExportSuccessView" hidden>
+        <div class="modal-body batch-success-body">
+          <div class="batch-success-icon">🎉</div>
+          <h3 class="batch-success-title">批量导出成功！</h3>
+          <p id="batchSuccessDesc" class="batch-success-desc">已成功生成并导出全部测评报告。</p>
+          <div class="batch-success-actions">
+            <button type="button" id="batchSuccessCloseBtn" class="btn primary-gold-btn" style="padding:10px 32px;font-size:14px;font-weight:800">完成</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 离屏批量渲染沙箱 (隐藏于可视区外，确保 html2canvas 稳定捕获图表与排版) -->
+  <div id="batchExportSandbox" class="batch-export-sandbox" aria-hidden="true"></div>
+
+  <script type="module" src="assets/admin.js?v=20260910_pdf_layout"></script>
 </body>
 </html>

@@ -367,6 +367,31 @@ function primaryType(scores,mechScores){const top=['meaning','autonomy','efficac
 function pointTitle(state,scores){const structure=resourceStructure(scores),positive=['meaning','autonomy','efficacy','method','support','execution'].map(k=>scores[k]);return state==='稳定成长态'&&Math.min(...positive)>=26&&structure.label==='资源均衡'?'优先升级方向':'优先发展点';}
 function tone(score,key){if(key==='emotion')return score>=25?'var(--coral)':score>=17?'var(--gold)':'var(--green)';return score>=26?'var(--teal)':score>=18?'var(--gold)':'var(--coral)';}
 
+function deriveRadarProfilesFromScores(scores) {
+  const keys = ["meaning", "autonomy", "efficacy", "method", "support", "execution"];
+  const core = {}, extension = {};
+  keys.forEach((k) => {
+    const s = Number(scores && scores[k]) || 0;
+    const clamped = Math.min(40, Math.max(0, s));
+    extension[k] = clamped;
+    if (clamped >= 36) {
+      core[k] = Math.round(clamped * 0.88);
+    } else if (clamped >= 28) {
+      core[k] = Math.round(clamped * 0.75);
+    } else if (clamped >= 20) {
+      core[k] = Math.round(clamped * 0.65);
+    } else if (clamped >= 12) {
+      core[k] = Math.round(clamped * 0.5);
+    } else {
+      core[k] = Math.round(clamped * 0.35);
+    }
+    if (clamped > 0 && clamped < 40 && core[k] >= extension[k]) {
+      core[k] = Math.max(0, extension[k] - 3);
+    }
+  });
+  return { core, extension };
+}
+
 function renderMotivationRadarToCanvas(canvas, scores, profiles) {
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
@@ -428,37 +453,82 @@ function renderMotivationRadarToCanvas(canvas, scores, profiles) {
     ctx.stroke();
   });
 
-  // 3. 绘制外延层多边形 (2-5分 潜在范围 - 琥珀金 #E9B44C)
-  const extProfile = (profiles && profiles.extension) ? profiles.extension : (scores || {});
+  // 3. 确定外延层与内核层数据 (Profiles)
+  let extProfile = (profiles && profiles.extension && Object.keys(profiles.extension).length) ? profiles.extension : null;
+  let coreProfile = (profiles && profiles.core && Object.keys(profiles.core).length) ? profiles.core : null;
+  if (!extProfile || !coreProfile) {
+    const derived = deriveRadarProfilesFromScores(scores);
+    extProfile = extProfile || derived.extension;
+    coreProfile = coreProfile || derived.core;
+  }
+
+  // 规整内核与外延：外延代表潜在能力上限，内核代表稳定显现习惯
+  const normalizedCore = {};
+  const normalizedExt = {};
+  keys.forEach((k) => {
+    const s = Number(scores && scores[k]) || 0;
+    let extVal = Number(extProfile[k]);
+    if (isNaN(extVal)) extVal = s;
+    let coreVal = Number(coreProfile[k]);
+    if (isNaN(coreVal)) coreVal = Math.round(extVal * 0.65);
+
+    if (coreVal > extVal) coreVal = extVal;
+    if (coreVal === extVal && extVal > 0 && extVal < 40) {
+      coreVal = Math.max(0, Math.round(extVal * 0.65));
+    }
+    normalizedExt[k] = Math.min(40, Math.max(0, extVal));
+    normalizedCore[k] = Math.min(40, Math.max(0, coreVal));
+  });
+
+  // 4. 绘制外延层多边形 (2-5分 潜在范围 - 琥珀金 #E9B44C)
   ctx.beginPath();
   keys.forEach((k, i) => {
-    const val = Number(extProfile[k]) || 0;
-    const [x, y] = getPt(i, (r * Math.min(40, Math.max(0, val))) / 40);
+    const val = normalizedExt[k];
+    const [x, y] = getPt(i, (r * val) / 40);
     if (i === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   });
   ctx.closePath();
-  ctx.fillStyle = "rgba(233, 180, 76, 0.22)";
+  ctx.fillStyle = "rgba(233, 180, 76, 0.25)";
   ctx.fill();
   ctx.strokeStyle = "#E9B44C";
   ctx.lineWidth = 2.5;
   ctx.stroke();
 
-  // 4. 绘制内核层多边形 (4-5分 稳定显现 - 翡翠绿 #6F9B51)
-  const coreProfile = (profiles && profiles.core) ? profiles.core : (scores || {});
+  // 外延顶点圆点标记
+  keys.forEach((k, i) => {
+    const val = normalizedExt[k];
+    const [x, y] = getPt(i, (r * val) / 40);
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = "#E9B44C";
+    ctx.fill();
+  });
+
+  // 5. 绘制内核层多边形 (4-5分 稳定显现 - 翡翠绿 #6F9B51)
   ctx.beginPath();
   keys.forEach((k, i) => {
-    const val = Number(coreProfile[k]) || 0;
-    const [x, y] = getPt(i, (r * Math.min(40, Math.max(0, val))) / 40);
+    const val = normalizedCore[k];
+    const [x, y] = getPt(i, (r * val) / 40);
     if (i === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   });
   ctx.closePath();
-  ctx.fillStyle = "rgba(111, 155, 81, 0.32)";
+  ctx.fillStyle = "rgba(111, 155, 81, 0.35)";
   ctx.fill();
   ctx.strokeStyle = "#6F9B51";
-  ctx.lineWidth = 3.5;
+  ctx.lineWidth = 3.2;
   ctx.stroke();
+
+  // 内核顶点圆点标记
+  keys.forEach((k, i) => {
+    const val = normalizedCore[k];
+    const [x, y] = getPt(i, (r * val) / 40);
+    ctx.beginPath();
+    ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = "#6F9B51";
+    ctx.fill();
+  });
 
   // 5. 绘制 6 个顶点维度中文标签
   ctx.font = 'bold 12.5px -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", Roboto, "Microsoft YaHei", sans-serif';
@@ -820,6 +890,7 @@ function currentReportPayload(){
     scores:normalizedScoreMap(scores),
     rawScores:cloneState(rawScores),
     mechScores:cloneState(mechScores),
+    radarProfiles:cloneState(artifacts.radarProfiles),
     supportIndex:Math.round(supportIndex/240*150),
     supportIndex100:support100,
     risk,
@@ -1031,7 +1102,26 @@ function cloneState(obj){return JSON.parse(JSON.stringify(obj||{}));}
     try {
       const assessment = (parsed && parsed.assessmentInfo) || {};
       const scores = reportData.rawScores || assessment.rawScores || reportData.scores || assessment.scores || {};
-      const profiles = reportData.radarProfiles || assessment.radarProfiles || {};
+      let profiles = reportData.radarProfiles || assessment.radarProfiles || null;
+
+      // 1. 若缺少 profiles，优先从作答题目数据精准计算还原
+      if (!profiles || !profiles.core || !profiles.extension || Object.keys(profiles.core).length === 0) {
+        const state = parseRecordState(parsed);
+        if (state && Object.keys(state.answers).length > 0) {
+          const fresh = buildReportArtifactsForState(state);
+          if (fresh && fresh.radarProfiles) {
+            profiles = fresh.radarProfiles;
+            reportData.radarProfiles = profiles;
+          }
+        }
+      }
+
+      // 2. 若仍缺少作答题，智能根据科学模型反推内核与外延双层数据
+      if (!profiles || !profiles.core || !profiles.extension || Object.keys(profiles.core).length === 0) {
+        profiles = deriveRadarProfilesFromScores(scores);
+        reportData.radarProfiles = profiles;
+      }
+
       if (scores && Object.keys(scores).length > 0) {
         reportData.radarHTML = radar(scores, profiles);
       }
@@ -1060,6 +1150,7 @@ function cloneState(obj){return JSON.parse(JSON.stringify(obj||{}));}
     isMotivationTemplate,
     parseRecord,
     resolveMotivationReport,
+    deriveRadarProfilesFromScores,
     renderMotivationRadarToCanvas,
     renderAllRadarCanvases,
     radar,

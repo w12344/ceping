@@ -647,11 +647,17 @@ async function setupAdvisorDropdown() {
     renderAdvisorItems();
     advisorDropdownList.style.display = "block";
     advisorContainer.classList.add("is-open");
+    if (window.FeifanAdvisorDropdown) {
+      window.FeifanAdvisorDropdown.open(advisorContainer, advisorDropdownList);
+    }
   }
 
   function closeDropdown() {
     advisorDropdownList.style.display = "none";
     advisorContainer.classList.remove("is-open");
+    if (window.FeifanAdvisorDropdown) {
+      window.FeifanAdvisorDropdown.close(advisorDropdownList);
+    }
   }
 
   function toggleDropdown(e) {
@@ -670,7 +676,7 @@ async function setupAdvisorDropdown() {
   byId("advisorToggleBtn")?.addEventListener("click", toggleDropdown);
 
   document.addEventListener("click", (e) => {
-    if (!advisorContainer.contains(e.target)) {
+    if (!advisorContainer.contains(e.target) && !advisorDropdownList.contains(e.target)) {
       closeDropdown();
     }
   });

@@ -309,6 +309,32 @@ const elements = {
   tableHeaderHead: document.getElementById("tableHeaderHead"),
   mobileCardList: document.getElementById("mobileCardList"),
 
+  // Batch Export & Selection
+  batchExportBtn: document.getElementById("batchExportBtn"),
+  batchCountBadge: document.getElementById("batchCountBadge"),
+  batchActionBar: document.getElementById("batchActionBar"),
+  batchSelectedCount: document.getElementById("batchSelectedCount"),
+  batchBarZipBtn: document.getElementById("batchBarZipBtn"),
+  batchBarCsvBtn: document.getElementById("batchBarCsvBtn"),
+  batchClearSelectionBtn: document.getElementById("batchClearSelectionBtn"),
+  batchExportModal: document.getElementById("batchExportModal"),
+  batchModalTargetCount: document.getElementById("batchModalTargetCount"),
+  closeBatchExportModalBtn: document.getElementById("closeBatchExportModalBtn"),
+  batchExportOptionsView: document.getElementById("batchExportOptionsView"),
+  batchOptionZipPdfBtn: document.getElementById("batchOptionZipPdfBtn"),
+  batchOptionCsvBtn: document.getElementById("batchOptionCsvBtn"),
+  batchExportProgressView: document.getElementById("batchExportProgressView"),
+  batchProgressPercentText: document.getElementById("batchProgressPercentText"),
+  batchProgressCounterText: document.getElementById("batchProgressCounterText"),
+  batchProgressBarFill: document.getElementById("batchProgressBarFill"),
+  batchCurrentStudentText: document.getElementById("batchCurrentStudentText"),
+  batchCurrentStepText: document.getElementById("batchCurrentStepText"),
+  batchCancelExportBtn: document.getElementById("batchCancelExportBtn"),
+  batchExportSuccessView: document.getElementById("batchExportSuccessView"),
+  batchSuccessDesc: document.getElementById("batchSuccessDesc"),
+  batchSuccessCloseBtn: document.getElementById("batchSuccessCloseBtn"),
+  batchExportSandbox: document.getElementById("batchExportSandbox"),
+
   // Modal
   reportModal: document.getElementById("reportModal"),
   modalReportTitle: document.getElementById("modalReportTitle"),
@@ -335,7 +361,10 @@ let state = {
   currentTab: "learningStyle",
   searchQuery: "",
   activeItem: null,
-  downloadItem: null
+  downloadItem: null,
+  selectedIds: new Set(),
+  isBatchExporting: false,
+  batchAbortRequested: false
 };
 
 function initCustomAssessmentUpload() {
@@ -552,6 +581,138 @@ function init() {
     });
   }
 
+  // 批量选择与全选联动
+  if (elements.tableHeaderHead) {
+    elements.tableHeaderHead.addEventListener("change", (e) => {
+      if (e.target && e.target.id === "selectAllCheckbox") {
+        const checked = e.target.checked;
+        const visibleList = getFilteredProjects();
+        visibleList.forEach(item => {
+          const id = String(item.id);
+          if (checked) {
+            state.selectedIds.add(id);
+          } else {
+            state.selectedIds.delete(id);
+          }
+        });
+        const rowCheckboxes = elements.sessionTableBody.querySelectorAll(".row-checkbox");
+        rowCheckboxes.forEach(cb => {
+          cb.checked = checked;
+          const tr = cb.closest("tr");
+          if (tr) tr.classList.toggle("is-selected-row", checked);
+        });
+        if (elements.mobileCardList) {
+          const mCheckboxes = elements.mobileCardList.querySelectorAll(".row-checkbox");
+          mCheckboxes.forEach(cb => {
+            cb.checked = checked;
+            const card = cb.closest(".m-record-card");
+            if (card) card.classList.toggle("is-selected-card", checked);
+          });
+        }
+        updateBatchSelectionUI();
+      }
+    });
+  }
+
+  elements.sessionTableBody.addEventListener("change", (e) => {
+    const cb = e.target.closest(".row-checkbox");
+    if (!cb) return;
+    const id = String(cb.getAttribute("data-id") || "");
+    if (!id) return;
+    if (cb.checked) {
+      state.selectedIds.add(id);
+    } else {
+      state.selectedIds.delete(id);
+    }
+    const tr = cb.closest("tr");
+    if (tr) tr.classList.toggle("is-selected-row", cb.checked);
+    updateBatchSelectionUI();
+  });
+
+  if (elements.mobileCardList) {
+    elements.mobileCardList.addEventListener("change", (e) => {
+      const cb = e.target.closest(".row-checkbox");
+      if (!cb) return;
+      const id = String(cb.getAttribute("data-id") || "");
+      if (!id) return;
+      if (cb.checked) {
+        state.selectedIds.add(id);
+      } else {
+        state.selectedIds.delete(id);
+      }
+      const card = cb.closest(".m-record-card");
+      if (card) card.classList.toggle("is-selected-card", cb.checked);
+      updateBatchSelectionUI();
+    });
+  }
+
+  // 顶部批量导出主按钮
+  if (elements.batchExportBtn) {
+    elements.batchExportBtn.addEventListener("click", openBatchExportModal);
+  }
+
+  // 底部浮动操作条事件 (仅保留打包 ZIP 与导出 CSV)
+  if (elements.batchBarZipBtn) {
+    elements.batchBarZipBtn.addEventListener("click", () => {
+      runBatchExportProcess();
+    });
+  }
+  if (elements.batchBarCsvBtn) {
+    elements.batchBarCsvBtn.addEventListener("click", () => {
+      exportSelectedToCSV();
+    });
+  }
+  if (elements.batchClearSelectionBtn) {
+    elements.batchClearSelectionBtn.addEventListener("click", () => {
+      state.selectedIds.clear();
+      renderTable();
+    });
+  }
+
+  // 批量模态框选项按钮 (仅保留打包 ZIP 与导出 CSV)
+  if (elements.batchOptionZipPdfBtn) {
+    elements.batchOptionZipPdfBtn.addEventListener("click", () => {
+      runBatchExportProcess();
+    });
+  }
+  if (elements.batchOptionCsvBtn) {
+    elements.batchOptionCsvBtn.addEventListener("click", () => {
+      exportSelectedToCSV();
+      closeBatchExportModal();
+    });
+  }
+
+  // 批量导出中断与关闭
+  if (elements.batchCancelExportBtn) {
+    elements.batchCancelExportBtn.addEventListener("click", () => {
+      if (confirm("确定要中止当前正在进行的批量导出吗？")) {
+        state.batchAbortRequested = true;
+      }
+    });
+  }
+  if (elements.batchSuccessCloseBtn) {
+    elements.batchSuccessCloseBtn.addEventListener("click", closeBatchExportModal);
+  }
+  if (elements.closeBatchExportModalBtn) {
+    elements.closeBatchExportModalBtn.addEventListener("click", () => {
+      if (state.isBatchExporting) {
+        if (confirm("当前正在导出报告，确定要关闭并中止导出吗？")) {
+          state.batchAbortRequested = true;
+          closeBatchExportModal();
+        }
+      } else {
+        closeBatchExportModal();
+      }
+    });
+  }
+  if (elements.batchExportModal) {
+    elements.batchExportModal.addEventListener("click", (e) => {
+      if (e.target === elements.batchExportModal && !state.isBatchExporting) {
+        closeBatchExportModal();
+      }
+    });
+  }
+
   fetchData();
 }
 
@@ -561,7 +722,7 @@ async function fetchData() {
     return;
   }
 
-  const loadingHtml = `<tr><td colspan="8" class="table-empty">正在加载测评数据...</td></tr>`;
+  const loadingHtml = `<tr><td colspan="10" class="table-empty">正在加载测评数据...</td></tr>`;
   elements.sessionTableBody.innerHTML = loadingHtml;
   if (elements.mobileCardList) {
     elements.mobileCardList.innerHTML = `<div class="table-empty">正在加载测评数据...</div>`;
@@ -673,7 +834,7 @@ function getRealisticDuration(item) {
   return `${mins}分${secs}秒`;
 }
 
-function renderTable() {
+function getFilteredProjects() {
   let list = state.allProjects;
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -689,7 +850,7 @@ function renderTable() {
   }
 
   if (state.searchQuery) {
-    const q = state.searchQuery;
+    const q = state.searchQuery.toLowerCase();
     list = list.filter(r => 
       (r.studentName && r.studentName.toLowerCase().includes(q)) ||
       (r.phoneNumber && r.phoneNumber.toLowerCase().includes(q)) ||
@@ -699,107 +860,161 @@ function renderTable() {
       (r.projectName && r.projectName.toLowerCase().includes(q))
     );
   }
+  return list;
+}
 
-  // 1. 动态渲染不同测评专属的 Table Header
+function updateBatchSelectionUI() {
+  const visibleList = getFilteredProjects();
+  const selectedCount = state.selectedIds.size;
+
+  // 1. 顶部工具栏批量导出按钮与数量角标
+  if (elements.batchExportBtn) {
+    elements.batchExportBtn.disabled = selectedCount === 0;
+    elements.batchExportBtn.title = selectedCount === 0 ? "请先在下方勾选需要导出的测评记录" : `已选择 ${selectedCount} 份报告，点击进行批量导出`;
+  }
+  if (elements.batchCountBadge) {
+    if (selectedCount > 0) {
+      elements.batchCountBadge.textContent = String(selectedCount);
+      elements.batchCountBadge.style.display = "inline-block";
+    } else {
+      elements.batchCountBadge.style.display = "none";
+    }
+  }
+
+  // 2. 底部浮动吸附操作条
+  if (elements.batchActionBar) {
+    elements.batchActionBar.hidden = selectedCount === 0;
+  }
+  if (elements.batchSelectedCount) {
+    elements.batchSelectedCount.textContent = String(selectedCount);
+  }
+
+  // 3. 模态框标题数量
+  if (elements.batchModalTargetCount) {
+    elements.batchModalTargetCount.textContent = `已选 ${selectedCount} 份报告`;
+  }
+
+  // 4. 表头全选 Checkbox 状态联动 (支持勾选、未选、半选 indeterminate)
+  const selectAllCheckbox = document.getElementById("selectAllCheckbox");
+  if (selectAllCheckbox) {
+    if (visibleList.length === 0) {
+      selectAllCheckbox.checked = false;
+      selectAllCheckbox.indeterminate = false;
+    } else {
+      const visibleSelectedCount = visibleList.filter(item => state.selectedIds.has(String(item.id))).length;
+      if (visibleSelectedCount === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+      } else if (visibleSelectedCount === visibleList.length) {
+        selectAllCheckbox.checked = true;
+        selectAllCheckbox.indeterminate = false;
+      } else {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = true;
+      }
+    }
+  }
+}
+
+function renderTable() {
+  const list = getFilteredProjects();
+
+  // 1. 动态渲染不同测评专属的 Table Header (第一列统一为全选 Checkbox)
   if (elements.tableHeaderHead) {
-    let headerHTML = "";
+    let headerCols = "";
     if (state.currentTab === "learningStyle") {
-      headerHTML = `
-        <tr>
-          <th>学员姓名</th>
-          <th>手机号</th>
-          <th>年级 / 专向 / 分数段</th>
-          <th>目标学科 (成绩)</th>
-          <th>归属顾问</th>
-          <th>学习风格通道与结论</th>
-          <th>答题情况</th>
-          <th>测评时间</th>
-          <th>操作</th>
-        </tr>
+      headerCols = `
+        <th>学员姓名</th>
+        <th>手机号</th>
+        <th>年级 / 专向 / 分数段</th>
+        <th>目标学科 (成绩)</th>
+        <th>归属顾问</th>
+        <th>学习风格通道与结论</th>
+        <th>答题情况</th>
+        <th>测评时间</th>
+        <th>操作</th>
       `;
     } else if (state.currentTab === "motivation") {
-      headerHTML = `
-        <tr>
-          <th>学员姓名</th>
-          <th>手机号</th>
-          <th>年级 / 专向</th>
-          <th>动机诊断分型</th>
-          <th>归属顾问</th>
-          <th>核心主导驱动力</th>
-          <th>答题时长</th>
-          <th>测评时间</th>
-          <th>操作</th>
-        </tr>
+      headerCols = `
+        <th>学员姓名</th>
+        <th>手机号</th>
+        <th>年级 / 专向</th>
+        <th>动机诊断分型</th>
+        <th>归属顾问</th>
+        <th>核心主导驱动力</th>
+        <th>答题时长</th>
+        <th>测评时间</th>
+        <th>操作</th>
       `;
     } else if (state.currentTab === "fthBoss") {
-      headerHTML = `
-        <tr>
-          <th>创业者姓名</th>
-          <th>联系电话</th>
-          <th>特质排序</th>
-          <th>核心主分型</th>
-          <th>次分型与辅助倾向</th>
-          <th>答题时长</th>
-          <th>测评时间</th>
-          <th>操作</th>
-        </tr>
+      headerCols = `
+        <th>创业者姓名</th>
+        <th>联系电话</th>
+        <th>特质排序</th>
+        <th>核心主分型</th>
+        <th>次分型与辅助倾向</th>
+        <th>答题时长</th>
+        <th>测评时间</th>
+        <th>操作</th>
       `;
     } else if (state.currentTab === "fthTalent") {
-      headerHTML = `
-        <tr>
-          <th>测评人姓名</th>
-          <th>微信/联系电话</th>
-          <th>特质编码</th>
-          <th>当前分型</th>
-          <th>团队定位与核心结论</th>
-          <th>答题时长</th>
-          <th>测评时间</th>
-          <th>操作</th>
-        </tr>
+      headerCols = `
+        <th>测评人姓名</th>
+        <th>微信/联系电话</th>
+        <th>特质编码</th>
+        <th>当前分型</th>
+        <th>团队定位与核心结论</th>
+        <th>答题时长</th>
+        <th>测评时间</th>
+        <th>操作</th>
       `;
     } else if (state.currentTab === "fth1605") {
-      headerHTML = `
-        <tr>
-          <th>研发人才姓名</th>
-          <th>联系电话</th>
-          <th>1605 研发特质</th>
-          <th>权威交付产物</th>
-          <th>答题时长</th>
-          <th>测评时间</th>
-          <th>操作</th>
-        </tr>
+      headerCols = `
+        <th>研发人才姓名</th>
+        <th>联系电话</th>
+        <th>1605 研发特质</th>
+        <th>权威交付产物</th>
+        <th>答题时长</th>
+        <th>测评时间</th>
+        <th>操作</th>
       `;
     } else {
-      headerHTML = `
-        <tr>
-          <th>学员姓名</th>
-          <th>手机号</th>
-          <th>年级 / 专向</th>
-          <th>诊断结论 / 特质</th>
-          <th>归属顾问</th>
-          <th>答题时长</th>
-          <th>测评时间</th>
-          <th>操作</th>
-        </tr>
+      headerCols = `
+        <th>学员姓名</th>
+        <th>手机号</th>
+        <th>年级 / 专向</th>
+        <th>诊断结论 / 特质</th>
+        <th>归属顾问</th>
+        <th>答题时长</th>
+        <th>测评时间</th>
+        <th>操作</th>
       `;
     }
-    elements.tableHeaderHead.innerHTML = headerHTML;
+    elements.tableHeaderHead.innerHTML = `
+      <tr>
+        <th class="col-checkbox"><input type="checkbox" id="selectAllCheckbox" title="全选 / 反选当前页记录"></th>
+        ${headerCols}
+      </tr>
+    `;
   }
 
   if (list.length === 0) {
     elements.sessionTableBody.innerHTML = `
       <tr>
-        <td colspan="9" class="table-empty">没有匹配的测评报告记录</td>
+        <td colspan="10" class="table-empty">没有匹配的测评报告记录</td>
       </tr>
     `;
     if (elements.mobileCardList) {
       elements.mobileCardList.innerHTML = `<div class="table-empty">没有匹配的测评报告记录</div>`;
     }
+    updateBatchSelectionUI();
     return;
   }
 
-  // 2. 桌面端动态渲染专有表格行
+  // 2. 桌面端动态渲染专有表格行 (首列统一为单选 Checkbox，并附带选中高亮类名)
   elements.sessionTableBody.innerHTML = list.map(item => {
+    const isSelected = state.selectedIds.has(String(item.id));
+    const checkCol = `<td class="col-checkbox"><input type="checkbox" class="row-checkbox" data-id="${esc(item.id)}" ${isSelected ? "checked" : ""}></td>`;
     const timeStr = item.submittedAt ? formatTime(item.submittedAt) : "--";
     const durationText = getRealisticDuration(item);
     const subjectScoreText = item.targetSubject !== "--"
@@ -815,7 +1030,8 @@ function renderTable() {
       const durationCol = `${item.answersCount ? '<span style="font-size:11.5px;font-weight:700;color:#166534;background:#DCFCE7;padding:2px 6px;border-radius:4px">' + item.answersCount + '题全</span><br>' : ''}${durationText}`;
 
       return `
-        <tr>
+        <tr class="${isSelected ? "is-selected-row" : ""}">
+          ${checkCol}
           <td>${studentNameCol}</td>
           <td>${esc(item.phoneNumber)}</td>
           <td>${gradeCol}</td>
@@ -842,7 +1058,8 @@ function renderTable() {
       const conclusionCol = `<span style="color:#0284C7;font-weight:700">7大动机维度全面诊断</span>`;
 
       return `
-        <tr>
+        <tr class="${isSelected ? "is-selected-row" : ""}">
+          ${checkCol}
           <td>${studentNameCol}</td>
           <td>${esc(item.phoneNumber)}</td>
           <td>${gradeCol}</td>
@@ -867,7 +1084,8 @@ function renderTable() {
       const tType = item.reportData?.thirdType ? item.reportData.thirdType.cn : "分析型";
 
       return `
-        <tr>
+        <tr class="${isSelected ? "is-selected-row" : ""}">
+          ${checkCol}
           <td><strong>${esc(item.studentName)}</strong></td>
           <td>${esc(item.phoneNumber)}</td>
           <td><span style="background:#FFFBE9;border:1px solid #FDE68A;color:#D97706;padding:3px 10px;border-radius:9999px;font-weight:900;font-size:12px">${esc(item.reportData?.traitOrder || "FTH")}</span></td>
@@ -888,7 +1106,8 @@ function renderTable() {
     if (item.projectKey === "fthTalent") {
       const pType = item.reportData?.primaryType ? `${item.reportData.primaryType.cn} ${item.reportData.primaryType.en}` : "进取行动派";
       return `
-        <tr>
+        <tr class="${isSelected ? "is-selected-row" : ""}">
+          ${checkCol}
           <td><strong>${esc(item.studentName)}</strong></td>
           <td>${esc(item.phoneNumber)}</td>
           <td><span style="background:#E0F2FE;border:1px solid #BAE6FD;color:#0284C7;padding:3px 10px;border-radius:9999px;font-weight:900;font-size:12px">${esc(item.reportData?.traitOrder || "FTH-T12")}</span></td>
@@ -908,7 +1127,8 @@ function renderTable() {
 
     if (item.projectKey === "fth1605") {
       return `
-        <tr>
+        <tr class="${isSelected ? "is-selected-row" : ""}">
+          ${checkCol}
           <td><strong>${esc(item.studentName)}</strong></td>
           <td>${esc(item.phoneNumber)}</td>
           <td><strong style="color:#7C3AED;font-size:14px">${esc(item.detailSummary || "AI/研发特质型")}</strong></td>
@@ -927,7 +1147,8 @@ function renderTable() {
     }
 
     return `
-      <tr>
+      <tr class="${isSelected ? "is-selected-row" : ""}">
+        ${checkCol}
         <td><strong>${esc(item.studentName)}</strong></td>
         <td>${esc(item.phoneNumber)}</td>
         <td>${esc(item.grade)}</td>
@@ -949,6 +1170,7 @@ function renderTable() {
   // 3. 移动端原生卡片列表渲染
   if (elements.mobileCardList) {
     elements.mobileCardList.innerHTML = list.map(item => {
+      const isSelected = state.selectedIds.has(String(item.id));
       const timeStr = item.submittedAt ? formatTime(item.submittedAt) : "--";
       const durationText = getRealisticDuration(item);
       const subjectScoreText = item.targetSubject !== "--"
@@ -956,10 +1178,13 @@ function renderTable() {
         : (item.scoreText !== "--" ? esc(item.scoreText) : "--");
 
       return `
-        <div class="m-record-card">
+        <div class="m-record-card ${isSelected ? "is-selected-card" : ""}">
           <div class="m-card-header">
             <div class="m-student-info">
-              <span class="m-student-name">${esc(item.studentName)}</span>
+              <label class="m-checkbox-label">
+                <input type="checkbox" class="row-checkbox" data-id="${esc(item.id)}" ${isSelected ? "checked" : ""}>
+                <span class="m-student-name">${esc(item.studentName)}</span>
+              </label>
               <span class="tag-badge ${item.projectTagClass}">${esc(item.projectName)}</span>
             </div>
             <span class="m-time">${timeStr}</span>
@@ -1003,6 +1228,9 @@ function renderTable() {
       `;
     }).join("");
   }
+
+  // 4. 更新批量选择与操作栏 UI
+  updateBatchSelectionUI();
 }
 
 function storeLearningStylePreview(item) {
@@ -1178,88 +1406,88 @@ function closeDownloadFormatModal() {
   state.downloadItem = null;
 }
 
-// 智能 DOM 避让分页算法：精细化避让单行/单条目，绝不大面积留白，绝不截断文字
+// PDF 截图分页：行框和图表是硬约束，卡片只在不会产生大片留白时整体避让。
 function calculateSmartPageBreaks(reportNode, canvas, pageWidthPt = 595.28, pageHeightPt = 841.89) {
-  const contentWidth = canvas.width;
-  const contentHeight = canvas.height;
-  const nodeWidth = reportNode.offsetWidth || reportNode.scrollWidth || 800;
-  const scale = contentWidth / nodeWidth;
-  const maxPageHeightCanvasPx = (pageHeightPt / pageWidthPt) * contentWidth;
-
-  // 仅对细粒度原子块（单段文本、单个机制条、单个小卡片、标题等）进行防截断保护，大卡片容器允许自然跨页
-  const selector = [
-    ".mechanism",
-    ".detail-section",
-    ".advice-path",
-    ".score-type",
-    ".portrait-item",
-    ".strength-card",
-    ".state-bar-row",
-    ".bar-row",
-    ".score-card",
-    ".report-stat-row",
-    "h1", "h2", "h3", "h4",
-    "p"
-  ].join(", ");
-
   const reportRect = reportNode.getBoundingClientRect();
-  const avoidBoxes = [];
-  const elementsToAvoid = reportNode.querySelectorAll(selector);
-
-  // 单个受保护原子元素的最大高度限制 (如 180px)，大容器不纳入，避免整页大面积留白
-  const maxAtomicHeight = 180 * scale;
-
-  elementsToAvoid.forEach((el) => {
-    const rect = el.getBoundingClientRect();
-    if (rect.height <= 0 || rect.width <= 0) return;
-    const top = (rect.top - reportRect.top + (reportNode.scrollTop || 0)) * scale;
-    const bottom = (rect.bottom - reportRect.top + (reportNode.scrollTop || 0)) * scale;
-    const height = bottom - top;
-
-    // 仅收集高度合理的小型原子元素
-    if (height > 6 && height <= maxAtomicHeight) {
-      avoidBoxes.push({ top, bottom, height });
-    }
+  const scale = canvas.width / (reportRect.width || reportNode.offsetWidth || 800);
+  const pageCapacity = Math.floor(pageHeightPt / pageWidthPt * canvas.width);
+  const doc = reportNode.ownerDocument || document;
+  const hard = [];
+  const soft = [];
+  // 两个 viewport 坐标相减即为截图坐标，不能再叠加页面 scrollTop。
+  const box = rect => ({
+    top: Math.max(0, Math.floor((rect.top - reportRect.top) * scale)),
+    bottom: Math.min(canvas.height, Math.ceil((rect.bottom - reportRect.top) * scale))
   });
-
-  const breakPoints = [0];
-  let currentY = 0;
-  // 单次最大允许回退距离 (不超过 120px 物理高度)，严格杜绝页面大片空白
-  const maxAllowedShift = 120 * scale;
-
-  while (currentY + maxPageHeightCanvasPx < contentHeight) {
-    const targetY = currentY + maxPageHeightCanvasPx;
-    let bestCutY = targetY;
-
-    // 查找被 targetY 穿过（切割）的最小原子元素
-    let intersectedBox = null;
-    for (const box of avoidBoxes) {
-      if (box.top < targetY && box.bottom > targetY) {
-        // 如果有多个嵌套元素被切，优先选择最内层/高度较小且切入较深的元素
-        if (!intersectedBox || (box.top > intersectedBox.top && box.height < intersectedBox.height)) {
-          intersectedBox = box;
-        }
-      }
+  const visible = el => {
+    const style = doc.defaultView.getComputedStyle(el);
+    return style.visibility !== 'hidden' && style.display !== 'none';
+  };
+  const walker = doc.createTreeWalker(reportNode, 4);
+  const range = doc.createRange();
+  let textNode;
+  // Range 返回每一行文字的边界，长段落可以在行间续排，不必整体搬页。
+  while ((textNode = walker.nextNode())) {
+    if (!textNode.textContent.trim() || !visible(textNode.parentElement)) continue;
+    range.selectNodeContents(textNode);
+    for (const rect of range.getClientRects()) {
+      if (rect.width > 0 && rect.height > 0) hard.push(box(rect));
     }
-
-    if (intersectedBox) {
-      const shiftDistance = targetY - intersectedBox.top;
-      // 只有当向上微调距离在合理范围内 (≤ maxAllowedShift) 时才进行微调回退
-      if (shiftDistance > 0 && shiftDistance <= maxAllowedShift) {
-        bestCutY = Math.max(currentY + 40, intersectedBox.top - 4 * scale);
-      }
-    }
-
-    // 防死循环与最小步进保障
-    if (bestCutY <= currentY + 100) {
-      bestCutY = currentY + maxPageHeightCanvasPx;
-    }
-
-    currentY = bestCutY;
-    breakPoints.push(currentY);
   }
+  reportNode.querySelectorAll('img, svg, canvas, .bar-row, .state-bar-row').forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (visible(el) && rect.width > 0 && rect.height > 0) hard.push(box(rect));
+  });
+  // 标题/标签连同下一行保护，避免标题独留页尾。
+  reportNode.querySelectorAll('h1,h2,h3,h4,h5,h6,.section-card-header,.detail-label,.action-item-label').forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (!visible(el) || !rect.height) return;
+    const heading = box(rect);
+    const nextLine = hard.filter(b => b.top >= heading.bottom && b.top - heading.bottom < 60 * scale)
+      .sort((a, b) => a.top - b.top)[0];
+    if (nextLine) hard.push({ top: heading.top, bottom: nextLine.bottom });
+  });
+  reportNode.querySelectorAll('.dimension-card,.mode-card,.mode-detail-card,.portrait-item,.strength-card,.summary-box,.task-card-wrapper,.action-plan-card,.report-info-card,.report-hero-card,.score-grid,.motivation-radar-wrapper,.detail-section,.advice-path,p,li,tr').forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (visible(el) && rect.width > 0 && rect.height > 0) soft.push(box(rect));
+  });
+  // 合并重叠的行框（同一行不同字号、双栏文字），保留真正的行间空隙。
+  const protectedBands = [];
+  for (const band of hard.sort((a, b) => a.top - b.top)) {
+    const last = protectedBands[protectedBands.length - 1];
+    if (last && band.top < last.bottom) last.bottom = Math.max(last.bottom, band.bottom);
+    else protectedBands.push({ ...band });
+  }
+  function safeCut(target, start) {
+    const band = protectedBands.find(b => b.top < target && b.bottom > target);
+    // 超过一整页的图表无法完整放入单页，保持前进；正常文字始终在行框外切分。
+    return band && band.top > start ? band.top : target;
+  }
+  const breaks = [0];
+  let start = 0;
+  while (canvas.height - start > pageCapacity) {
+    const limit = start + pageCapacity;
+    let cut = safeCut(limit, start);
+    const minimumFill = start + pageCapacity * 0.90;
+    const candidates = soft.filter(b => b.top < cut && b.bottom > cut)
+      .map(b => safeCut(b.top, start)).filter(y => y >= minimumFill);
+    if (candidates.length) cut = Math.min(...candidates);
+    cut = Math.floor(cut);
+    if (cut <= start) cut = limit;
+    breaks.push(cut);
+    start = cut;
+  }
+  return breaks;
+}
 
-  return breakPoints;
+// 截图仅包含报告正文，避免把预览侧栏及其空列带进 PDF / PNG。
+function getReportCaptureNode(reportNode) {
+  return reportNode.querySelector(".report-content-area, .report-main-container") || reportNode;
+}
+
+async function waitForReportAssets(reportNode) {
+  await reportNode.ownerDocument.fonts?.ready;
+  await Promise.all(Array.from(reportNode.querySelectorAll("img"), image => image.decode().catch(() => {})));
 }
 
 // 统一执行报告下载 (format: "pdf" | "png")
@@ -1305,6 +1533,8 @@ async function downloadReportAs(item, format = "pdf") {
         elements.downloadLoadingText.textContent = `正在进行超清画质渲染 (2x Retina)...`;
       }
 
+      reportNode = getReportCaptureNode(reportNode);
+      await waitForReportAssets(reportNode);
       const win = reportNode.ownerDocument?.defaultView || window;
       if (win.MotivationReportEngine && typeof win.MotivationReportEngine.renderAllRadarCanvases === "function") {
         win.MotivationReportEngine.renderAllRadarCanvases(reportNode);
@@ -1343,43 +1573,7 @@ async function downloadReportAs(item, format = "pdf") {
 
         const jsPDFConstructor = window.jspdf?.jsPDF || window.jsPDF;
         if (typeof jsPDFConstructor === "function") {
-          const pageWidth = 595.28;
-          const pageHeight = 841.89;
-          const pdf = new jsPDFConstructor("p", "pt", "a4");
-
-          const breakPoints = calculateSmartPageBreaks(reportNode, canvas, pageWidth, pageHeight);
-
-          for (let i = 0; i < breakPoints.length; i++) {
-            const startY = breakPoints[i];
-            const endY = (i < breakPoints.length - 1) ? breakPoints[i + 1] : canvas.height;
-            const sliceHeight = endY - startY;
-
-            if (sliceHeight <= 0) continue;
-
-            const pageCanvas = document.createElement("canvas");
-            pageCanvas.width = canvas.width;
-            pageCanvas.height = sliceHeight;
-            const pctx = pageCanvas.getContext("2d");
-
-            pctx.fillStyle = "#FFFDF6";
-            pctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-
-            pctx.drawImage(
-              canvas,
-              0, startY, canvas.width, sliceHeight,
-              0, 0, canvas.width, sliceHeight
-            );
-
-            const sliceImgData = pageCanvas.toDataURL("image/jpeg", 0.95);
-            const pdfImgHeight = (pageWidth / canvas.width) * sliceHeight;
-
-            if (i > 0) {
-              pdf.addPage();
-            }
-
-            pdf.addImage(sliceImgData, "JPEG", 0, 0, pageWidth, pdfImgHeight);
-          }
-
+          const pdf = buildReportPdfDocument(reportNode, canvas);
           pdf.save(`${studentClean}_${projectClean}_完整诊断报告.pdf`);
         } else {
           // 若 jsPDF 加载失败，降级唤起浏览器打印对话框保存为 PDF
@@ -1411,6 +1605,445 @@ async function downloadReportAs(item, format = "pdf") {
   }, delayMs);
 }
 
+// 统一智能防截断 PDF 组装引擎 (单份下载与批量导出 100% 共享)
+function buildReportPdfDocument(reportNode, canvas) {
+  const jsPDFConstructor = window.jspdf?.jsPDF || window.jsPDF;
+  if (typeof jsPDFConstructor !== "function") {
+    throw new Error("jsPDF 引擎未就绪");
+  }
+
+  const pageWidth = 595.28;
+  const pageHeight = 841.89;
+  const pdf = new jsPDFConstructor("p", "pt", "a4");
+
+  const breakPoints = calculateSmartPageBreaks(reportNode, canvas, pageWidth, pageHeight);
+
+  for (let i = 0; i < breakPoints.length; i++) {
+    const startY = breakPoints[i];
+    const endY = (i < breakPoints.length - 1) ? breakPoints[i + 1] : canvas.height;
+    const sliceHeight = endY - startY;
+
+    if (sliceHeight <= 0) continue;
+
+    const pageCanvas = document.createElement("canvas");
+    pageCanvas.width = canvas.width;
+    pageCanvas.height = sliceHeight;
+    const pctx = pageCanvas.getContext("2d");
+
+    pctx.fillStyle = "#FFFDF6";
+    pctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+
+    pctx.drawImage(
+      canvas,
+      0, startY, canvas.width, sliceHeight,
+      0, 0, canvas.width, sliceHeight
+    );
+
+    const sliceImgData = pageCanvas.toDataURL("image/jpeg", 0.95);
+    const pdfImgHeight = (pageWidth / canvas.width) * sliceHeight;
+
+    if (i > 0) {
+      pdf.addPage();
+    }
+
+    pdf.addImage(sliceImgData, "JPEG", 0, 0, pageWidth, pdfImgHeight);
+  }
+
+  return pdf;
+}
+
+// ==========================================================================
+// 批量导出与多选操作核心业务逻辑
+// ==========================================================================
+
+function openBatchExportModal() {
+  const selectedCount = state.selectedIds.size;
+  if (selectedCount === 0) {
+    alert("请先在列表中勾选需要批量导出的测评记录！");
+    return;
+  }
+  if (elements.batchModalTargetCount) {
+    elements.batchModalTargetCount.textContent = `已选 ${selectedCount} 份报告`;
+  }
+  if (elements.batchExportOptionsView) elements.batchExportOptionsView.hidden = false;
+  if (elements.batchExportProgressView) elements.batchExportProgressView.hidden = true;
+  if (elements.batchExportSuccessView) elements.batchExportSuccessView.hidden = true;
+  if (elements.batchExportModal) elements.batchExportModal.hidden = false;
+}
+
+function closeBatchExportModal() {
+  if (elements.batchExportModal) elements.batchExportModal.hidden = true;
+  state.isBatchExporting = false;
+  state.batchAbortRequested = false;
+  if (elements.batchExportSandbox) elements.batchExportSandbox.innerHTML = "";
+}
+
+// 离屏沙箱报告节点捕获 (支持学习风格/动机报告 iframe 及 FTH DOM)
+async function captureReportItemForBatch(item, sandboxEl) {
+  if (!sandboxEl) {
+    throw new Error("离屏沙箱容器未就绪");
+  }
+  sandboxEl.innerHTML = "";
+  let reportNode = null;
+  let win = window;
+
+  if (item.projectKey === "learningStyle") {
+    const iframe = document.createElement("iframe");
+    iframe.src = learningStylePreviewUrl(item);
+    iframe.style.width = "1100px";
+    iframe.style.height = "2400px";
+    iframe.style.border = "none";
+    sandboxEl.appendChild(iframe);
+    reportNode = await waitForIframeReport(iframe, 16000);
+    win = iframe.contentWindow || window;
+  } else if (item.projectKey === "motivation") {
+    const iframe = document.createElement("iframe");
+    iframe.src = motivationPreviewUrl(item);
+    iframe.style.width = "1100px";
+    iframe.style.height = "2400px";
+    iframe.style.border = "none";
+    sandboxEl.appendChild(iframe);
+    reportNode = await waitForIframeReport(iframe, 16000);
+    win = iframe.contentWindow || window;
+    if (win.MotivationReportEngine && typeof win.MotivationReportEngine.renderAllRadarCanvases === "function" && reportNode) {
+      win.MotivationReportEngine.renderAllRadarCanvases(reportNode);
+    }
+  } else {
+    const wrapper = document.createElement("div");
+    wrapper.style.width = "1000px";
+    wrapper.style.margin = "0 auto";
+    wrapper.style.background = "#FFFDF6";
+    wrapper.innerHTML = renderAuthenticReportDOM(item);
+    sandboxEl.appendChild(wrapper);
+    reportNode = wrapper.querySelector("#captureReportContent") || wrapper;
+  }
+
+  if (!reportNode) {
+    throw new Error(`无法获取【${item.studentName}】的报告内容节点`);
+  }
+
+  reportNode = getReportCaptureNode(reportNode);
+  await waitForReportAssets(reportNode);
+
+  // 延时等待 CSS 与图表完全稳定
+  const delayMs = (item.projectKey === "learningStyle" || item.projectKey === "motivation") ? 950 : 350;
+  await new Promise(r => setTimeout(r, delayMs));
+
+  if (win.MotivationReportEngine && typeof win.MotivationReportEngine.renderAllRadarCanvases === "function") {
+    win.MotivationReportEngine.renderAllRadarCanvases(reportNode);
+  }
+
+  const html2canvasFunc = win.html2canvas || window.html2canvas;
+  if (typeof html2canvasFunc !== "function") {
+    throw new Error("html2canvas 引擎未就绪");
+  }
+
+  const canvas = await html2canvasFunc(reportNode, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: "#FFFDF6",
+    logging: false
+  });
+
+  return { reportNode, canvas };
+}
+
+// 零依赖原生纯 JS (PK0304 STORE) + JSZip 双模高可用打包器
+async function createZipBlob(fileEntries) {
+  // 1. 若外部 JSZip 库已加载，优先调用以提供最大兼容
+  if (typeof window !== "undefined" && window.JSZip) {
+    try {
+      const zip = new window.JSZip();
+      for (const entry of fileEntries) {
+        zip.file(entry.name, entry.data);
+      }
+      return await zip.generateAsync({ type: "blob" });
+    } catch (err) {
+      console.warn("JSZip 打包异常，启用原生零依赖 STORE 引擎:", err);
+    }
+  }
+
+  // 2. 原生零依赖 STORE Zip 引擎 (毫秒级零开销打包，支持各系统解压)
+  const crcTable = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let k = 0; k < 8; k++) {
+      c = ((c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1));
+    }
+    crcTable[i] = c >>> 0;
+  }
+
+  function getCrc32(bytes) {
+    let crc = -1;
+    for (let i = 0; i < bytes.length; i++) {
+      crc = (crc >>> 8) ^ crcTable[(crc ^ bytes[i]) & 0xFF];
+    }
+    return (crc ^ (-1)) >>> 0;
+  }
+
+  const textEncoder = new TextEncoder();
+  const localHeaders = [];
+  const centralHeaders = [];
+  let offset = 0;
+
+  for (const entry of fileEntries) {
+    let dataBytes;
+    if (entry.data instanceof Uint8Array) {
+      dataBytes = entry.data;
+    } else if (entry.data instanceof ArrayBuffer) {
+      dataBytes = new Uint8Array(entry.data);
+    } else if (entry.data instanceof Blob) {
+      const buf = await entry.data.arrayBuffer();
+      dataBytes = new Uint8Array(buf);
+    } else if (typeof entry.data === "string") {
+      dataBytes = textEncoder.encode(entry.data);
+    } else {
+      dataBytes = new Uint8Array(0);
+    }
+
+    const nameBytes = textEncoder.encode(entry.name);
+    const size = dataBytes.length;
+    const crc = getCrc32(dataBytes);
+
+    // Local file header (30 bytes + name)
+    const lh = new Uint8Array(30 + nameBytes.length);
+    const lhView = new DataView(lh.buffer);
+    lhView.setUint32(0, 0x04034b50, true);
+    lhView.setUint16(4, 20, true);
+    lhView.setUint16(6, 0x0800, true); // UTF-8 文件名
+    lhView.setUint16(8, 0, true); // STORE
+    lhView.setUint16(10, 0, true);
+    lhView.setUint16(12, 0, true);
+    lhView.setUint32(14, crc, true);
+    lhView.setUint32(18, size, true);
+    lhView.setUint32(22, size, true);
+    lhView.setUint16(26, nameBytes.length, true);
+    lhView.setUint16(28, 0, true);
+    lh.set(nameBytes, 30);
+
+    // Central directory header (46 bytes + name)
+    const cd = new Uint8Array(46 + nameBytes.length);
+    const cdView = new DataView(cd.buffer);
+    cdView.setUint32(0, 0x02014b50, true);
+    cdView.setUint16(4, 20, true);
+    cdView.setUint16(6, 20, true);
+    cdView.setUint16(8, 0x0800, true); // UTF-8 文件名
+    cdView.setUint16(10, 0, true); // STORE
+    cdView.setUint16(12, 0, true);
+    cdView.setUint16(14, 0, true);
+    cdView.setUint32(16, crc, true);
+    cdView.setUint32(20, size, true);
+    cdView.setUint32(24, size, true);
+    cdView.setUint16(28, nameBytes.length, true);
+    cdView.setUint16(30, 0, true);
+    cdView.setUint16(32, 0, true);
+    cdView.setUint16(34, 0, true);
+    cdView.setUint16(36, 0, true);
+    cdView.setUint32(38, 0, true);
+    cdView.setUint32(42, offset, true);
+    cd.set(nameBytes, 46);
+
+    localHeaders.push(lh);
+    localHeaders.push(dataBytes);
+    centralHeaders.push(cd);
+    offset += lh.length + dataBytes.length;
+  }
+
+  const cdOffset = offset;
+  let cdSize = 0;
+  for (const cd of centralHeaders) cdSize += cd.length;
+
+  // End of central directory record (22 bytes)
+  const eocd = new Uint8Array(22);
+  const eocdView = new DataView(eocd.buffer);
+  eocdView.setUint32(0, 0x06054b50, true);
+  eocdView.setUint16(4, 0, true);
+  eocdView.setUint16(6, 0, true);
+  eocdView.setUint16(8, fileEntries.length, true);
+  eocdView.setUint16(10, fileEntries.length, true);
+  eocdView.setUint32(12, cdSize, true);
+  eocdView.setUint32(16, cdOffset, true);
+  eocdView.setUint16(20, 0, true);
+
+  return new Blob([...localHeaders, ...centralHeaders, eocd], { type: "application/zip" });
+}
+
+// 执行批量导出核心队列 (纯 ZIP 封包模式，彻底告别单份文件弹窗拦截)
+async function runBatchExportProcess() {
+  const selectedItems = state.allProjects.filter(p => state.selectedIds.has(String(p.id)));
+  if (selectedItems.length === 0) {
+    alert("请先在列表中勾选需要批量导出的测评记录！");
+    return;
+  }
+
+  state.isBatchExporting = true;
+  state.batchAbortRequested = false;
+
+  // 切换 Modal 视图至进度面板
+  if (elements.batchExportOptionsView) elements.batchExportOptionsView.hidden = true;
+  if (elements.batchExportSuccessView) elements.batchExportSuccessView.hidden = true;
+  if (elements.batchExportProgressView) elements.batchExportProgressView.hidden = false;
+  if (elements.batchExportModal) elements.batchExportModal.hidden = false;
+
+  const total = selectedItems.length;
+  const generatedFiles = [];
+  let successCount = 0;
+  let failCount = 0;
+
+  try {
+    for (let i = 0; i < total; i++) {
+      if (state.batchAbortRequested) {
+        break;
+      }
+
+      const item = selectedItems[i];
+      const studentClean = (item.studentName || "学员").trim();
+      const projectClean = (item.projectName || "测评").trim();
+      const currentPercent = Math.round((i / total) * 100);
+
+      // 更新进度面板显示
+      if (elements.batchProgressPercentText) elements.batchProgressPercentText.textContent = `${currentPercent}%`;
+      if (elements.batchProgressCounterText) elements.batchProgressCounterText.textContent = `${i + 1} / ${total}`;
+      if (elements.batchProgressBarFill) elements.batchProgressBarFill.style.width = `${currentPercent}%`;
+      if (elements.batchCurrentStudentText) elements.batchCurrentStudentText.textContent = `${studentClean} · ${projectClean} (${i + 1}/${total})`;
+      if (elements.batchCurrentStepText) elements.batchCurrentStepText.textContent = `正在离屏沙箱加载页面与可视化图表...`;
+
+      try {
+        const { reportNode, canvas } = await captureReportItemForBatch(item, elements.batchExportSandbox);
+
+        if (state.batchAbortRequested) break;
+
+        if (elements.batchCurrentStepText) elements.batchCurrentStepText.textContent = `正在进行智能 DOM 排版防截断分页计算...`;
+        const pdf = buildReportPdfDocument(reportNode, canvas);
+        const fileName = `${studentClean}_${projectClean}_完整诊断报告.pdf`;
+        const pdfData = pdf.output("arraybuffer");
+        generatedFiles.push({ name: fileName, data: pdfData });
+        successCount++;
+      } catch (err) {
+        console.error(`导出【${studentClean}】报告失败:`, err);
+        failCount++;
+      } finally {
+        if (elements.batchExportSandbox) elements.batchExportSandbox.innerHTML = "";
+      }
+    }
+
+    if (state.batchAbortRequested) {
+      alert("批量导出已中止。");
+      closeBatchExportModal();
+      return;
+    }
+
+    // 封包并触发 ZIP 单文件极速下载
+    if (generatedFiles.length > 0) {
+      if (elements.batchProgressPercentText) elements.batchProgressPercentText.textContent = `99%`;
+      if (elements.batchProgressBarFill) elements.batchProgressBarFill.style.width = `99%`;
+      if (elements.batchCurrentStudentText) elements.batchCurrentStudentText.textContent = `正在封包生成 ZIP 压缩文件...`;
+      if (elements.batchCurrentStepText) elements.batchCurrentStepText.textContent = `正在将 ${generatedFiles.length} 份报告归档打包入 ZIP 文件，请稍候...`;
+
+      const zipBlob = await createZipBlob(generatedFiles);
+      const now = new Date();
+      const timeStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+      const tabName = TEMPLATE_META[state.currentTab]?.projectName || "非凡测评";
+      const zipName = `${tabName}_批量报告_${generatedFiles.length}份_${timeStr}.zip`;
+
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = zipName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    }
+
+    // 完成面板展示
+    if (elements.batchProgressPercentText) elements.batchProgressPercentText.textContent = `100%`;
+    if (elements.batchProgressBarFill) elements.batchProgressBarFill.style.width = `100%`;
+
+    setTimeout(() => {
+      if (elements.batchExportProgressView) elements.batchExportProgressView.hidden = true;
+      if (elements.batchExportSuccessView) elements.batchExportSuccessView.hidden = false;
+      if (elements.batchSuccessDesc) {
+        let msg = `已成功将 ${successCount} 份测评诊断报告归档打包下载！`;
+        if (failCount > 0) {
+          msg += `（其中 ${failCount} 份生成异常已跳过）`;
+        }
+        elements.batchSuccessDesc.textContent = msg;
+      }
+    }, 400);
+
+  } catch (globalErr) {
+    console.error("批量导出遇到全局异常:", globalErr);
+    alert(`批量导出遇到错误：${globalErr.message || "未知异常"}`);
+    closeBatchExportModal();
+  } finally {
+    state.isBatchExporting = false;
+    if (elements.batchExportSandbox) elements.batchExportSandbox.innerHTML = "";
+  }
+}
+
+// 导出所选记录为 CSV
+function exportSelectedToCSV() {
+  const selectedItems = state.allProjects.filter(p => state.selectedIds.has(String(p.id)));
+  if (selectedItems.length === 0) {
+    alert("请先勾选需要导出的测评记录！");
+    return;
+  }
+  const tabName = TEMPLATE_META[state.currentTab]?.projectName || "非凡测评";
+  exportItemsToCsv(selectedItems, `${tabName}_已选数据导出_${selectedItems.length}条.csv`);
+}
+
+// 通用客户端 CSV 数据导出生成器 (含 UTF-8 BOM 解决 Excel 中文乱码)
+function exportItemsToCsv(items, filename = "非凡测评数据导出.csv") {
+  const headers = [
+    "记录ID", "学员姓名", "联系电话", "年级", "专向", "分数段", 
+    "外语语种", "目标学科", "学科分数", "满分", "学习关注点", 
+    "归属顾问", "顾问手机", "测评项目代码", "测评项目名称", 
+    "诊断结论与核心分型", "答题时长", "测评提交时间"
+  ];
+
+  const rows = items.map(item => [
+    item.id || "",
+    item.studentName || "",
+    item.phoneNumber || "",
+    item.grade || "",
+    item.specialtyDirection || "",
+    item.scoreBand || "",
+    item.foreignLanguage || "",
+    item.targetSubject || "",
+    item.targetSubjectScore ?? "",
+    item.targetSubjectFullScore ?? "",
+    item.learningFocus || "",
+    item.advisorName || "",
+    item.advisorMobile || "",
+    item.templateCode || "",
+    item.projectName || "",
+    item.dominantModality || item.detailSummary || "",
+    getRealisticDuration(item),
+    item.submittedAt ? formatTime(item.submittedAt) : ""
+  ]);
+
+  const escapeCsv = (val) => {
+    const s = String(val ?? "").replace(/"/g, '""');
+    return `"${s}"`;
+  };
+
+  const csvContent = "\uFEFF" + [
+    headers.map(escapeCsv).join(","),
+    ...rows.map(r => r.map(escapeCsv).join(","))
+  ].join("\r\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
 // 保持向下兼容
 async function downloadReportImageOrFile(item) {
   openDownloadFormatModal(item);
@@ -1432,9 +2065,15 @@ function printFullReport(item) {
   }, 400);
 }
 
+// 全量导出当前 Tab 的 CSV 数据
 function handleExportCSV() {
-  const url = `/api/admin/export.csv`;
-  window.open(url, "_blank");
+  const visibleList = getFilteredProjects();
+  if (visibleList.length === 0) {
+    alert("当前列表没有可导出的测评数据！");
+    return;
+  }
+  const tabName = TEMPLATE_META[state.currentTab]?.projectName || "非凡测评";
+  exportItemsToCsv(visibleList, `${tabName}_全量数据导出_${visibleList.length}条.csv`);
 }
 
 function closeModal() {

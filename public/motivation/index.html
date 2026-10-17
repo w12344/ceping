@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#fbf7ef">
   <title>动力系统探索｜非凡教育</title>
-  <link rel="stylesheet" href="/assets/styles.css?v=20260819_back2">
-  <link rel="stylesheet" href="/assets/motivation.css?v=20260814_v720">
+  <link rel="stylesheet" href="/assets/styles.css?v=20260905_v807">
+  <link rel="stylesheet" href="/assets/motivation.css?v=20260905_v807">
   <script src="/assets/api-config.js"></script>
-  <script src="/assets/motivation-report-engine.js?v=20260815_v723"></script>
+  <script src="/assets/motivation-report-engine.js?v=20260905_v807"></script>
 
 </head>
 <body class="assessment-page motivation-page assessment-start-active">
@@ -1420,7 +1420,11 @@ document.querySelectorAll('[data-action="print-report"]').forEach(btn=>btn.addEv
     }
     dropdown.style.display = "block";
     container.classList.add("is-open");
-    liftAdvisorAboveKeyboard();
+    if (window.FeifanAdvisorDropdown) {
+      window.FeifanAdvisorDropdown.open(container, dropdown);
+    } else {
+      liftAdvisorAboveKeyboard();
+    }
   }
 
   function liftAdvisorAboveKeyboard() {
@@ -1466,6 +1470,9 @@ document.querySelectorAll('[data-action="print-report"]').forEach(btn=>btn.addEv
   function closeAdvisorDropdown() {
     dropdown.style.display = "none";
     container.classList.remove("is-open");
+    if (window.FeifanAdvisorDropdown) {
+      window.FeifanAdvisorDropdown.close(dropdown);
+    }
   }
 
   // 统一点击输入框或箭头按钮触发切换展开/收起

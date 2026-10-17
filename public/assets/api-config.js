@@ -37,6 +37,116 @@
     };
   }
 
+  // 归属顾问下拉：fixed 定位，避免被 overflow:hidden 滚动容器裁剪导致无法点击
+  if (!global.FeifanAdvisorDropdown) {
+    global.FeifanAdvisorDropdown = {
+      _active: null,
+      _bound: false,
+
+      position(container, dropdown) {
+        if (!container || !dropdown) return;
+        const anchor = container.querySelector(".advisor-input-box") || container.querySelector("input") || container;
+        const rect = anchor.getBoundingClientRect();
+        const visualH = global.visualViewport?.height || global.innerHeight;
+        const visualW = global.visualViewport?.width || global.innerWidth;
+        const spaceBelow = visualH - rect.bottom - 12;
+        const spaceAbove = rect.top - 12;
+        const openUp = spaceBelow < 180 && spaceAbove > spaceBelow;
+        const maxCap = 360;
+        const maxH = Math.min(maxCap, Math.max(160, openUp ? spaceAbove - 10 : spaceBelow - 10));
+        const left = Math.max(8, Math.min(rect.left, visualW - rect.width - 8));
+
+        dropdown.style.position = "fixed";
+        dropdown.style.left = `${left}px`;
+        dropdown.style.width = `${rect.width}px`;
+        dropdown.style.right = "auto";
+        dropdown.style.maxHeight = `${maxH}px`;
+        dropdown.style.zIndex = "10050";
+
+        if (openUp) {
+          dropdown.classList.add("open-upward");
+          dropdown.style.top = `${Math.max(8, rect.top - maxH - 6)}px`;
+          dropdown.style.bottom = "auto";
+        } else {
+          dropdown.classList.remove("open-upward");
+          dropdown.style.top = `${Math.min(rect.bottom + 6, visualH - 8)}px`;
+          dropdown.style.bottom = "auto";
+        }
+      },
+
+      scrollAnchorIntoView(container) {
+        if (!container) return;
+        const scrollParent = container.closest(".assessment-content-area");
+        if (scrollParent && scrollParent.scrollHeight > scrollParent.clientHeight) {
+          const parentRect = scrollParent.getBoundingClientRect();
+          const rect = container.getBoundingClientRect();
+          const offset = rect.top - parentRect.top - 24;
+          if (offset < 0 || rect.bottom > parentRect.bottom - 40) {
+            scrollParent.scrollBy({ top: offset, behavior: "smooth" });
+          }
+          return;
+        }
+        const rect = container.getBoundingClientRect();
+        const visualH = global.visualViewport?.height || global.innerHeight;
+        if (rect.top < 60 || rect.bottom > visualH - 40) {
+          global.scrollTo({
+            top: (global.pageYOffset || global.document.documentElement.scrollTop || 0) + rect.top - Math.max(55, visualH * 0.16),
+            behavior: "smooth"
+          });
+        }
+      },
+
+      open(container, dropdown) {
+        if (!container || !dropdown) return;
+        if (!dropdown.__advisorOrigin) {
+          dropdown.__advisorOrigin = { parent: dropdown.parentElement, next: dropdown.nextSibling };
+        }
+        if (dropdown.parentElement !== global.document.body) {
+          global.document.body.appendChild(dropdown);
+        }
+        this._active = { container, dropdown };
+        this.scrollAnchorIntoView(container);
+        this.position(container, dropdown);
+        if (global.document?.body) global.document.body.classList.add("advisor-dropdown-open");
+        if (!this._bound) {
+          this._bound = true;
+          const tick = () => {
+            if (this._active) this.position(this._active.container, this._active.dropdown);
+          };
+          global.addEventListener("resize", tick);
+          global.addEventListener("scroll", tick, true);
+          if (global.visualViewport) {
+            global.visualViewport.addEventListener("resize", tick);
+            global.visualViewport.addEventListener("scroll", tick);
+          }
+        }
+      },
+
+      close(dropdown) {
+        this._active = null;
+        if (!dropdown) return;
+        const origin = dropdown.__advisorOrigin;
+        if (origin?.parent && dropdown.parentElement === global.document.body) {
+          if (origin.next && origin.next.parentElement === origin.parent) {
+            origin.parent.insertBefore(dropdown, origin.next);
+          } else {
+            origin.parent.appendChild(dropdown);
+          }
+        }
+        dropdown.style.position = "";
+        dropdown.style.left = "";
+        dropdown.style.top = "";
+        dropdown.style.width = "";
+        dropdown.style.right = "";
+        dropdown.style.bottom = "";
+        dropdown.style.maxHeight = "";
+        dropdown.style.zIndex = "";
+        dropdown.classList.remove("open-upward");
+        if (global.document?.body) global.document.body.classList.remove("advisor-dropdown-open");
+      }
+    };
+  }
+
   if (!global.goBack) {
     global.goBack = function goBack() {
       if (global.CommonBridge?.goBack) {
